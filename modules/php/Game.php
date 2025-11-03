@@ -24,6 +24,8 @@ use Bga\Games\TheIsleOfCatsDuel\States\PlayerTurn;
 use Bga\GameFramework\Components\Counters\PlayerCounter;
 use Bga\Games\TheIsleOfCatsDuel\States\BoatChoice;
 
+require_once("TiocGlobals.inc.php");
+
 class Game extends \Bga\GameFramework\Table {
     use PlayerUtilTrait;
 
@@ -31,6 +33,7 @@ class Game extends \Bga\GameFramework\Table {
     public static array $CARD_TYPES;
 
     public PlayerCounter $playerEnergy;
+    public TiocShapeMgr $shapeMgr;
 
     /**
      * Your global variables labels:
@@ -56,6 +59,8 @@ class Game extends \Bga\GameFramework\Table {
             ],
             // ...
         ];
+
+        $this->shapeMgr = new TiocShapeMgr($this);
 
         /* example of notification decorator.
         // automatically complete notification args when needed
@@ -193,6 +198,7 @@ class Game extends \Bga\GameFramework\Table {
 
         // TODO: Setup the initial game situation here.
         $this->globals->set("round", 0);
+         $this->shapeMgr->setup(count($players));
 
 
         // Activate first player once everything has been initialized and ready.
