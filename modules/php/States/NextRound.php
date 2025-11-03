@@ -1,0 +1,56 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Bga\Games\TheIsleOfCatsDuel\States;
+
+use Bga\GameFramework\StateType;
+use Bga\Games\TheIsleOfCatsDuel\Game;
+
+class NextRound extends \Bga\GameFramework\States\GameState {
+
+    function __construct(
+        protected Game $game,
+    ) {
+        parent::__construct(
+            $game,
+            id: 12,
+            type: StateType::GAME,
+            updateGameProgression: true,
+        );
+    }
+
+    /**
+     * Game state action, example content.
+     *
+     * The onEnteringState method of state `nextPlayer` is called everytime the current game state is set to `nextPlayer`.
+     */
+    function onEnteringState(int $activePlayerId) {
+        $round = $this->globals->inc("round", 1);
+        $this->game->giveExtraTime($activePlayerId);
+        $this->game->activeNextPlayer();
+
+        if ($round > 0) {
+            $this->game->switchFirstPlayer();
+        }
+
+        // Go to another gamestate
+        $gameEnd = $this->hasReachedEndOfGameRequirements($activePlayerId); // Here, we would detect if the game is over to make the appropriate transition
+        if ($gameEnd) {
+            return EndScore::class;
+        } else {
+            $this->game->gamestate->changeActivePlayer($this->game->getPlayerIdByOrder(1));
+           // return SelectAsideTile::class;
+        }
+    }
+
+    function hasReachedEndOfGameRequirements($playerId): bool {
+        $playersIds = $this->game->getPlayersIds();
+        $end = $this->game->getRemainingAsideTilesCount() == 0;
+        /*if(!$end){
+            $this->game->getPlayerGlobal($playerId, GLBL_SELECTION_ACTION_DONE);
+        }*/
+
+        return $end;
+    }
+}

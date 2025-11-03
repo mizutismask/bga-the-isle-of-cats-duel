@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: Gregory Isabelli & Emmanuel Colin & BoardGameArena
@@ -14,6 +15,7 @@
  *
  * In this PHP file, you are going to defines the rules of the game.
  */
+
 declare(strict_types=1);
 
 namespace Bga\Games\TheIsleOfCatsDuel;
@@ -22,8 +24,10 @@ use Bga\Games\TheIsleOfCatsDuel\States\PlayerTurn;
 use Bga\GameFramework\Components\Counters\PlayerCounter;
 use Bga\Games\TheIsleOfCatsDuel\States\BoatChoice;
 
-class Game extends \Bga\GameFramework\Table
-{
+class Game extends \Bga\GameFramework\Table {
+    use PlayerUtilTrait;
+
+
     public static array $CARD_TYPES;
 
     public PlayerCounter $playerEnergy;
@@ -37,8 +41,7 @@ class Game extends \Bga\GameFramework\Table
      * NOTE: afterward, you can get/set the global variables with `getGameStateValue`, `setGameStateInitialValue` or
      * `setGameStateValue` functions.
      */
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
         $this->initGameStateLabels([]); // mandatory, even if the array is empty
 
@@ -80,8 +83,7 @@ class Game extends \Bga\GameFramework\Table
      * @return int
      * @see ./states.inc.php
      */
-    public function getGameProgression()
-    {
+    public function getGameProgression() {
         // TODO: compute and return the game progression
 
         return 0;
@@ -98,23 +100,22 @@ class Game extends \Bga\GameFramework\Table
      * @param int $from_version
      * @return void
      */
-    public function upgradeTableDb($from_version)
-    {
-//       if ($from_version <= 1404301345)
-//       {
-//            // ! important ! Use `DBPREFIX_<table_name>` for all tables
-//
-//            $sql = "ALTER TABLE `DBPREFIX_xxxxxxx` ....";
-//            $this->applyDbUpgradeToAllDB( $sql );
-//       }
-//
-//       if ($from_version <= 1405061421)
-//       {
-//            // ! important ! Use `DBPREFIX_<table_name>` for all tables
-//
-//            $sql = "CREATE TABLE `DBPREFIX_xxxxxxx` ....";
-//            $this->applyDbUpgradeToAllDB( $sql );
-//       }
+    public function upgradeTableDb($from_version) {
+        //       if ($from_version <= 1404301345)
+        //       {
+        //            // ! important ! Use `DBPREFIX_<table_name>` for all tables
+        //
+        //            $sql = "ALTER TABLE `DBPREFIX_xxxxxxx` ....";
+        //            $this->applyDbUpgradeToAllDB( $sql );
+        //       }
+        //
+        //       if ($from_version <= 1405061421)
+        //       {
+        //            // ! important ! Use `DBPREFIX_<table_name>` for all tables
+        //
+        //            $sql = "CREATE TABLE `DBPREFIX_xxxxxxx` ....";
+        //            $this->applyDbUpgradeToAllDB( $sql );
+        //       }
     }
 
     /*
@@ -125,8 +126,7 @@ class Game extends \Bga\GameFramework\Table
      * - when the game starts
      * - when a player refreshes the game page (F5)
      */
-    protected function getAllDatas(): array
-    {
+    protected function getAllDatas(): array {
         $result = [];
 
         // WARNING: We must only return information visible by the current player.
@@ -148,8 +148,7 @@ class Game extends \Bga\GameFramework\Table
      * This method is called only once, when a new game is launched. In this method, you must setup the game
      *  according to the game rules, so that the game is ready to be played.
      */
-    protected function setupNewGame($players, $options = [])
-    {
+    protected function setupNewGame($players, $options = []) {
         $this->playerEnergy->initDb(array_keys($players), initialValue: 2);
 
         // Set the colors of the players with HTML color code. The default below is red/green/blue/orange/brown. The
@@ -193,6 +192,8 @@ class Game extends \Bga\GameFramework\Table
         // $this->playerStats->init('player_teststat1', 0);
 
         // TODO: Setup the initial game situation here.
+        $this->globals->set("round", 0);
+
 
         // Activate first player once everything has been initialized and ready.
         $this->activeNextPlayer();
@@ -216,11 +217,15 @@ class Game extends \Bga\GameFramework\Table
         $count = 0;
         while (intval($this->gamestate->getCurrentMainStateId()) < 99 && $count < $moves) {
             $count++;
-            foreach($this->gamestate->getActivePlayerList() as $playerId) {
+            foreach ($this->gamestate->getActivePlayerList() as $playerId) {
                 $playerId = (int)$playerId;
                 $this->gamestate->runStateClassZombie($this->gamestate->getCurrentState($playerId), $playerId);
             }
         }
+    }
+
+    public function getRemainingAsideTilesCount(): int {
+        return 3; //todo
     }
 
     /*

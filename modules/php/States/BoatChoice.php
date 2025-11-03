@@ -45,9 +45,9 @@ class BoatChoice extends GameState {
      */
     #[PossibleAction]
     public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $activePlayerId, array $args) {
-        $this->globals->set("boat_$activePlayerId", $boat);
+        $this->game->setPlayerGlobal($activePlayerId, 'boat', $boat);
         $this->notify->player($activePlayerId, "message", "", []);
-        $this->gamestate->setPlayerNonMultiactive($activePlayerId, NextPlayer::class);
+        $this->gamestate->setPlayerNonMultiactive($activePlayerId, NextRound::class);
     }
 
     /**
