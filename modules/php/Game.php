@@ -20,6 +20,7 @@ namespace Bga\Games\TheIsleOfCatsDuel;
 
 use Bga\Games\TheIsleOfCatsDuel\States\PlayerTurn;
 use Bga\GameFramework\Components\Counters\PlayerCounter;
+use Bga\Games\TheIsleOfCatsDuel\States\BoatChoice;
 
 class Game extends \Bga\GameFramework\Table
 {
@@ -196,7 +197,7 @@ class Game extends \Bga\GameFramework\Table
         // Activate first player once everything has been initialized and ready.
         $this->activeNextPlayer();
 
-        return PlayerTurn::class;
+        return BoatChoice::class;
     }
 
     /**
