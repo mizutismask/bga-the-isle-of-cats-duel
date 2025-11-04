@@ -36,6 +36,8 @@ class NextRound extends \Bga\GameFramework\States\GameState {
 
             $round = $this->globals->inc("round", 1);
             $this->game->giveExtraTime($activePlayerId);
+            $this->game->shapeMgr->emptyIsland();
+            $this->game->shapeMgr->drawFromBag(10);
 
             if ($round > 0) {
                 $nextFirstPlayer = $this->game->switchFirstPlayer();
@@ -45,7 +47,7 @@ class NextRound extends \Bga\GameFramework\States\GameState {
             }
 
             $this->notify->all('newRound', clienttranslate('&#10148; Round ${round}'), ["round" => $round]);
-            // return SelectAsideTile::class;
+            return PlayerTurn::class;
         }
     }
 

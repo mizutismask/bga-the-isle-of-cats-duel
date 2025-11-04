@@ -18,6 +18,8 @@ const SHAPE_LOCATION_ID_FIELD = 2;
 const SHAPE_LOCATION_ID_BOAT = 4;
 const SHAPE_LOCATION_ID_DISCARD = 5;
 const SHAPE_LOCATION_ID_TO_PLACE = 6;
+const SHAPE_LOCATION_ID_ISLAND_CARD_SLOT = 7;
+const SHAPE_LOCATION_ID_ISLAND_CAT_SLOT = 8;
 
 class TiocShape {
     public $shapeId;
@@ -36,6 +38,8 @@ class TiocShape {
     public $width;
     public $height;
     public $playedMoveNumber;
+    public $islandCardSlot;
+    public $islandCatSlot;
 
     public function __construct(
         TiocShapeDefMgr $shapeDefMgr,
@@ -52,6 +56,9 @@ class TiocShape {
         ?int $boatHorizontalFlip = null,
         ?int $boatVerticalFlip = null,
         ?int $playedMoveNumber = null,
+        ?int $islandCardSlot = null,
+        ?int $islandCatSlot = null,
+
     ) {
         $this->shapeId = $shapeId;
         $this->shapeTypeId = $shapeTypeId;
@@ -69,6 +76,8 @@ class TiocShape {
         $this->height = count($this->shapeArray);
         $this->width = count($this->shapeArray[0]);
         $this->playedMoveNumber = $playedMoveNumber;
+        $this->islandCardSlot = $islandCardSlot;
+        $this->islandCatSlot = $islandCatSlot;
     }
 
     public function isCommonTreasure() {
@@ -89,6 +98,10 @@ class TiocShape {
 
     public function isInField() {
         return ($this->shapeLocationId == SHAPE_LOCATION_ID_FIELD);
+    }
+
+    public function isOnIsland() {
+        return ($this->shapeLocationId == SHAPE_LOCATION_ID_ISLAND_CAT_SLOT || $this->shapeLocationId == SHAPE_LOCATION_ID_ISLAND_CARD_SLOT);
     }
 
     public function isToPlaceLocation() {
@@ -119,6 +132,16 @@ class TiocShape {
 
     public function moveToField() {
         $this->shapeLocationId = SHAPE_LOCATION_ID_FIELD;
+    }
+
+    public function moveToIslandCardSlot($slotNumber) {
+        $this->shapeLocationId = SHAPE_LOCATION_ID_ISLAND_CARD_SLOT;
+        $this->islandCardSlot = $slotNumber;
+    }
+
+    public function moveToIslandCatSlot($slotNumber) {
+        $this->shapeLocationId = SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
+        $this->islandCatSlot = $slotNumber;
     }
 
     public function moveToBoat($playerId, $x, $y, $rotation, $flipH, $flipV, $playedMoveNumber) {

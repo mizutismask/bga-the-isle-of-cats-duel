@@ -61,6 +61,11 @@ CREATE TABLE IF NOT EXISTS `shape` (
   `boat_vertical_flip` boolean NULL,
   -- Number to know what shape was played since last turn
   `played_move_number` int(10) unsigned NULL,
+  -- card slot number, null if location is not the island
+  `island_card_slot` smallint(5) unsigned NULL,
+  -- cat slot number, null if location is not the island
+  `island_cat_slot` smallint(5) unsigned NULL,
+  
   PRIMARY KEY (`shape_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

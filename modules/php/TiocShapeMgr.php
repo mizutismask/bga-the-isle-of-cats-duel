@@ -96,6 +96,8 @@ class TiocShapeMgr {
             . "boat_rotation,"
             . "boat_horizontal_flip,"
             . "boat_vertical_flip,"
+            . "island_card_slot,"
+            . "island_cat_slot,"
             . "played_move_number"
             . " FROM shape");
         foreach ($valueArray as $value) {
@@ -113,6 +115,8 @@ class TiocShapeMgr {
                 $value['boat_rotation'],
                 $value['boat_horizontal_flip'],
                 $value['boat_vertical_flip'],
+                $value['island_card_slot'],
+                $value['island_cat_slot'],
                 $value['played_move_number'],
             );
             $this->shapes[] = $shape;
@@ -142,6 +146,8 @@ class TiocShapeMgr {
             . "boat_rotation,"
             . "boat_horizontal_flip,"
             . "boat_vertical_flip,"
+            . "island_card_slot,"
+            . "island_cat_slot,"
             . "played_move_number"
             . ") VALUES ";
         $sqlValues = [];
@@ -159,6 +165,8 @@ class TiocShapeMgr {
                 . sqlNullOrValue($shape->boatRotation) . ","
                 . sqlNullOrValue($shape->boatHorizontalFlip) . ","
                 . sqlNullOrValue($shape->boatVerticalFlip) . ","
+                . sqlNullOrValue($shape->islandCardSlot) . ","
+                . sqlNullOrValue($shape->islandCatSlot) . ","
                 . sqlNullOrValue($shape->playedMoveNumber)
                 . ")";
         }
@@ -202,27 +210,17 @@ class TiocShapeMgr {
         $this->load();
         $drawnShapes = [];
         $nbDrawnCats = 0;
-        $leftField = true;
         foreach ($this->shapes as $shape) {
             if (!$shape->isInBag()) {
                 continue;
             }
             $drawnShapes[] = $shape;
-            if ($shape->isCat()) {
-                if ($leftField) {
-                    $shape->moveToFieldLeft();
-                } else {
-                    $shape->moveToFieldRight();
-                }
-                ++$nbDrawnCats;
-                if ($nbDrawnCats >= intval($nbCatsToDraw / 2)) {
-                    $leftField = false;
-                }
-                if ($nbDrawnCats == $nbCatsToDraw) {
-                    break;
-                }
-            } else {
-                $shape->moveToTable();
+
+            $shape->moveToIslandCatSlot($nbDrawnCats + 1);
+            ++$nbDrawnCats;
+
+            if ($nbDrawnCats == $nbCatsToDraw) {
+                break;
             }
         }
 
@@ -303,7 +301,20 @@ class TiocShapeMgr {
         $discardedShapes = [];
         $this->load();
         foreach ($this->shapes as $shape) {
-            if (!$shape->isInFields()) {
+            if (!$shape->isInField()) {
+                continue;
+            }
+            $shape->moveToDiscard();
+            $discardedShapes[] = $shape;
+        }
+        $this->save();
+        return $discardedShapes;
+    }
+    public function emptyIsland() {
+        $discardedShapes = [];
+        $this->load();
+        foreach ($this->shapes as $shape) {
+            if (!$shape->isOnIsland()) {
                 continue;
             }
             $shape->moveToDiscard();
