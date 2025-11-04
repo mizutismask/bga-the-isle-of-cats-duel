@@ -93,8 +93,7 @@ class TiocShapeMgr {
             . "boat_rotation,"
             . "boat_horizontal_flip,"
             . "boat_vertical_flip,"
-            . "played_move_number,"
-            . "solo_order"
+            . "played_move_number"
             . " FROM shape");
         foreach ($valueArray as $value) {
             $shape = new TiocShape(
@@ -112,7 +111,6 @@ class TiocShapeMgr {
                 $value['boat_horizontal_flip'],
                 $value['boat_vertical_flip'],
                 $value['played_move_number'],
-                $value['solo_order']
             );
             $this->shapes[] = $shape;
         }
@@ -141,8 +139,7 @@ class TiocShapeMgr {
             . "boat_rotation,"
             . "boat_horizontal_flip,"
             . "boat_vertical_flip,"
-            . "played_move_number,"
-            . "solo_order"
+            . "played_move_number"
             . ") VALUES ";
         $sqlValues = [];
         foreach ($this->shapes as $shape) {
@@ -159,8 +156,7 @@ class TiocShapeMgr {
                 . sqlNullOrValue($shape->boatRotation) . ","
                 . sqlNullOrValue($shape->boatHorizontalFlip) . ","
                 . sqlNullOrValue($shape->boatVerticalFlip) . ","
-                . sqlNullOrValue($shape->playedMoveNumber) . ","
-                . sqlNullOrValue($shape->soloOrder)
+                . sqlNullOrValue($shape->playedMoveNumber) 
                 . ")";
         }
         $sql .= implode(',', $sqlValues);
@@ -200,23 +196,17 @@ class TiocShapeMgr {
         return true;
     }
 
-    public function drawFromBag($nbCatsToDraw, $isSoloMode) {
+    public function drawFromBag($nbCatsToDraw) {
         $this->load();
         $drawnShapes = [];
         $nbDrawnCats = 0;
         $leftField = true;
-        $soloOrderCat = 1;
-        $soloOrderTreasure = 1;
         foreach ($this->shapes as $shape) {
             if (!$shape->isInBag()) {
                 continue;
             }
             $drawnShapes[] = $shape;
             if ($shape->isCat()) {
-                if ($isSoloMode) {
-                    $shape->setSoloOrder($soloOrderCat);
-                    ++$soloOrderCat;
-                }
                 if ($leftField) {
                     $shape->moveToFieldLeft();
                 } else {
@@ -230,44 +220,12 @@ class TiocShapeMgr {
                     break;
                 }
             } else {
-                if ($isSoloMode) {
-                    $shape->setSoloOrder($soloOrderTreasure);
-                    ++$soloOrderTreasure;
-                }
                 $shape->moveToTable();
             }
         }
-        if ($isSoloMode) {
-            $this->mergeRareTreasureSoloOrder();
-        }
+        
         $this->save();
         return $drawnShapes;
-    }
-
-    private function mergeRareTreasureSoloOrder() {
-        $soloOrderTreasure = 1;
-        $nbShapes = count($this->shapes);
-        foreach ($this->shapes as $i => $shape) {
-            if (!$shape->isRareTreasure() || !$shape->isOnTable()) {
-                continue;
-            }
-            $shape->soloOrder = null;
-        }
-        foreach ($this->shapes as $i => $shape) {
-            if (!$shape->isRareTreasure() || !$shape->isOnTable() || $shape->soloOrder !== null) {
-                continue;
-            }
-            $shape->soloOrder = $soloOrderTreasure;
-            ++$soloOrderTreasure;
-            for ($j = $i + 1; $j < $nbShapes; ++$j) {
-                if (!$this->shapes[$j]->isRareTreasure() || !$this->shapes[$j]->isOnTable() || $this->shapes[$j]->soloOrder !== null) {
-                    continue;
-                }
-                if ($this->shapes[$j]->shapeArray == $shape->shapeArray) {
-                    $this->shapes[$j]->soloOrder = $shape->soloOrder;
-                }
-            }
-        }
     }
 
     public function drawToToPlaceLocation() {
@@ -305,28 +263,9 @@ class TiocShapeMgr {
         return $shape;
     }
 
-    public function moveToPlaceToField($field, $isSoloMode) {
+    public function moveToPlaceToField($field) {
         $this->load();
-        $soloLeftShapes = [];
-        $soloRightShapes = [];
-        if ($isSoloMode) {
-            foreach ($this->shapes as $shape) {
-                if ($shape->isToPlaceLocation()) {
-                    continue;
-                }
-                if ($shape->isInLeftField()) {
-                    $soloLeftShapes[] = $shape;
-                } else if ($shape->isInRightField()) {
-                    $soloRightShapes[] = $shape;
-                }
-            }
-            usort($soloLeftShapes, function ($s1, $s2) {
-                return $s1->soloOrder <=> $s2->soloOrder;
-            });
-            usort($soloRightShapes, function ($s1, $s2) {
-                return $s1->soloOrder <=> $s2->soloOrder;
-            });
-        }
+        
         $movedShape = null;
         foreach ($this->shapes as $shape) {
             if (!$shape->isToPlaceLocation()) {
@@ -335,24 +274,12 @@ class TiocShapeMgr {
             $movedShape = $shape;
             if ($field == FIELD_LEFT) {
                 $shape->moveToFieldLeft();
-                $soloLeftShapes[] = $shape;
             } else {
                 $shape->moveToFieldRight();
-                $soloRightShapes[] = $shape;
             }
             break;
         }
-        if ($isSoloMode) {
-            $soloOrder = 1;
-            foreach ($soloLeftShapes as $shape) {
-                $shape->soloOrder = $soloOrder;
-                ++$soloOrder;
-            }
-            foreach ($soloRightShapes as $shape) {
-                $shape->soloOrder = $soloOrder;
-                ++$soloOrder;
-            }
-        }
+        
         $this->save();
         return $movedShape;
     }
@@ -384,189 +311,6 @@ class TiocShapeMgr {
             $allShapeArray[] = $shapeArray;
         }
         return $allShapeArray;
-    }
-
-    public function getSoloOrder() {
-        $this->load();
-        $shapeIdSoloOrder = [];
-        foreach ($this->shapes as $shape) {
-            if ($shape->isVisible() && $shape->shapeLocationId != SHAPE_LOCATION_ID_BOAT && $shape->soloOrder !== null) {
-                $shapeIdSoloOrder[$shape->shapeId] = $shape->soloOrder;
-            }
-        }
-        return $shapeIdSoloOrder;
-    }
-
-    public function discardSoloCat($discardNumber) {
-        $this->load();
-        $shapeDiscard = $this->discardSolo($discardNumber, function ($shape) {
-            return $shape->isCat() && $shape->isInFields();
-        });
-        if ($shapeDiscard !== null) {
-            $this->soloReorderCat();
-        }
-        return $shapeDiscard;
-    }
-
-    public function discardSoloOshax($discardNumber) {
-        $this->load();
-        $shapeDiscard = $this->discardSolo($discardNumber, function ($shape) {
-            return $shape->isOshax() && $shape->isOnTable();
-        });
-        if ($shapeDiscard !== null) {
-            $this->soloReorderOshax();
-        }
-        return $shapeDiscard;
-    }
-
-    public function discardSoloRareTreasure($discardNumber) {
-        $this->load();
-        $shapeDiscard = $this->discardSolo($discardNumber, function ($shape) {
-            return $shape->isRareTreasure() && $shape->isOnTable();
-        });
-        if ($shapeDiscard !== null) {
-            $this->soloReorderRareTreasure();
-        }
-        return $shapeDiscard;
-    }
-
-    public function discardSoloCommonTreasure($shapeDefId) {
-        $this->load();
-        $shapeDiscard = null;
-        foreach ($this->shapes as $shape) {
-            if ($shape->isVisible() && $shape->isOnTable() && $shape->isCommonTreasure() && $shape->shapeDefId == $shapeDefId) {
-                $shapeDiscard = $shape;
-                break;
-            }
-        }
-        if ($shapeDiscard === null) {
-            return;
-        }
-        $shapeDiscard->moveToDiscard();
-        $this->save();
-        return $shapeDiscard;
-    }
-
-    private function discardSolo($discardNumber,  $filterFunction) {
-        $this->load();
-        $shapeDiscard = null;
-        $shapesOrder = [];
-        foreach ($this->shapes as $shape) {
-            if ($shape->isVisible() && $shape->soloOrder !== null && $filterFunction($shape)) {
-                $shapesOrder[] = $shape;
-                if ($shape->soloOrder == $discardNumber) {
-                    $shapeDiscard = $shape;
-                }
-            }
-        }
-        if (count($shapesOrder) == 0) {
-            return null;
-        }
-        usort($shapesOrder, function ($s1, $s2) {
-            return $s1->soloOrder <=> $s2->soloOrder;
-        });
-        if ($shapeDiscard === null) {
-            $shapeDiscard = $shapesOrder[count($shapesOrder) - 1];
-        }
-        $shapeDiscard->moveToDiscard();
-        $this->save();
-        return $shapeDiscard;
-    }
-
-    public function soloSwitch($firstNumber, $secondNumber) {
-        $this->load();
-        $firstShape = null;
-        $secondShape = null;
-        $shapesOrder = [];
-        foreach ($this->shapes as $shape) {
-            if ($shape->isVisible() && $shape->soloOrder !== null && $shape->isCat() && $shape->isInFields()) {
-                $shapesOrder[] = $shape;
-                if ($shape->soloOrder == $firstNumber) {
-                    $firstShape = $shape;
-                } else if ($shape->soloOrder == $secondNumber) {
-                    $secondShape = $shape;
-                }
-            }
-        }
-        if (count($shapesOrder) <= 1) {
-            return null;
-        }
-        usort($shapesOrder, function ($s1, $s2) {
-            return $s1->soloOrder <=> $s2->soloOrder;
-        });
-        if ($firstShape === null) {
-            $firstShape = $shapesOrder[count($shapesOrder) - 2];
-        }
-        if ($secondShape === null) {
-            $secondShape = $shapesOrder[count($shapesOrder) - 1];
-        }
-        if ($firstShape == $secondShape) {
-            foreach ($shapesOrder as $shape) {
-                if ($shape == $secondShape) {
-                    break;
-                }
-                $firstShape = $shape;
-            }
-        }
-        if ($firstShape === null || $secondShape === null || $firstShape == $secondShape) {
-            return null;
-        }
-        if ($firstShape->isInLeftField() && $secondShape->isInRightField()) {
-            $firstShape->moveToFieldRight();
-            $secondShape->moveToFieldLeft();
-        } else if ($firstShape->isInRightField() && $secondShape->isInLeftField()) {
-            $firstShape->moveToFieldLeft();
-            $secondShape->moveToFieldRight();
-        }
-        $firstOrder = $firstShape->soloOrder;
-        $secondOrder = $secondShape->soloOrder;
-        $firstShape->soloOrder = $secondOrder;
-        $secondShape->soloOrder = $firstOrder;
-        $this->save();
-        return [$firstShape, $secondShape];
-    }
-
-    public function soloReorderAll() {
-        $this->soloReorderCat();
-        $this->soloReorderOshax();
-        $this->soloReorderRareTreasure();
-    }
-
-    public function soloReorderCat() {
-        $this->soloReorder(function ($shape) {
-            return $shape->isCat() && $shape->isInFields();
-        });
-    }
-
-    public function soloReorderOshax() {
-        $this->soloReorder(function ($shape) {
-            return $shape->isOnTable() && $shape->isOshax();
-        });
-    }
-
-    public function soloReorderRareTreasure() {
-        $this->load();
-        $this->mergeRareTreasureSoloOrder();
-        $this->save();
-    }
-
-    private function soloReorder($filterFunction) {
-        $this->load();
-        $shapesOrder = [];
-        foreach ($this->shapes as $shape) {
-            if ($shape->isVisible() && $shape->soloOrder !== null && $filterFunction($shape)) {
-                $shapesOrder[] = $shape;
-            }
-        }
-        usort($shapesOrder, function ($s1, $s2) {
-            return $s1->soloOrder <=> $s2->soloOrder;
-        });
-        $soloOrder = 1;
-        foreach ($shapesOrder as $shape) {
-            $shape->setSoloOrder($soloOrder);
-            ++$soloOrder;
-        }
-        $this->save();
     }
 
     public function emptyTheFields() {

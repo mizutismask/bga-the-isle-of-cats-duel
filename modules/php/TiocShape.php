@@ -37,7 +37,6 @@ class TiocShape {
     public $width;
     public $height;
     public $playedMoveNumber;
-    public $soloOrder;
 
     public function __construct(
         TiocShapeDefMgr $shapeDefMgr,
@@ -54,7 +53,6 @@ class TiocShape {
         ?int $boatHorizontalFlip = null,
         ?int $boatVerticalFlip = null,
         ?int $playedMoveNumber = null,
-        ?int $soloOrder = null
     ) {
         $this->shapeId = $shapeId;
         $this->shapeTypeId = $shapeTypeId;
@@ -72,7 +70,6 @@ class TiocShape {
         $this->height = count($this->shapeArray);
         $this->width = count($this->shapeArray[0]);
         $this->playedMoveNumber = $playedMoveNumber;
-        $this->soloOrder = $soloOrder;
     }
 
     public function isCommonTreasure() {

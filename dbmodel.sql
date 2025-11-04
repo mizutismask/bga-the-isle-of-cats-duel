@@ -61,8 +61,6 @@ CREATE TABLE IF NOT EXISTS `shape` (
   `boat_vertical_flip` boolean NULL,
   -- Number to know what shape was played since last turn
   `played_move_number` int(10) unsigned NULL,
-  -- Number to know the order of the shapes in solo mode
-  `solo_order` int(10) unsigned NULL,
   PRIMARY KEY (`shape_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
