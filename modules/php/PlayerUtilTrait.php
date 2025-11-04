@@ -176,9 +176,13 @@ trait PlayerUtilTrait {
     }
 
     function switchFirstPlayer() {
-        $firstPlayerId = $this->getPlayerIdByOrder(1);
-        $lastPlayerId = $this->getLastPlayer();
-        $this->updatePlayer($firstPlayerId, 'player_no',  $this->getPlayerCount());
-        $this->updatePlayer($lastPlayerId, 'player_no', 1);
+        $firstPlayer = $this->globals->get("firstPlayer");
+        if ($firstPlayer == null) {
+            $firstPlayer = $this->getLastPlayer();
+        } else {
+            $firstPlayer = $this->getOpponentId($firstPlayer);
+        }
+        $this->globals->set("firstPlayer", $firstPlayer);
+        return $firstPlayer;
     }
 }

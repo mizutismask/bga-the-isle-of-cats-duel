@@ -26,21 +26,26 @@ class NextRound extends \Bga\GameFramework\States\GameState {
      * The onEnteringState method of state `nextPlayer` is called everytime the current game state is set to `nextPlayer`.
      */
     function onEnteringState(int $activePlayerId) {
-        $round = $this->globals->inc("round", 1);
-        $this->game->giveExtraTime($activePlayerId);
-        $this->game->activeNextPlayer();
 
-        if ($round > 0) {
-            $this->game->switchFirstPlayer();
-        }
 
         // Go to another gamestate
         $gameEnd = $this->hasReachedEndOfGameRequirements($activePlayerId); // Here, we would detect if the game is over to make the appropriate transition
         if ($gameEnd) {
             return EndScore::class;
         } else {
-            $this->game->gamestate->changeActivePlayer($this->game->getPlayerIdByOrder(1));
-           // return SelectAsideTile::class;
+
+            $round = $this->globals->inc("round", 1);
+            $this->game->giveExtraTime($activePlayerId);
+
+            if ($round > 0) {
+                $nextFirstPlayer = $this->game->switchFirstPlayer();
+                $this->game->gamestate->changeActivePlayer($nextFirstPlayer);
+            } else {
+                $this->game->activeNextPlayer();
+            }
+
+            $this->notify->all('newRound', clienttranslate('&#10148; Round ${round}'), ["round" => $round]);
+            // return SelectAsideTile::class;
         }
     }
 

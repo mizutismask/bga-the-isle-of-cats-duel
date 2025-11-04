@@ -28,6 +28,7 @@ require_once("TiocGlobals.inc.php");
 
 class Game extends \Bga\GameFramework\Table {
     use PlayerUtilTrait;
+    use DBUtilTrait;
 
 
     public static array $CARD_TYPES;

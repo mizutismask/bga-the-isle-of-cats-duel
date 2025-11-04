@@ -19,7 +19,7 @@ class BoatChoice extends GameState {
             $game,
             id: 10,
             type: StateType::MULTIPLE_ACTIVE_PLAYER,
-            description: clienttranslate('${actplayer} must choose a boat'),
+            description: clienttranslate('All players must choose a boat'),
             descriptionMyTurn: clienttranslate('${you} must choose a boat'),
         );
     }
@@ -44,10 +44,10 @@ class BoatChoice extends GameState {
      * @throws UserException
      */
     #[PossibleAction]
-    public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $activePlayerId, array $args) {
-        $this->game->setPlayerGlobal($activePlayerId, 'boat', $boat);
-        $this->notify->player($activePlayerId, "message", "", []);
-        $this->gamestate->setPlayerNonMultiactive($activePlayerId, NextRound::class);
+    public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $currentPlayerId, array $args) {
+        $this->game->setPlayerGlobal($currentPlayerId, 'boat', $boat);
+        $this->notify->player($currentPlayerId, "dummyNotif", "", []);
+        $this->gamestate->setPlayerNonMultiactive($currentPlayerId, NextRound::class);
     }
 
     /**
@@ -55,11 +55,11 @@ class BoatChoice extends GameState {
      *
      * The onEnteringState method of state `nextPlayer` is called everytime the current game state is set to `nextPlayer`.
      */
-    function onEnteringState(int $activePlayerId) {
+    function onEnteringState() {
 
         // Give some extra time to the active player when he completed an action
         // $this->game->giveExtraTime($activePlayerId);
-        $this->game->stMakeEveryoneActive();
+        $this->gamestate->setAllPlayersMultiactive();
     }
 
     /**
