@@ -231,10 +231,6 @@ class Game extends \Bga\GameFramework\Table {
         }
     }
 
-    public function getRemainingAsideTilesCount(): int {
-        return 3; //todo
-    }
-
     /*
     Another example of debug function, to easily create situations you want to test.
     Here, put a card you want to test in your hand (assuming you use the Deck component).

@@ -51,7 +51,7 @@ class NextRound extends \Bga\GameFramework\States\GameState {
 
     function hasReachedEndOfGameRequirements($playerId): bool {
         $playersIds = $this->game->getPlayersIds();
-        $end = $this->game->getRemainingAsideTilesCount() == 0;
+        $end = $this->game->shapeMgr->fieldIsEmpty();
         /*if(!$end){
             $this->game->getPlayerGlobal($playerId, GLBL_SELECTION_ACTION_DONE);
         }*/

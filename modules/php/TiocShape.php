@@ -14,8 +14,7 @@ namespace Bga\Games\TheIsleOfCatsDuel;
 
 const SHAPE_LOCATION_ID_BAG = 0;
 const SHAPE_LOCATION_ID_TABLE = 1;
-const SHAPE_LOCATION_ID_FIELD_LEFT = 2;
-const SHAPE_LOCATION_ID_FIELD_RIGHT = 3;
+const SHAPE_LOCATION_ID_FIELD = 2;
 const SHAPE_LOCATION_ID_BOAT = 4;
 const SHAPE_LOCATION_ID_DISCARD = 5;
 const SHAPE_LOCATION_ID_TO_PLACE = 6;
@@ -83,22 +82,13 @@ class TiocShape {
     public function isInBag() {
         return ($this->shapeLocationId == SHAPE_LOCATION_ID_BAG);
     }
-
-    public function isInLeftField() {
-        return ($this->shapeLocationId == SHAPE_LOCATION_ID_FIELD_LEFT);
-    }
-
-    public function isInRightField() {
-        return ($this->shapeLocationId == SHAPE_LOCATION_ID_FIELD_RIGHT);
-    }
-
+   
     public function isOnTable() {
         return ($this->shapeLocationId == SHAPE_LOCATION_ID_TABLE);
     }
 
-    public function isInFields() {
-        return ($this->shapeLocationId == SHAPE_LOCATION_ID_FIELD_LEFT
-            || $this->shapeLocationId == SHAPE_LOCATION_ID_FIELD_RIGHT);
+    public function isInField() {
+        return ($this->shapeLocationId == SHAPE_LOCATION_ID_FIELD);
     }
 
     public function isToPlaceLocation() {
@@ -127,12 +117,8 @@ class TiocShape {
         $this->shapeLocationId = SHAPE_LOCATION_ID_TABLE;
     }
 
-    public function moveToFieldLeft() {
-        $this->shapeLocationId = SHAPE_LOCATION_ID_FIELD_LEFT;
-    }
-
-    public function moveToFieldRight() {
-        $this->shapeLocationId = SHAPE_LOCATION_ID_FIELD_RIGHT;
+    public function moveToField() {
+        $this->shapeLocationId = SHAPE_LOCATION_ID_FIELD;
     }
 
     public function moveToBoat($playerId, $x, $y, $rotation, $flipH, $flipV, $playedMoveNumber) {

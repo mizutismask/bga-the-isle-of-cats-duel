@@ -70,6 +70,9 @@ class TiocShapeMgr {
                 continue;
             }
             $shape->bagOrder = $bagOrder;
+            if ($bagOrder <= 3) {
+                $shape->shapeLocationId = SHAPE_LOCATION_ID_FIELD;
+            }
             ++$bagOrder;
         }
         $this->save();
@@ -156,7 +159,7 @@ class TiocShapeMgr {
                 . sqlNullOrValue($shape->boatRotation) . ","
                 . sqlNullOrValue($shape->boatHorizontalFlip) . ","
                 . sqlNullOrValue($shape->boatVerticalFlip) . ","
-                . sqlNullOrValue($shape->playedMoveNumber) 
+                . sqlNullOrValue($shape->playedMoveNumber)
                 . ")";
         }
         $sql .= implode(',', $sqlValues);
@@ -183,12 +186,11 @@ class TiocShapeMgr {
         return null;
     }
 
-    public function fieldsAreEmpty() {
+    public function fieldIsEmpty() {
         $this->load();
         foreach ($this->shapes as $shape) {
             if (
-                $shape->shapeLocationId == SHAPE_LOCATION_ID_FIELD_LEFT
-                || $shape->shapeLocationId == SHAPE_LOCATION_ID_FIELD_RIGHT
+                $shape->shapeLocationId == SHAPE_LOCATION_ID_FIELD
             ) {
                 return false;
             }
@@ -223,7 +225,7 @@ class TiocShapeMgr {
                 $shape->moveToTable();
             }
         }
-        
+
         $this->save();
         return $drawnShapes;
     }
@@ -265,7 +267,7 @@ class TiocShapeMgr {
 
     public function moveToPlaceToField($field) {
         $this->load();
-        
+
         $movedShape = null;
         foreach ($this->shapes as $shape) {
             if (!$shape->isToPlaceLocation()) {
@@ -279,25 +281,9 @@ class TiocShapeMgr {
             }
             break;
         }
-        
+
         $this->save();
         return $movedShape;
-    }
-
-    public function moveCatToOtherField($shapeId) {
-        $this->load();
-        $shape = $this->findByShapeId($shapeId);
-        if ($shape === null)
-            throw new BgaVisibleSystemException("BUG! Invalid shapeId $shapeId");
-        if ($shape->isInLeftField()) {
-            $shape->moveToFieldRight();
-        } else if ($shape->isInRightField()) {
-            $shape->moveToFieldLeft();
-        } else {
-            throw new BgaVisibleSystemException("BUG! shapeId $shapeId is not in a field");
-        }
-        $this->save();
-        return $shape;
     }
 
     public function getShapesAsArray() {
