@@ -63,13 +63,13 @@ define(['dojo', 'dojo/_base/declare', 'ebg/core/gamegui', 'ebg/counter'], functi
 				this.getPlayerPanelElement(player.id).insertAdjacentHTML(
 					'beforeend',
 					`
-                    <span id="energy-player-counter-${player.id}"></span> Energy
+                    <span id="fish-player-counter-${player.id}"></span> Fishes
                 `
 				)
 				const counter = new ebg.counter()
-				counter.create(`energy-player-counter-${player.id}`, {
-					value: player.energy,
-					playerCounter: 'energy',
+				counter.create(`fish-player-counter-${player.id}`, {
+					value: player.fish,
+					playerCounter: 'fish',
 					playerId: player.id
 				})
 

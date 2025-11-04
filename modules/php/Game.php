@@ -33,8 +33,8 @@ class Game extends \Bga\GameFramework\Table {
 
     public static array $CARD_TYPES;
 
-    public PlayerCounter $playerEnergy;
     public TiocShapeMgr $shapeMgr;
+    public PlayerCounter $playerFishCounter;
 
     /**
      * Your global variables labels:
@@ -49,7 +49,7 @@ class Game extends \Bga\GameFramework\Table {
         parent::__construct();
         $this->initGameStateLabels([]); // mandatory, even if the array is empty
 
-        $this->playerEnergy = $this->counterFactory->createPlayerCounter('energy');
+        $this->playerFishCounter = $this->counterFactory->createPlayerCounter('fish');
 
         self::$CARD_TYPES = [
             1 => [
@@ -143,7 +143,7 @@ class Game extends \Bga\GameFramework\Table {
         $result["players"] = $this->getCollectionFromDb(
             "SELECT `player_id` `id`, `player_score` `score` FROM `player`"
         );
-        $this->playerEnergy->fillResult($result);
+        $this->playerFishCounter->fillResult($result);
 
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
 
@@ -155,7 +155,6 @@ class Game extends \Bga\GameFramework\Table {
      *  according to the game rules, so that the game is ready to be played.
      */
     protected function setupNewGame($players, $options = []) {
-        $this->playerEnergy->initDb(array_keys($players), initialValue: 2);
 
         // Set the colors of the players with HTML color code. The default below is red/green/blue/orange/brown. The
         // number of colors defined here must correspond to the maximum number of players allowed for the gams.
@@ -198,8 +197,11 @@ class Game extends \Bga\GameFramework\Table {
         // $this->playerStats->init('player_teststat1', 0);
 
         // TODO: Setup the initial game situation here.
+        $this->playerFishCounter->initDb(array_keys($players), 3);
+
         $this->globals->set("round", 0);
-         $this->shapeMgr->setup(count($players));
+
+        $this->shapeMgr->setup(count($players));
 
 
         // Activate first player once everything has been initialized and ready.
