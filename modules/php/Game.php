@@ -34,6 +34,7 @@ class Game extends \Bga\GameFramework\Table {
     public static array $CARD_TYPES;
 
     public TiocShapeMgr $shapeMgr;
+    public TiocCardMgr $cardMgr;
     public PlayerCounter $playerFishCounter;
 
     /**
@@ -62,6 +63,7 @@ class Game extends \Bga\GameFramework\Table {
         ];
 
         $this->shapeMgr = new TiocShapeMgr($this);
+        $this->cardMgr = new TiocCardMgr($this);
 
         /* example of notification decorator.
         // automatically complete notification args when needed
@@ -202,6 +204,7 @@ class Game extends \Bga\GameFramework\Table {
         $this->globals->set("round", 0);
 
         $this->shapeMgr->setup(count($players));
+        $this->cardMgr->setup();
 
 
         // Activate first player once everything has been initialized and ready.
