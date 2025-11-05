@@ -27,46 +27,9 @@ const CARD_LOCATION_ID_TABLE = 4;
 const CARD_LOCATION_ID_DISCARD = 5;
 const CARD_LOCATION_ID_DISCARD_PLAYED = 6;
 
-const CARD_TYPE_ID_OSHAX = 0;
-const CARD_TYPE_ID_RESCUE = 1;
 const CARD_TYPE_ID_ANYTIME = 2;
 const CARD_TYPE_ID_TREASURE = 3;
-const CARD_TYPE_ID_PRIVATE_LESSON = 4;
-const CARD_TYPE_ID_PUBLIC_LESSON = 5;
-
-const SOME_CARD_PRICE_PER_ID = [
-    67 => 2,
-    68 => 2,
-    69 => 1,
-    70 => 1,
-    71 => 0,
-    72 => 0,
-    73 => 1,
-    74 => 1,
-    75 => 3,
-    76 => 2,
-    77 => 1,
-    78 => 2,
-    79 => 2,
-    80 => 2,
-    81 => 2,
-    82 => 2,
-    83 => 1,
-    84 => 6,
-    85 => 6,
-    86 => 2,
-    87 => 2,
-    88 => 3,
-    89 => 3,
-    90 => 2,
-    91 => 2,
-    92 => 2,
-    93 => 2,
-    94 => 2,
-    95 => 2,
-    96 => 2,
-    97 => 2,
-];
+const CARD_TYPE_ID_LESSON = 4;
 
 const CARD_NEEDS_BUY_COLOR = [
     143 => true,
@@ -75,49 +38,6 @@ const CARD_NEEDS_BUY_COLOR = [
     146 => true,
     149 => true,
 ];
-
-const CARD_BASKET_TYPE_ID_HALF = 0;
-const CARD_BASKET_TYPE_ID_FULL = 1;
-
-const CARD_TREASURE_TYPE_ID_ONE_RARE_TWO_COMMON = 0;
-const CARD_TREASURE_TYPE_ID_TWO_SMALL_TWO_COMMON = 1;
-
-const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_OSHAX = 0;
-const CARD_ANYTIME_TYPE_ID_NEXT_SHAPE_ANYWHERE = 1;
-const CARD_ANYTIME_TYPE_ID_DRAW_CARDS_2 = 2;
-const CARD_ANYTIME_TYPE_ID_DRAW_CARDS_3 = 3;
-const CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE = 4;
-const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_BASKET = 5;
-const CARD_ANYTIME_TYPE_ID_MOVE_CATS_FROM_FIELDS = 6;
-const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_LESSONS = 7;
-const CARD_ANYTIME_TYPE_ID_RESCUE_MORE_CATS = 8;
-const CARD_ANYTIME_TYPE_ID_DRAW_AND_FIELD_SHAPE = 9;
-const CARD_ANYTIME_TYPE_ID_GAIN_BASKET = 10;
-const CARD_ANYTIME_TYPE_ID_GAIN_BASKET_FOR_LESSON = 11;
-const CARD_ANYTIME_TYPE_ID_GAIN_BASKET_FOR_TREASURE = 12;
-const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_COLOR = 13;
-const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_RARE_TREASURE = 14;
-const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_COMMON_TREASURE = 15;
-const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_CAT_OF_COLOR = 16;
-
-// Cards that can only be played as a unique action (no undo) since they reveal new information
-const CARD_ANYTIME_SERVER_SIDE_IDS = [
-    CARD_ANYTIME_TYPE_ID_DRAW_CARDS_2,
-    CARD_ANYTIME_TYPE_ID_DRAW_CARDS_3,
-    CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE,
-    CARD_ANYTIME_TYPE_ID_DRAW_AND_FIELD_SHAPE,
-];
-// Cards that can be played in the buy phase
-const CARD_ANYTIME_BUY_PHASE_IDS = [
-    CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_OSHAX,
-    CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_BASKET,
-    CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_LESSONS,
-    CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_COLOR,
-    CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_RARE_TREASURE,
-    CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_COMMON_TREASURE,
-    CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_CAT_OF_COLOR,
-];
-
 
 class TiocCardMgr
 {
@@ -261,7 +181,7 @@ class TiocCardMgr
         return $visibleCards;
     }
 
-    public function getPrivateLessonsCount($playerIdArray)
+    public function getLessonsCount($playerIdArray)
     {
         $this->load();
         $privateLessonsCount = [];
@@ -269,7 +189,7 @@ class TiocCardMgr
             $privateLessonsCount[$playerId] = 0;
         }
         foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_PRIVATE_LESSON) {
+            if ($card->cardTypeId != CARD_TYPE_ID_LESSON) {
                 continue;
             }
             if ($card->cardLocationId != CARD_LOCATION_ID_TABLE) {
@@ -283,26 +203,12 @@ class TiocCardMgr
         return $privateLessonsCount;
     }
 
-    public function getPublicLessonCards()
+    public function getLessonCards($playerId)
     {
         $this->load();
         $cards = [];
         foreach ($this->cards as $card) {
-            if ($card->cardLocationId != CARD_LOCATION_ID_TABLE) {
-                continue;
-            }
-            if ($card->cardTypeId == CARD_TYPE_ID_PUBLIC_LESSON) {
-                $cards[] = $card;
-            }
-        }
-        return $cards;
-    }
-    public function getPrivateLessonCards($playerId)
-    {
-        $this->load();
-        $cards = [];
-        foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_PRIVATE_LESSON) {
+            if ($card->cardTypeId != CARD_TYPE_ID_LESSON) {
                 continue;
             }
             if ($card->cardLocationId != CARD_LOCATION_ID_TABLE) {
@@ -328,24 +234,6 @@ class TiocCardMgr
                 continue;
             }
             if ($card->cardLocationId == CARD_LOCATION_ID_PLAYER_HAND) {
-                $cardCount[$card->playerId] += 1;
-            }
-        }
-        return $cardCount;
-    }
-    
-    public function getTableRescueCardsCardCount($playerIdArray)
-    {
-        $this->load();
-        $cardCount = [];
-        foreach ($playerIdArray as $playerId) {
-            $cardCount[$playerId] = 0;
-        }
-        foreach ($this->cards as $card) {
-            if ($card->playerId === null) {
-                continue;
-            }
-            if ($card->cardLocationId == CARD_LOCATION_ID_TABLE && $card->cardTypeId == CARD_TYPE_ID_RESCUE) {
                 $cardCount[$card->playerId] += 1;
             }
         }
@@ -433,36 +321,6 @@ class TiocCardMgr
         $this->save();
     }
 
-    public function moveRecueCardFromHandToTablePrivate($playerId, $cardIds)
-    {
-        $rescueCards = [];
-        $this->load();
-        foreach ($this->cards as $card) {
-            if (count($cardIds) == 0) {
-                break;
-            }
-            $i = array_search($card->cardId, $cardIds);
-            if ($i === false) {
-                continue;
-            }
-            if (
-                $card->cardLocationId != CARD_LOCATION_ID_PLAYER_HAND
-                || $card->cardTypeId != CARD_TYPE_ID_RESCUE
-                || $card->playerId != $playerId
-            ) {
-                return null;
-            }
-            array_splice($cardIds, $i, 1);
-            $card->moveToTablePrivate($playerId);
-            $rescueCards[] = $card;
-        }
-        if (count($cardIds) > 0) {
-            return null;
-        }
-        $this->save();
-        return $rescueCards;
-    }
-
     public function passDraftCardsToNextPlayer($nextPlayerIds)
     {
         $this->load();
@@ -532,30 +390,12 @@ class TiocCardMgr
         return $card->price;
     }
 
-    public function movePublicLessonsToTable()
+    public function moveLessonsToTable($playerId)
     {
         $cards = [];
         $this->load();
         foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_PUBLIC_LESSON) {
-                continue;
-            }
-            if ($card->cardLocationId != CARD_LOCATION_ID_PLAYER_HAND) {
-                continue;
-            }
-            $card->moveToTable(null);
-            $cards[] = $card;
-        }
-        $this->save();
-        return $cards;
-    }
-
-    public function movePrivateLessonsToTable($playerId)
-    {
-        $cards = [];
-        $this->load();
-        foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_PRIVATE_LESSON) {
+            if ($card->cardTypeId != CARD_TYPE_ID_LESSON) {
                 continue;
             }
             if ($card->cardLocationId != CARD_LOCATION_ID_PLAYER_HAND) {
@@ -569,25 +409,6 @@ class TiocCardMgr
         }
         $this->save();
         return $cards;
-    }
-
-    public function getPlayerIdWithRecueCardsInHand()
-    {
-        $playerIds = [];
-        $this->load();
-        foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_RESCUE) {
-                continue;
-            }
-            if ($card->cardLocationId != CARD_LOCATION_ID_PLAYER_HAND) {
-                continue;
-            }
-            if ($card->playerId === null) {
-                continue;
-            }
-            $playerIds[$card->playerId] = true;
-        }
-        return array_keys($playerIds);
     }
 
     public function reavealTablePrivateCardsPerPlayerId()
@@ -612,33 +433,6 @@ class TiocCardMgr
         return $playedCards;
     }
 
-    public function validateAndUseRescueCards($playerId, $firstCardId, $secondCardId)
-    {
-        $returnCards = [];
-        $this->load();
-        $firstCard = $this->findByCardId($firstCardId);
-        if ($firstCard === null || !$firstCard->isOnPlayerTable($playerId))
-            throw new BgaVisibleSystemException("BUG! Invalid firstCardId $firstCardId");
-
-        if ($firstCard->isRescueFullBasket() && $secondCardId === null) {
-            $firstCard->moveToDiscardPlayed($this->game->getMoveNumber());
-            $returnCards[] = $firstCard;
-        } else if ($firstCard->isRescueHalfBasket() && $secondCardId !== null) {
-            $secondCard = $this->findByCardId($secondCardId);
-            if ($secondCard === null || !$secondCard->isOnPlayerTable($playerId) || !$secondCard->isRescueHalfBasket())
-                throw new BgaVisibleSystemException("BUG! Invalid secondCardId $secondCardId");
-            $firstCard->moveToDiscardPlayed($this->game->getMoveNumber());
-            $secondCard->moveToDiscardPlayed($this->game->getMoveNumber());
-            $returnCards[] = $firstCard;
-            $returnCards[] = $secondCard;
-        } else {
-            throw new BgaVisibleSystemException("BUG! Invalid first and second card");
-        }
-
-        $this->save();
-        return $returnCards;
-    }
-
     public function validateAndUseTreasureCard($playerId, $cardId)
     {
         $this->load();
@@ -655,36 +449,6 @@ class TiocCardMgr
         return $playedCard;
     }
 
-    public function validateAndUseOshaxCard($playerId, $cardId)
-    {
-        $this->load();
-        $playedCard = $this->findByCardId($cardId);
-        if ($playedCard === null || !$playedCard->isInPlayerHand($playerId))
-            throw new BgaVisibleSystemException("BUG! Invalid cardId $cardId");
-
-        if (!$playedCard->isOshax())
-            throw new BgaVisibleSystemException("BUG! cardId $cardId is not an oshax");
-
-        $playedCard->moveToDiscardPlayed($this->game->getMoveNumber());
-
-        $this->save();
-        return $playedCard;
-    }
-
-    public function discardUnusedRecueCards()
-    {
-        $cardIds = [];
-        $this->load();
-        foreach ($this->cards as $card) {
-            if ($card->cardLocationId == CARD_LOCATION_ID_TABLE && $card->playerId !== null && $card->cardTypeId == CARD_TYPE_ID_RESCUE) {
-                $card->moveToDiscard();
-                $cardIds[] = $card->cardId;
-            }
-        }
-        $this->save();
-        return $cardIds;
-    }
-
     public function discardUnbuyCards($playerId)
     {
         $cardIds = [];
@@ -699,48 +463,7 @@ class TiocCardMgr
         return $cardIds;
     }
 
-    public function validatePlayAnytimeServerSideCard($cardId, $playerId)
-    {
-        $this->load();
-        $card = $this->findByCardId($cardId);
-        if ($card === null)
-            throw new BgaVisibleSystemException("BUG! Invalid cardId $cardId");
-
-        if (!$card->isCardAnytimeServerSide)
-            throw new BgaVisibleSystemException("BUG! cardId $cardId is not a server side card");
-
-        if (!$card->isInPlayerHand($playerId))
-            throw new BgaVisibleSystemException("BUG! cardId $cardId is not in player hand");
-
-        $card->moveToDiscardPlayed($this->game->getMoveNumber());
-
-        $this->save();
-        return $card;
-    }
-
-    public function validatePlayAnytimeClientSideCard($cardId, $playerId, $allowedAnytimeTypeIdArray = null)
-    {
-        $this->load();
-        $card = $this->findByCardId($cardId);
-        if ($card === null)
-            throw new BgaVisibleSystemException("BUG! cardId $cardId dot not exists");
-        if ($card->cardAnytimeTypeId === null)
-            throw new BgaVisibleSystemException("BUG! cardId $cardId has no anytime type id");
-        if ($allowedAnytimeTypeIdArray !== null && array_search($card->cardAnytimeTypeId, $allowedAnytimeTypeIdArray) === false)
-            throw new BgaVisibleSystemException("BUG! cardId $cardId has cardAnytimeTypeId which is not allowed");
-        if ($card->isCardAnytimeServerSide)
-            throw new BgaVisibleSystemException("BUG! cardId $cardId is a server side card");
-
-        if (!$card->isInPlayerHand($playerId))
-            throw new BgaVisibleSystemException("BUG! cardId $cardId is not in player hand");
-
-        $card->moveToDiscardPlayed($this->game->getMoveNumber());
-
-        $this->save();
-        return $card;
-    }
-
-    public function validateAndDiscardPrivateLesson($playerId, $cardId)
+    public function validateAndDiscardLesson($playerId, $cardId)
     {
 
         $this->load();
@@ -793,22 +516,6 @@ class TiocCardMgr
         return $cardIdArray;
     }
 
-    public function countRescueBasket($playerId)
-    {
-        $this->load();
-        $count = 0;
-        foreach ($this->cards as $card) {
-            if ($card->isOnPlayerTable($playerId)) {
-                if ($card->isRescueFullBasket()) {
-                    $count += 1;
-                } else if ($card->isRescueHalfBasket()) {
-                    $count += 0.5;
-                }
-            }
-        }
-        return $count;
-    }
-
     public function countTreasureCards($playerId)
     {
         $this->load();
@@ -817,80 +524,11 @@ class TiocCardMgr
         }));
     }
 
-    public function countOshaxCards($playerId)
+    public function countLessons($playerId)
     {
         $this->load();
         return count(array_filter($this->cards, function ($card) use (&$playerId) {
-            return $card->isOshax() && $card->isInPlayerHand($playerId);
-        }));
-    }
-
-    public function playerHasAnytimeCardsInHand($playerId)
-    {
-        $this->load();
-        foreach ($this->cards as $card) {
-            if ($card->cardTypeId == CARD_TYPE_ID_ANYTIME && $card->isInPlayerHand($playerId)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function playerHasAnytimeCardsForRescuePhaseInHand($playerId)
-    {
-        $this->load();
-        foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_ANYTIME || !$card->isInPlayerHand($playerId)) {
-                continue;
-            }
-            switch ($card->cardAnytimeTypeId) {
-                case CARD_ANYTIME_TYPE_ID_DRAW_CARDS_2:
-                case CARD_ANYTIME_TYPE_ID_DRAW_CARDS_3:
-                case CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE:
-                case CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_BASKET:
-                case CARD_ANYTIME_TYPE_ID_GAIN_BASKET:
-                case CARD_ANYTIME_TYPE_ID_GAIN_BASKET_FOR_LESSON:
-                case CARD_ANYTIME_TYPE_ID_GAIN_BASKET_FOR_TREASURE:
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    public function playerHasAnytimeCardsForRareFindsPhaseInHand($playerId)
-    {
-        $this->load();
-        foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_ANYTIME || !$card->isInPlayerHand($playerId)) {
-                continue;
-            }
-            switch ($card->cardAnytimeTypeId) {
-                case CARD_ANYTIME_TYPE_ID_DRAW_CARDS_2:
-                case CARD_ANYTIME_TYPE_ID_DRAW_CARDS_3:
-                case CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE:
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    public function playerAnytimeCardIdSet($playerId)
-    {
-        $this->load();
-        $cardIdSet = [];
-        foreach ($this->cards as $card) {
-            if ($card->cardTypeId == CARD_TYPE_ID_ANYTIME && $card->isInPlayerHand($playerId)) {
-                $cardIdSet[$card->cardId] = true;
-            }
-        }
-        return $cardIdSet;
-    }
-
-    public function countPrivateLessons($playerId)
-    {
-        $this->load();
-        return count(array_filter($this->cards, function ($card) use (&$playerId) {
-            return $card->cardTypeId == CARD_TYPE_ID_PRIVATE_LESSON && $card->isOnPlayerTable($playerId);
+            return $card->cardTypeId == CARD_TYPE_ID_LESSON && $card->isOnPlayerTable($playerId);
         }));
     }
 
@@ -910,9 +548,8 @@ class TiocCardMgr
             }
         }
         $this->save();
-        $this->movePublicLessonsToTable();
         foreach ($playerIdArray as $playerId) {
-            $this->movePrivateLessonsToTable($playerId);
+            $this->moveLessonsToTable($playerId);
         }
     }
 }
