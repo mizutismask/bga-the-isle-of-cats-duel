@@ -222,6 +222,10 @@ class Game extends \Bga\GameFramework\Table {
         $this->gamestate->jumpToState($state);
     }
 
+    public function debug_drawCardsForIsland() {
+        $this->cardMgr->drawCardsForIsland(5);
+    }
+
     /**
      * Another example of debug function, to easily test the zombie code.
      */

@@ -11,8 +11,9 @@ class TiocCard {
     public $cardTypeId;
     public $needsBuyColor;
     public $playedMoveNumber;
+    public $islandCardSlot;
 
-    public function __construct(int $cardId, int $cardLocationId, int $deckOrder = 1, ?int $playerId = null, ?int $colorId = null, $playerPrivate = false, ?int $playedMoveNumber = null) {
+    public function __construct(int $cardId, int $cardLocationId, int $deckOrder = 1, ?int $playerId = null,  $playerPrivate = false, ?int $playedMoveNumber = null) {
         $this->cardId = $cardId;
         $this->cardLocationId = $cardLocationId;
         $this->deckOrder = $deckOrder;
@@ -20,7 +21,7 @@ class TiocCard {
         $this->playerPrivate = $playerPrivate;
         $this->playedMoveNumber = $playedMoveNumber;
         $this->cardTypeId = null;
-         if ($this->cardId >= 67 && $this->cardId <= 97) {
+        if ($this->cardId >= 67 && $this->cardId <= 97) {
             $this->cardTypeId = CARD_TYPE_ID_ANYTIME;
         } else if ($this->cardId >= 98 && $this->cardId <= 112) {
             $this->cardTypeId = CARD_TYPE_ID_TREASURE;
@@ -55,6 +56,10 @@ class TiocCard {
 
     public function isInPlayerBuy($playerId) {
         return ($this->cardLocationId == CARD_LOCATION_ID_PLAYER_BUY && $this->playerId == $playerId);
+    }
+
+    public function isOnIsland() {
+        return ($this->cardLocationId == CARD_LOCATION_ID_ISLAND_CARD_SLOT);
     }
 
     public function moveToPlayerDraft($playerId) {
@@ -92,6 +97,11 @@ class TiocCard {
     public function moveToDiscardPlayed($moveNumber) {
         $this->cardLocationId = CARD_LOCATION_ID_DISCARD_PLAYED;
         $this->playedMoveNumber = $moveNumber - 1;
+    }
+
+    public function moveToIslandCardSlot($slotNumber) {
+        $this->cardLocationId = CARD_LOCATION_ID_ISLAND_CARD_SLOT;
+        $this->islandCardSlot = $slotNumber;
     }
 
     public function isVisibleForPlayerId($playerId, $privateVisible) {

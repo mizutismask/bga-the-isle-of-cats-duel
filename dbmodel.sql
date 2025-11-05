@@ -61,9 +61,7 @@ CREATE TABLE IF NOT EXISTS `shape` (
   `boat_vertical_flip` boolean NULL,
   -- Number to know what shape was played since last turn
   `played_move_number` int(10) unsigned NULL,
-  -- card slot number, null if location is not the island
-  `island_card_slot` smallint(5) unsigned NULL,
-  -- cat slot number, null if location is not the island
+  -- Cat slot number, null if location is not the island
   `island_cat_slot` smallint(5) unsigned NULL,
   
   PRIMARY KEY (`shape_id`)
@@ -79,11 +77,11 @@ CREATE TABLE IF NOT EXISTS `card` (
   `deck_order` smallint(5) unsigned NOT NULL,
   -- player that has this card, if location is not deck
   `player_id` int(10) unsigned NULL,
-  -- color (for some public lesson cards only, null otherwise)
-  `color_id` smallint(5) unsigned NULL,
   -- true if the card is to go on the table but is not visible to other players yet
   `player_private` boolean NOT NULL,
   -- move where the card was played
   `played_move_number` int(10) unsigned NULL,
+  -- Card slot number, null if location is not the island
+  `island_card_slot` smallint(5) unsigned NULL,
   PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

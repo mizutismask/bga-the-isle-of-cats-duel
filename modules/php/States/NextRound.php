@@ -38,6 +38,8 @@ class NextRound extends \Bga\GameFramework\States\GameState {
             $this->game->giveExtraTime($activePlayerId);
             $this->game->shapeMgr->emptyIsland();
             $this->game->shapeMgr->drawFromBag(10);
+            $this->game->cardMgr->emptyIsland();
+            $this->game->cardMgr->drawCardsForIsland(5);
 
             if ($round > 0) {
                 $nextFirstPlayer = $this->game->switchFirstPlayer();

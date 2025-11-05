@@ -26,6 +26,7 @@ const CARD_LOCATION_ID_PLAYER_HAND = 3;
 const CARD_LOCATION_ID_TABLE = 4;
 const CARD_LOCATION_ID_DISCARD = 5;
 const CARD_LOCATION_ID_DISCARD_PLAYED = 6;
+const CARD_LOCATION_ID_ISLAND_CARD_SLOT = 7;
 
 const CARD_TYPE_ID_ANYTIME = 2;
 const CARD_TYPE_ID_TREASURE = 3;
@@ -39,21 +40,19 @@ const CARD_NEEDS_BUY_COLOR = [
     149 => true,
 ];
 
-class TiocCardMgr
-{
+class TiocCardMgr {
     private $game = null;
+    /**@var TiocCard[] */
     private $cards = null;
 
-    public function __construct($game)
-    {
+    public function __construct($game) {
         $this->game = $game;
     }
 
-    public function setup()
-    {
+    public function setup() {
         $this->cards = [];
         $cardIdRange = range(CARD_NORMAL_RANGE_START, CARD_NORMAL_RANGE_END);
-        
+
         foreach ($cardIdRange as $cardId) {
             $card = new TiocCard(
                 $cardId,
@@ -62,7 +61,7 @@ class TiocCardMgr
             $this->cards[] = $card;
         }
         shuffle($this->cards);
-       
+
         $deckOrder = 1;
         foreach ($this->cards as $card) {
             $card->deckOrder = $deckOrder;
@@ -71,21 +70,20 @@ class TiocCardMgr
         $this->save();
     }
 
-    public function load()
-    {
+    public function load() {
         if ($this->cards !== null) {
             return $this->cards;
         }
         $this->cards = [];
-        $valueArray = $this->game->getObjectListFromDB("SELECT card_id, card_location_id, deck_order, player_id, color_id, player_private, played_move_number FROM card");
+        $valueArray = $this->game->getObjectListFromDB("SELECT card_id, card_location_id, deck_order, player_id, player_private, island_card_slot, played_move_number FROM card");
         foreach ($valueArray as $value) {
             $card = new TiocCard(
                 $value['card_id'],
                 $value['card_location_id'],
                 $value['deck_order'],
                 $value['player_id'],
-                $value['color_id'],
                 $value['player_private'] == 1,
+                $value['island_card_slot'],
                 $value['played_move_number']
             );
             $this->cards[] = $card;
@@ -96,24 +94,22 @@ class TiocCardMgr
         return $this->cards;
     }
 
-    public function save()
-    {
+    public function save() {
         if ($this->cards === null) {
             return;
         }
         $this->game->DbQuery("DELETE FROM card");
-        $sql = "INSERT INTO card (card_id, card_location_id, deck_order, player_id, color_id, player_private, played_move_number) VALUES ";
+        $sql = "INSERT INTO card (card_id, card_location_id, deck_order, player_private, player_id, island_card_slot, played_move_number) VALUES ";
         $sqlValues = [];
         foreach ($this->cards as $card) {
             $playerPrivate = $card->playerPrivate ? 1 : 0;
-            $sqlValues[] = "({$card->cardId}, {$card->cardLocationId}, {$card->deckOrder}, " . sqlNullOrValue($card->playerId) . ", " . sqlNullOrValue($card->colorId) . ", {$playerPrivate}, " . sqlNullOrValue($card->playedMoveNumber) . ")";
+            $sqlValues[] = "({$card->cardId}, {$card->cardLocationId}, {$card->deckOrder}, {$playerPrivate}, " . sqlNullOrValue($card->playerId)  . ", " . sqlNullOrValue($card->islandCardSlot)  . ", " . sqlNullOrValue($card->playedMoveNumber) . ")";
         }
         $sql .= implode(',', $sqlValues);
         $this->game->DbQuery($sql);
     }
 
-    public function findByCardId($cardId)
-    {
+    public function findByCardId($cardId) {
         $this->load();
         foreach ($this->cards as $card) {
             if ($card->cardId == $cardId) {
@@ -123,25 +119,16 @@ class TiocCardMgr
         return null;
     }
 
-    public function isCardIdAnytime($cardId)
-    {
-        $card = $this->findByCardId($cardId);
-        if ($card === null) {
-            return false;
-        }
-        return ($card->cardTypeId == CARD_TYPE_ID_ANYTIME);
-    }
-
-    public function drawCardsForDraft($playerId, $nbCardToDraw)
-    {
+    public function drawCardsForIsland($nbCardToDraw) {
         $this->load();
         $drawnCards = [];
         foreach ($this->cards as $card) {
             if (!$card->isInDeck()) {
                 continue;
             }
-            $card->moveToPlayerDraft($playerId);
+            $card->moveToIslandCardSlot(count($drawnCards) + 1);
             $drawnCards[] = $card;
+            $this->game->dump('*******************', $card->cardLocationId);
             if (count($drawnCards) >= $nbCardToDraw) {
                 break;
             }
@@ -150,8 +137,7 @@ class TiocCardMgr
         return $drawnCards;
     }
 
-    public function drawCardsForBuy($playerId, $nbCardToDraw)
-    {
+    public function drawCardsForBuy($playerId, $nbCardToDraw) {
         $this->load();
         $drawnCards = [];
         foreach ($this->cards as $card) {
@@ -168,8 +154,7 @@ class TiocCardMgr
         return $drawnCards;
     }
 
-    public function getVisibleCardsForPlayerId($playerId, $privateVisible)
-    {
+    public function getVisibleCardsForPlayerId($playerId, $privateVisible) {
         $this->load();
         $visibleCards = [];
         foreach ($this->cards as $card) {
@@ -181,8 +166,7 @@ class TiocCardMgr
         return $visibleCards;
     }
 
-    public function getLessonsCount($playerIdArray)
-    {
+    public function getLessonsCount($playerIdArray) {
         $this->load();
         $privateLessonsCount = [];
         foreach ($playerIdArray as $playerId) {
@@ -203,8 +187,7 @@ class TiocCardMgr
         return $privateLessonsCount;
     }
 
-    public function getLessonCards($playerId)
-    {
+    public function getLessonCards($playerId) {
         $this->load();
         $cards = [];
         foreach ($this->cards as $card) {
@@ -222,8 +205,7 @@ class TiocCardMgr
         return $cards;
     }
 
-    public function getHandCardCount($playerIdArray)
-    {
+    public function getHandCardCount($playerIdArray) {
         $this->load();
         $cardCount = [];
         foreach ($playerIdArray as $playerId) {
@@ -240,8 +222,7 @@ class TiocCardMgr
         return $cardCount;
     }
 
-    public function moveDraftCardsToBuy($playerId, $cardIds)
-    {
+    public function moveDraftCardsToBuy($playerId, $cardIds) {
         $this->load();
         foreach ($this->cards as $card) {
             if (count($cardIds) == 0) {
@@ -264,8 +245,7 @@ class TiocCardMgr
         return true;
     }
 
-    public function draftKeepOnlyCardList($playerId, $cardIds)
-    {
+    public function draftKeepOnlyCardList($playerId, $cardIds) {
         $this->load();
         $discardCardId = null;
         $keepCardCount = 0;
@@ -295,8 +275,7 @@ class TiocCardMgr
         return $discardCardId;
     }
 
-    public function draftDiscardAll($playerId)
-    {
+    public function draftDiscardAll($playerId) {
         $cardIds = [];
         $this->load();
         foreach ($this->cards as $card) {
@@ -309,8 +288,7 @@ class TiocCardMgr
         return $cardIds;
     }
 
-    public function moveFamilyDraftCardsToHand()
-    {
+    public function moveFamilyDraftCardsToHand() {
         $this->load();
         foreach ($this->cards as $card) {
             if ($card->cardLocationId == CARD_LOCATION_ID_PLAYER_DRAFT && $card->playerId !== null) {
@@ -321,8 +299,7 @@ class TiocCardMgr
         $this->save();
     }
 
-    public function passDraftCardsToNextPlayer($nextPlayerIds)
-    {
+    public function passDraftCardsToNextPlayer($nextPlayerIds) {
         $this->load();
         foreach ($this->cards as $card) {
             if ($card->cardLocationId == CARD_LOCATION_ID_PLAYER_DRAFT) {
@@ -332,8 +309,7 @@ class TiocCardMgr
         $this->save();
     }
 
-    public function getPlayerDraftCards($playerId)
-    {
+    public function getPlayerDraftCards($playerId) {
         $cards = [];
         $this->load();
         foreach ($this->cards as $card) {
@@ -345,8 +321,7 @@ class TiocCardMgr
         return $cards;
     }
 
-    public function playerCountCardsToBuy($playerId)
-    {
+    public function playerCountCardsToBuy($playerId) {
         $count = 0;
         $this->load();
         foreach ($this->cards as $card) {
@@ -357,8 +332,7 @@ class TiocCardMgr
         return $count;
     }
 
-    public function playerHasCardsToBuy($playerId)
-    {
+    public function playerHasCardsToBuy($playerId) {
         $this->load();
         foreach ($this->cards as $card) {
             if ($card->isInPlayerBuy($playerId)) {
@@ -368,8 +342,7 @@ class TiocCardMgr
         return false;
     }
 
-    public function buyPlayerCard($playerId, $cardId, $colorId)
-    {
+    public function buyPlayerCard($playerId, $cardId, $colorId) {
         $this->load();
         $card = $this->findByCardId($cardId);
         if ($card === null || !$card->isInPlayerBuy($playerId))
@@ -387,11 +360,10 @@ class TiocCardMgr
         $card->moveToPlayerHand($playerId, $colorId);
 
         $this->save();
-        return $card->price;
+        return 0;
     }
 
-    public function moveLessonsToTable($playerId)
-    {
+    public function moveLessonsToTable($playerId) {
         $cards = [];
         $this->load();
         foreach ($this->cards as $card) {
@@ -411,8 +383,7 @@ class TiocCardMgr
         return $cards;
     }
 
-    public function reavealTablePrivateCardsPerPlayerId()
-    {
+    public function reavealTablePrivateCardsPerPlayerId() {
         $playedCards = [];
         $this->load();
         foreach ($this->cards as $card) {
@@ -433,8 +404,7 @@ class TiocCardMgr
         return $playedCards;
     }
 
-    public function validateAndUseTreasureCard($playerId, $cardId)
-    {
+    public function validateAndUseTreasureCard($playerId, $cardId) {
         $this->load();
         $playedCard = $this->findByCardId($cardId);
         if ($playedCard === null || !$playedCard->isInPlayerHand($playerId))
@@ -449,8 +419,7 @@ class TiocCardMgr
         return $playedCard;
     }
 
-    public function discardUnbuyCards($playerId)
-    {
+    public function discardUnbuyCards($playerId) {
         $cardIds = [];
         $this->load();
         foreach ($this->cards as $card) {
@@ -463,16 +432,29 @@ class TiocCardMgr
         return $cardIds;
     }
 
-    public function validateAndDiscardLesson($playerId, $cardId)
-    {
+    public function emptyIsland() {
+        $discardedCards = [];
+        $this->load();
+        foreach ($this->cards as $card) {
+            if (!$card->isOnIsland()) {
+                continue;
+            }
+            $card->moveToDiscard();
+            $discardedCards[] = $card;
+        }
+        $this->save();
+        return $discardedCards;
+    }
+
+    public function validateAndDiscardLesson($playerId, $cardId) {
 
         $this->load();
         $card = $this->findByCardId($cardId);
         if ($card === null)
             throw new BgaVisibleSystemException("BUG! Invalid cardId $cardId");
 
-        if (!$card->isPrivateLesson())
-            throw new BgaVisibleSystemException("BUG! cardId $cardId is not a private lesson");
+        if (!$card->isLesson())
+            throw new BgaVisibleSystemException("BUG! cardId $cardId is not a lesson");
         if (!$card->isOnPlayerTable($playerId))
             throw new BgaVisibleSystemException("BUG! cardId $cardId is not on player table");
 
@@ -482,8 +464,7 @@ class TiocCardMgr
         return $card;
     }
 
-    public function hasNoCardsInHand()
-    {
+    public function hasNoCardsInHand() {
         $this->load();
         foreach ($this->cards as $card) {
             if ($card->cardLocationId == CARD_LOCATION_ID_PLAYER_HAND) {
@@ -493,8 +474,7 @@ class TiocCardMgr
         return true;
     }
 
-    public function playerHasNoCardsInHand($playerId)
-    {
+    public function playerHasNoCardsInHand($playerId) {
         $this->load();
         foreach ($this->cards as $card) {
             if ($card->isInPlayerHand($playerId)) {
@@ -504,8 +484,7 @@ class TiocCardMgr
         return true;
     }
 
-    public function getPlayerHandCardIdArray($playerId)
-    {
+    public function getPlayerHandCardIdArray($playerId) {
         $cardIdArray = [];
         $this->load();
         foreach ($this->cards as $card) {
@@ -516,24 +495,21 @@ class TiocCardMgr
         return $cardIdArray;
     }
 
-    public function countTreasureCards($playerId)
-    {
+    public function countTreasureCards($playerId) {
         $this->load();
         return count(array_filter($this->cards, function ($card) use (&$playerId) {
             return $card->isTreasure() && $card->isInPlayerHand($playerId);
         }));
     }
 
-    public function countLessons($playerId)
-    {
+    public function countLessons($playerId) {
         $this->load();
         return count(array_filter($this->cards, function ($card) use (&$playerId) {
             return $card->cardTypeId == CARD_TYPE_ID_LESSON && $card->isOnPlayerTable($playerId);
         }));
     }
 
-    public function debugDistributeCards($playerIdArray)
-    {
+    public function debugDistributeCards($playerIdArray) {
         $this->load();
         foreach ($this->cards as $card) {
             switch ($card->cardTypeId) {

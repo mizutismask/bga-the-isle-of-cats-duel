@@ -96,7 +96,6 @@ class TiocShapeMgr {
             . "boat_rotation,"
             . "boat_horizontal_flip,"
             . "boat_vertical_flip,"
-            . "island_card_slot,"
             . "island_cat_slot,"
             . "played_move_number"
             . " FROM shape");
@@ -115,7 +114,6 @@ class TiocShapeMgr {
                 $value['boat_rotation'],
                 $value['boat_horizontal_flip'],
                 $value['boat_vertical_flip'],
-                $value['island_card_slot'],
                 $value['island_cat_slot'],
                 $value['played_move_number'],
             );
@@ -146,7 +144,6 @@ class TiocShapeMgr {
             . "boat_rotation,"
             . "boat_horizontal_flip,"
             . "boat_vertical_flip,"
-            . "island_card_slot,"
             . "island_cat_slot,"
             . "played_move_number"
             . ") VALUES ";
@@ -165,7 +162,6 @@ class TiocShapeMgr {
                 . sqlNullOrValue($shape->boatRotation) . ","
                 . sqlNullOrValue($shape->boatHorizontalFlip) . ","
                 . sqlNullOrValue($shape->boatVerticalFlip) . ","
-                . sqlNullOrValue($shape->islandCardSlot) . ","
                 . sqlNullOrValue($shape->islandCatSlot) . ","
                 . sqlNullOrValue($shape->playedMoveNumber)
                 . ")";
