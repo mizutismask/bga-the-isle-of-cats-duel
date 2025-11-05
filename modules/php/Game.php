@@ -23,6 +23,8 @@ namespace Bga\Games\TheIsleOfCatsDuel;
 use Bga\Games\TheIsleOfCatsDuel\States\PlayerTurn;
 use Bga\GameFramework\Components\Counters\PlayerCounter;
 use Bga\Games\TheIsleOfCatsDuel\States\BoatChoice;
+use Bga\Games\yourgamenamesk\ContextMgr;
+use Bga\Games\TheIsleOfCatsDuel\Constants;
 
 require_once("TiocGlobals.inc.php");
 
@@ -30,12 +32,13 @@ class Game extends \Bga\GameFramework\Table {
     use PlayerUtilTrait;
     use DBUtilTrait;
 
-
     public static array $CARD_TYPES;
 
     public TiocShapeMgr $shapeMgr;
     public TiocCardMgr $cardMgr;
     public PlayerCounter $playerFishCounter;
+    public ContextMgr $contextMgr;
+    public IslandMgr $islandMgr;
 
     /**
      * Your global variables labels:
@@ -64,6 +67,8 @@ class Game extends \Bga\GameFramework\Table {
 
         $this->shapeMgr = new TiocShapeMgr($this);
         $this->cardMgr = new TiocCardMgr($this);
+        $this->contextMgr = new ContextMgr($this);
+        $this->islandMgr = new IslandMgr($this);
 
         /* example of notification decorator.
         // automatically complete notification args when needed

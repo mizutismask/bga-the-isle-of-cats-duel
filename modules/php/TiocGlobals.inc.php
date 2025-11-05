@@ -1,4 +1,5 @@
 <?php
+
 namespace Bga\Games\TheIsleOfCatsDuel;
 
 use BgaVisibleSystemException;
@@ -12,6 +13,8 @@ use BgaVisibleSystemException;
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  */
+
+
 
 const MAX_NUMBER_OF_PLAYERS = 4;
 
@@ -51,8 +54,8 @@ const SHAPE_TYPE_ID_OSHAX = 1;
 const SHAPE_TYPE_ID_COMMON_TREASURE = 2;
 const SHAPE_TYPE_ID_RARE_TREASURE = 3;
 
-function array_from_indexes(array $array_values, array $array_indexes)
-{
+
+function array_from_indexes(array $array_values, array $array_indexes) {
     $ret = [];
     foreach ($array_indexes as $index) {
         $ret[] = $array_values[$index];
@@ -60,8 +63,7 @@ function array_from_indexes(array $array_values, array $array_indexes)
     return $ret;
 }
 
-function sqlNullOrValue($value)
-{
+function sqlNullOrValue($value) {
     if ($value === null) {
         return "NULL";
     }
@@ -74,8 +76,7 @@ function sqlNullOrValue($value)
     }
 }
 
-function value_req(array $array, string $key)
-{
+function value_req(array $array, string $key) {
     if (!array_key_exists($key, $array))
         throw new BgaVisibleSystemException("BUG! key $key does not exist");
     if ($array[$key] === null)
@@ -83,15 +84,13 @@ function value_req(array $array, string $key)
     return $array[$key];
 }
 
-function value_req_null(array $array, string $key)
-{
+function value_req_null(array $array, string $key) {
     if (!array_key_exists($key, $array))
         throw new BgaVisibleSystemException("BUG! key $key does not exist");
     return $array[$key];
 }
 
-function toNotifArray($array_or_value)
-{
+function toNotifArray($array_or_value) {
     if (is_array($array_or_value)) {
         return array_map(function ($v) {
             return toNotifArray($v);

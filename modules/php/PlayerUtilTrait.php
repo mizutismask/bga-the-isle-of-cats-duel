@@ -172,7 +172,7 @@ trait PlayerUtilTrait {
         $this->globals->set($key . "-" . $playerId, $value);
     }
     function incPlayerGlobal(int $playerId, string $key, $value) {
-        $this->globals->inc($key . "-" . $playerId, $value);
+       return $this->globals->inc($key . "-" . $playerId, $value);
     }
 
     function switchFirstPlayer() {

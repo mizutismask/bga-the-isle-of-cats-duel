@@ -8,14 +8,18 @@ use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\UserException;
+use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 
-class PlayerTurn extends GameState
-{
+class PlayerTurn extends GameState {
+
+    
+
     function __construct(
         protected Game $game,
     ) {
-        parent::__construct($game,
+        parent::__construct(
+            $game,
             id: 11,
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must play a card or pass'),
@@ -23,19 +27,24 @@ class PlayerTurn extends GameState
         );
     }
 
+    function onEnteringState(int $activePlayerId) {
+        // I can't access GLBL_REMAINING_OSHAX_MOVES because it is declared as a constant in TiocGlobals.inc.php.
+        // In order to access it, I should use the fully qualified name, like this:
+        $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_REMAINING_OSHAX_MOVES, 2);
+    }
     /**
      * Game state arguments, example content.
      *
      * This method returns some additional information that is very specific to the `PlayerTurn` game state.
      */
-    public function getArgs(): array
-    {
+    public function getArgs(): array {
         // Get some values from the current game situation from the database.
 
         return [
             "playableCardsIds" => [1, 2],
+            "oshaxValidMoves" => $this->game->islandMgr->getOshaxValidMoves(),
         ];
-    }    
+    }
 
     /**
      * Player action, example content.
@@ -46,8 +55,29 @@ class PlayerTurn extends GameState
      * @throws UserException
      */
     #[PossibleAction]
-    public function actPlayCard(int $card_id, int $activePlayerId, array $args)
-    {
+    public function actMoveOshax(int $slot, int $activePlayerId, array $args) {
+        // check input values
+        if (!$this->game->islandMgr->isValidSlot($slot)) {
+            throw new UserException('This slot is not valid');
+        }
+
+        $validMoves = $args['oshaxValidMoves'];
+        if (!in_array($slot, $validMoves)) {
+            throw new UserException('You cannot reach this location');
+        }
+
+        $remainingMoves = $this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_REMAINING_OSHAX_MOVES);
+        if ($remainingMoves == 0) {
+            throw new UserException('You have no remaining move, use a fish to get an additional one');
+        }
+
+        $this->game->islandMgr->moveOshaxToSlot($activePlayerId, $slot);
+        
+        // at the end of the action, move to the next state
+        return PlayerTurn::class;
+    }
+    #[PossibleAction]
+    public function actPlayCard(int $card_id, int $activePlayerId, array $args) {
         // check input values
         $playableCardsIds = $args['playableCardsIds'];
         if (!in_array($card_id, $playableCardsIds)) {
@@ -80,12 +110,11 @@ class PlayerTurn extends GameState
      * by the action trigger on the front side with `bgaPerformAction`.
      */
     #[PossibleAction]
-    public function actPass(int $activePlayerId)
-    {
+    public function actPass(int $activePlayerId) {
         // Notify all players about the choice to pass.
-        $this->notify->all("pass", clienttranslate('${player_name} passes'), [
-            "player_id" => $activePlayerId,
-            "player_name" => $this->game->getPlayerNameById($activePlayerId), // remove this line if you uncomment notification decorator
+        $this->notify->all("pass", "", [
+            //"player_id" => $activePlayerId,
+            //"player_name" => $this->game->getPlayerNameById($activePlayerId), // remove this line if you uncomment notification decorator
         ]);
 
 
