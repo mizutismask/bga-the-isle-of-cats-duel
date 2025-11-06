@@ -69,6 +69,10 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 }
 
 interface EnteringPlayerTurnArgs {
+	canTradeFishForMove: boolean
+	canTradeFishForJump: boolean
+	canTradeFishForTreasure: boolean
+	canTradeFishForDiscovery: boolean
 	canPass: boolean
 	canResetTurn: boolean
 	oshaxValidMoves: number[]

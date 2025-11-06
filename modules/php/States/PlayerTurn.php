@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 namespace Bga\Games\TheIsleOfCatsDuel\States;
 
+use Bga\GameFramework\Actions\Types\StringParam;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\UserException;
 use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
+
+const FISH_ACTION_COST = [
+    "M" => 1,
+    "J" => 2,
+    "T" => 2,
+    "D" => 3,
+];
 
 class PlayerTurn extends GameState {
 
@@ -42,6 +50,10 @@ class PlayerTurn extends GameState {
             "oshaxValidMoves" => $this->game->islandMgr->getOshaxValidMoves(),
             "remainingMoves" => $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES),
             "mandatoryMoveDone" => $this->game->globals->get(Constants::GLBL_MANDATORY_MOVE_DONE),
+            "canTradeFishForMove" => FISH_ACTION_COST["M"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
+            "canTradeFishForJump" => FISH_ACTION_COST["J"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
+            "canTradeFishForTreasure" => FISH_ACTION_COST["T"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
+            "canTradeFishForDiscovery" => FISH_ACTION_COST["D"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
         ];
     }
 
@@ -72,7 +84,31 @@ class PlayerTurn extends GameState {
 
         $this->game->islandMgr->moveOshaxToSlot($activePlayerId, $slot);
 
-        // at the end of the action, move to the next state
+        return PlayerTurn::class;
+    }
+
+    #[PossibleAction]
+    public function actTradeFishForAction(#[StringParam(enum: ['M', 'J', "T", "D"])] $additionalAction, int $activePlayerId, array $args) {
+        // check input values
+        if (!$args['mandatoryMoveDone']) {
+            throw new UserException('You cannot use fish before moving the Oshax');
+        }
+
+        if (FISH_ACTION_COST[$additionalAction] > $this->game->playerFishCounter->get($activePlayerId)) {
+            throw new UserException('You don’t have enough fish');
+        }
+
+        switch ($additionalAction) {
+            case 'M':
+                $this->globals->inc(Constants::GLBL_REMAINING_OSHAX_MOVES, 1);
+                $this->game->playerFishCounter->inc($activePlayerId, FISH_ACTION_COST[$additionalAction] * -1);
+                break;
+
+            default:
+                # code...
+                break;
+        }
+
         return PlayerTurn::class;
     }
     #[PossibleAction]

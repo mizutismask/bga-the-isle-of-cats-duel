@@ -341,7 +341,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		if (this.gameui.isCurrentPlayerActive()) {
 			switch (stateName) {
-				case 'playerTurn':
+				case 'PlayerTurn':
 					this.statusBar.addActionButton(_('Validate'), () => this.selectInSetAction(), {
 						id: 'btn-validate'
 					})
@@ -360,21 +360,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 						{}
 					)
 					break
-				case 'PlayerTurn':
-				/*const playableCardsIds = args.playableCardsIds // returned by the argPlayerTurn
-
-						// Add test action buttons in the action status bar, simulating a card click:
-						playableCardsIds.forEach((cardId) =>
-							this.statusBar.addActionButton(
-								_('Play card with id ${card_id}').replace('${card_id}', cardId),
-								() => this.onCardClick(cardId)
-							)
-						)
-
-						this.statusBar.addActionButton(_('Pass'), () => this.bgaPerformAction('actPass'), {
-							color: 'secondary'
-						})
-						break*/
 			}
 		}
 	}
@@ -482,6 +467,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	 */
 	private setActionBarChooseAction(fromCancel: boolean) {
 		document.getElementById(`generalactions`).innerHTML = ''
+		const chooseActionArgs = this.gamedatas.gamestate.args as EnteringPlayerTurnArgs
 
 		if (fromCancel) {
 			this.setChooseActionGamestateDescription()
@@ -490,6 +476,26 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			window.clearInterval(this.actionTimerId)
 		}
 
+		if (chooseActionArgs.canTradeFishForMove) {
+			this.statusBar.addActionButton(_('Get one more move'), () => {
+				this.takeAction('actTradeFishForAction', { additionalAction: 'M' })
+			})
+		}
+		if (chooseActionArgs.canTradeFishForJump) {
+			this.statusBar.addActionButton(_('Jump'), () => {
+				this.takeAction('actTradeFishForAction', { additionalAction: 'J' })
+			})
+		}
+		if (chooseActionArgs.canTradeFishForTreasure) {
+			this.statusBar.addActionButton(_('Take treasure'), () => {
+				this.takeAction('actTradeFishForAction', { additionalAction: 'T' })
+			})
+		}
+		if (chooseActionArgs.canTradeFishForDiscovery) {
+			this.statusBar.addActionButton(_('Take discovery'), () => {
+				this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
+			})
+		}
 		this.addImageActionButton(
 			'useTicket_button',
 			createDiv('expTicket', 'expTicket-button'),
@@ -503,7 +509,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		//{autoclick: true}
 
 		//dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
-		const chooseActionArgs = this.gamedatas.gamestate.args as EnteringPlayerTurnArgs
 		if (chooseActionArgs.canPass) {
 			this.statusBar.addActionButton(_('End my turn'), () => this.pass())
 		}
