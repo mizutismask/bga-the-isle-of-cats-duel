@@ -8,4 +8,5 @@ class  Constants {
     const GLBL_OSHAX_LOCATION = "oshaxLocation";
     const GLBL_REMAINING_OSHAX_MOVES = 'remainingOshaxMoves';
     const GLBL_MANDATORY_MOVE_DONE = "mandatoryMoveDone";
+    const GLBL_CURRENT_FISH_ACTION = "currentFishAction";
 }

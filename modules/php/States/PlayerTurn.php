@@ -50,6 +50,7 @@ class PlayerTurn extends GameState {
             "oshaxValidMoves" => $this->game->islandMgr->getOshaxValidMoves(),
             "remainingMoves" => $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES),
             "mandatoryMoveDone" => $this->game->globals->get(Constants::GLBL_MANDATORY_MOVE_DONE),
+            "currentFishAction" => $this->game->globals->get(Constants::GLBL_CURRENT_FISH_ACTION),
             "canTradeFishForMove" => FISH_ACTION_COST["M"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForJump" => FISH_ACTION_COST["J"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForTreasure" => FISH_ACTION_COST["T"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
@@ -100,14 +101,14 @@ class PlayerTurn extends GameState {
 
         switch ($additionalAction) {
             case 'M':
+            case 'J':
                 $this->globals->inc(Constants::GLBL_REMAINING_OSHAX_MOVES, 1);
-                $this->game->playerFishCounter->inc($activePlayerId, FISH_ACTION_COST[$additionalAction] * -1);
-                break;
-
-            default:
-                # code...
                 break;
         }
+        if ($additionalAction != "M") {
+            $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, $additionalAction);
+        }
+        $this->game->playerFishCounter->inc($activePlayerId, FISH_ACTION_COST[$additionalAction] * -1);
 
         return PlayerTurn::class;
     }

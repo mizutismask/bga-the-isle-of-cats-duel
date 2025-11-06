@@ -38,14 +38,19 @@ class IslandMgr {
     }
 
     public function getOshaxValidMoves() {
+        $fishAction = $this->game->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
+        if ($fishAction == "J") {
+            $possibleMoves = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        } else {
+            $possibleMoves = $this->getOshaxPossibleMoves();
+        }
+
         $previousMoves = $this->game->contextMgr->getAllContextLogs(Constants::CONTEXT_ACTION_OSHAX_MOVE);
         $slotsSeen = array_unique(array_merge(...array_map(function ($move) {
             return [$move['param1'], $move['param2']];
         }, $previousMoves)));
 
-        $this->game->dump('****************$this->getOshaxPossibleMoves()***', $this->getOshaxPossibleMoves());
-        $this->game->dump('****************slotsSeen***', $slotsSeen);
-        return array_diff($this->getOshaxPossibleMoves(), $slotsSeen);
+        return array_diff($possibleMoves, $slotsSeen);
     }
 
     public function moveOshaxToSlot(int $playerId, int $slot) {
