@@ -23,7 +23,6 @@ namespace Bga\Games\TheIsleOfCatsDuel;
 use Bga\Games\TheIsleOfCatsDuel\States\PlayerTurn;
 use Bga\GameFramework\Components\Counters\PlayerCounter;
 use Bga\Games\TheIsleOfCatsDuel\States\BoatChoice;
-use Bga\Games\yourgamenamesk\ContextMgr;
 use Bga\Games\TheIsleOfCatsDuel\Constants;
 
 require_once("TiocGlobals.inc.php");

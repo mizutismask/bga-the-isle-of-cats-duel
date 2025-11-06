@@ -1,8 +1,6 @@
 <?php
+namespace Bga\Games\TheIsleOfCatsDuel;
 
-namespace Bga\Games\yourgamenamesk;
-
-use Bga\Games\TheIsleOfCatsDuel\Game;
 
 class ContextMgr {
     public function __construct(private Game $game) {
