@@ -53,7 +53,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			animationsActive: () => this.gameui.bgaAnimationsActive()
 		})
 		this.cardsManager = new CardsManager(this)
-		
+
 		if (gamedatas.lastTurn) {
 			this.notif_lastTurn(false)
 		}
@@ -61,7 +61,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			// score or end
 			this.onEnteringEndScore()
 		}
-		
+
 		this.gameui.getGameAreaElement().insertAdjacentHTML(
 			'beforeend',
 			`<div id="boat-choice">
@@ -69,7 +69,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			<div class="boat OBoat"></div>
 			</div>`
 		)
-		
+
 		// Example to add a div on the game area
 		this.gameui.getGameAreaElement().insertAdjacentHTML(
 			'beforeend',
@@ -77,7 +77,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			<div id="player-tables"></div>
             `
 		)
-		this.island = new Island(this)
+		this.island = new Island(this, gamedatas)
 
 		// Setting up player boards
 		Object.values(this.gamedatas.players).forEach((player) => {
@@ -259,9 +259,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		log('Entering state: ' + stateName, args)
 
 		switch (stateName) {
-			case 'chooseAction':
+			case 'PlayerTurn':
 				if (args?.args) {
-					const dataArgs = args.args as EnteringChooseActionArgs
+					const dataArgs = args.args as EnteringPlayerTurnArgs
 					this.onEnteringChooseAction(dataArgs)
 				}
 				break
@@ -271,17 +271,25 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		}
 	}
 
-	private onEnteringChooseAction(args: EnteringChooseActionArgs) {
+	private onEnteringChooseAction(args: EnteringPlayerTurnArgs) {
 		//todo
 		if (this.gameui.isCurrentPlayerActive()) {
 			this.resetClientActionData()
-			const actions = this.getPossibleActions(args)
-			this.setChooseActionGamestateDescription(actions.join(_(' or ')))
+			if (args.remainingMoves > 0) {
+				//nothing
+			} else if (args.mandatoryMoveDone) {
+				this.setChooseActionGamestateDescription(
+					_('${you} can select one discovery and/or use fish or end your turn')
+				)
+			}
+
+			//const actions = this.getPossibleActions(args)
+			//this.setChooseActionGamestateDescription(actions.join(_(' or ')))
 		}
 		//this.missions.addCards(args._private.missions).then(()=>this.missions.setSelectableCards(args._private.choosableMissions))
 	}
 
-	private getPossibleActions(args: EnteringChooseActionArgs) {
+	private getPossibleActions(args: EnteringPlayerTurnArgs) {
 		const actions = []
 
 		//if (args.canBuild) actions.push(_('Build your mall'))
@@ -333,7 +341,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		if (this.gameui.isCurrentPlayerActive()) {
 			switch (stateName) {
-				case 'chooseAction':
+				case 'playerTurn':
 					this.statusBar.addActionButton(_('Validate'), () => this.selectInSetAction(), {
 						id: 'btn-validate'
 					})
@@ -474,14 +482,13 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	 */
 	private setActionBarChooseAction(fromCancel: boolean) {
 		document.getElementById(`generalactions`).innerHTML = ''
+
 		if (fromCancel) {
 			this.setChooseActionGamestateDescription()
 		}
 		if (this.actionTimerId) {
 			window.clearInterval(this.actionTimerId)
 		}
-
-		const chooseActionArgs = this.gamedatas.gamestate.args as EnteringChooseActionArgs
 
 		this.addImageActionButton(
 			'useTicket_button',
@@ -496,7 +503,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		//{autoclick: true}
 
 		//dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
-
+		const chooseActionArgs = this.gamedatas.gamestate.args as EnteringPlayerTurnArgs
 		if (chooseActionArgs.canPass) {
 			this.statusBar.addActionButton(_('End my turn'), () => this.pass())
 		}
@@ -506,6 +513,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				color: 'alert',
 				title: _('Reset your entire round')
 			})
+		}
+	}
+
+	public moveOshaxToSlot(slot: number) {
+		if (
+			this.gameui.isCurrentPlayerActive() &&
+			this.gamedatas.gamestate.name == 'PlayerTurn' &&
+			this.gamedatas.gamestate.args.remainingMoves > 0
+		) {
+			this.takeAction('actMoveOshax', { slot: slot })
 		}
 	}
 
@@ -568,6 +585,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['score', ANIMATION_MS],
 			['highlightWinnerScore', ANIMATION_MS],
 			['materialMove', ANIMATION_MS],
+			['oshaxMove', ANIMATION_MS],
 			['lastTurn', 1],
 			['importantMessage', 3000],
 			['counter', 1],
@@ -588,6 +606,10 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	notif_score(notif: Notif<NotifScoreArgs>) {
 		log('notif_score', notif)
 		this.scoreBoard.updateScore(notif.args.playerId, notif.args.scoreType, notif.args.score)
+	}
+	notif_oshaxMove(notif: Notif<NotifOshaxMoveArgs>) {
+		log('notif_oshaxMove', notif.args)
+		this.island.refreshOshaxLocation(notif.args.to)
 	}
 
 	notif_counter(notif: Notif<NotifCounter>) {

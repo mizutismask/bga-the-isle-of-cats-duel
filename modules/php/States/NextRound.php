@@ -49,7 +49,7 @@ class NextRound extends \Bga\GameFramework\States\GameState {
             }
 
             $this->notify->all('newRound', clienttranslate('&#10148; Round ${round}'), ["round" => $round]);
-            return PlayerTurn::class;
+            return NextPlayer::class;
         }
     }
 

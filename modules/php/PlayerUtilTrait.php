@@ -154,9 +154,9 @@ trait PlayerUtilTrait {
     function getMostlyActivePlayerId() {
         $state = $this->gamestate->state();
         if ($state['type'] === "multipleactiveplayer") {
-            return $this->getCurrentPlayerId();
+            return intval($this->getCurrentPlayerId());
         } else {
-            return $this->getActivePlayerId();
+            return intval($this->getActivePlayerId());
         }
     }
 

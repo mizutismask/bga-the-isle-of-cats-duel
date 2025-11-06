@@ -552,6 +552,7 @@ class BaseGame {
     takeAction(action, data, options) {
         data = data || {};
         data.version = this.gamedatas.version;
+        log('takeAction', action, data);
         return this.gameui.bgaPerformAction(action, data, options);
     }
     setTooltip(id, html) {
@@ -860,17 +861,22 @@ class ScoreBoard {
     }
 }
 class Island {
-    constructor(game) {
+    constructor(game, gamedatas) {
         this.game = game;
         const container = document.createElement('div');
         container.id = `island`;
         game.gameui.getGameAreaElement().appendChild(container);
         for (let i = 1; i <= 15; i++) {
-            const island = document.createElement('div');
-            island.id = `island-slot-${i}`;
-            island.classList.add('island-slot');
-            island.dataset.slotId = '' + i;
-            container.appendChild(island);
+            const islandSlot = document.createElement('div');
+            islandSlot.id = `island-slot-${i}`;
+            islandSlot.classList.add('island-slot');
+            islandSlot.dataset.slotId = '' + i;
+            container.appendChild(islandSlot);
+            islandSlot.addEventListener('click', (evt) => {
+                if (evt.detail > 1)
+                    return;
+                this.game.moveOshaxToSlot(parseInt(islandSlot.dataset.slotId));
+            });
         }
         ;
         [1, 3, 5, 6, 7, 8, 9, 10, 12, 14].forEach((i) => {
@@ -879,6 +885,20 @@ class Island {
         [2, 4, 11, 13, 15].forEach((i) => {
             container.querySelector(`#island-slot-${i}`).classList.add('island-card-slot');
         });
+        const oshax = document.createElement('div');
+        oshax.id = `oshax`;
+        oshax.classList.add('oshax');
+        container.querySelector(`#island-slot-${gamedatas.oshaxLocation}`).appendChild(oshax);
+    }
+    refreshOshaxLocation(slotNumber) {
+        const from = document.getElementById('oshax');
+        const to = document.getElementById(`island-slot-${slotNumber}`);
+        if (this.game.animationManager.animationsActive) {
+            this.game.animationManager.slideAndAttach(from, to, { preserveScale: true });
+        }
+        else {
+            to.appendChild(from);
+        }
     }
 }
 /**
@@ -982,7 +1002,7 @@ class TheIsleOfCatsDuel extends BaseGame {
         this.gameui.getGameAreaElement().insertAdjacentHTML('beforeend', `
 			<div id="player-tables"></div>
             `);
-        this.island = new Island(this);
+        this.island = new Island(this, gamedatas);
         // Setting up player boards
         Object.values(this.gamedatas.players).forEach((player) => {
             // example of setting up players boards
@@ -1130,7 +1150,7 @@ class TheIsleOfCatsDuel extends BaseGame {
     onEnteringState(stateName, args) {
         log('Entering state: ' + stateName, args);
         switch (stateName) {
-            case 'chooseAction':
+            case 'PlayerTurn':
                 if (args === null || args === void 0 ? void 0 : args.args) {
                     const dataArgs = args.args;
                     this.onEnteringChooseAction(dataArgs);
@@ -1145,8 +1165,14 @@ class TheIsleOfCatsDuel extends BaseGame {
         //todo
         if (this.gameui.isCurrentPlayerActive()) {
             this.resetClientActionData();
-            const actions = this.getPossibleActions(args);
-            this.setChooseActionGamestateDescription(actions.join(_(' or ')));
+            if (args.remainingMoves > 0) {
+                //nothing
+            }
+            else if (args.mandatoryMoveDone) {
+                this.setChooseActionGamestateDescription(_('${you} can select one discovery and/or use fish or end your turn'));
+            }
+            //const actions = this.getPossibleActions(args)
+            //this.setChooseActionGamestateDescription(actions.join(_(' or ')))
         }
         //this.missions.addCards(args._private.missions).then(()=>this.missions.setSelectableCards(args._private.choosableMissions))
     }
@@ -1194,7 +1220,7 @@ class TheIsleOfCatsDuel extends BaseGame {
         log('onUpdateActionButtons: ' + stateName, args);
         if (this.gameui.isCurrentPlayerActive()) {
             switch (stateName) {
-                case 'chooseAction':
+                case 'playerTurn':
                     this.statusBar.addActionButton(_('Validate'), () => this.selectInSetAction(), {
                         id: 'btn-validate'
                     });
@@ -1322,13 +1348,13 @@ class TheIsleOfCatsDuel extends BaseGame {
         if (this.actionTimerId) {
             window.clearInterval(this.actionTimerId);
         }
-        const chooseActionArgs = this.gamedatas.gamestate.args;
         this.addImageActionButton('useTicket_button', createDiv('expTicket', 'expTicket-button'), 'primary', _('Use a ticket to place another arrow, remove the last one of any expedition or exchange a card'), () => {
             // this.useTicket();
         });
         $('expTicket-button').parentElement.style.padding = '0';
         //{autoclick: true}
         //dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
+        const chooseActionArgs = this.gamedatas.gamestate.args;
         if (chooseActionArgs.canPass) {
             this.statusBar.addActionButton(_('End my turn'), () => this.pass());
         }
@@ -1337,6 +1363,13 @@ class TheIsleOfCatsDuel extends BaseGame {
                 color: 'alert',
                 title: _('Reset your entire round')
             });
+        }
+    }
+    moveOshaxToSlot(slot) {
+        if (this.gameui.isCurrentPlayerActive() &&
+            this.gamedatas.gamestate.name == 'PlayerTurn' &&
+            this.gamedatas.gamestate.args.remainingMoves > 0) {
+            this.takeAction('actMoveOshax', { slot: slot });
         }
     }
     handSelectionChange(selection, lastChange) {
@@ -1391,6 +1424,7 @@ class TheIsleOfCatsDuel extends BaseGame {
             ['score', ANIMATION_MS],
             ['highlightWinnerScore', ANIMATION_MS],
             ['materialMove', ANIMATION_MS],
+            ['oshaxMove', ANIMATION_MS],
             ['lastTurn', 1],
             ['importantMessage', 3000],
             ['counter', 1],
@@ -1408,6 +1442,10 @@ class TheIsleOfCatsDuel extends BaseGame {
     notif_score(notif) {
         log('notif_score', notif);
         this.scoreBoard.updateScore(notif.args.playerId, notif.args.scoreType, notif.args.score);
+    }
+    notif_oshaxMove(notif) {
+        log('notif_oshaxMove', notif.args);
+        this.island.refreshOshaxLocation(notif.args.to);
     }
     notif_counter(notif) {
         if (notif.args.counterName == 'empty-hexes') {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bga\Games\TheIsleOfCatsDuel\States;
 
 use Bga\GameFramework\StateType;
+use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 
 class NextPlayer extends \Bga\GameFramework\States\GameState
@@ -30,6 +31,11 @@ class NextPlayer extends \Bga\GameFramework\States\GameState
         // Give some extra time to the active player when he completed an action
         $this->game->giveExtraTime($activePlayerId);
         
+
+        $this->game->globals->set(Constants::GLBL_REMAINING_OSHAX_MOVES, 2);
+        $this->game->globals->set(Constants::GLBL_MANDATORY_MOVE_DONE, false);
+        $this->game->contextMgr->reset();
+
         $this->game->activeNextPlayer();
 
         // Go to another gamestate

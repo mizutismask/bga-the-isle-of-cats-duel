@@ -43,6 +43,7 @@ interface TheIsleOfCatsDuelGamedatas {
 	counters: Map<string, CounterValue>
 	// Add here variables you set up in getAllDatas
 	hand: Array<TheIsleOfCatsDuelCard>
+	oshaxLocation: number
 }
 
 interface CounterValue {
@@ -63,12 +64,16 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	addTooltipOnClickHelpButton(idButton: string, tooltipContent: string, delay?: number): void
 	handSelectionChange(selection: TheIsleOfCatsDuelCard[], lastChange: TheIsleOfCatsDuelCard): void
 	takeAction(action: string, data?: any, options?: { lock: boolean; checkAction: boolean }): Promise<void>
+	moveOshaxToSlot(slot: number): any
 	gameui: GameGui
 }
 
-interface EnteringChooseActionArgs {
+interface EnteringPlayerTurnArgs {
 	canPass: boolean
 	canResetTurn: boolean
+	oshaxValidMoves: number[]
+	remainingMoves: number
+	mandatoryMoveDone: boolean
 }
 
 interface NotifPointsArgs {
@@ -82,6 +87,10 @@ interface NotifScoreArgs {
 	playerId: number
 	score: number
 	scoreType: string
+}
+
+interface NotifOshaxMoveArgs {
+	to: number
 }
 
 interface NotifCounter {

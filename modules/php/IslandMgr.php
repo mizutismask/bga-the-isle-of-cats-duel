@@ -12,11 +12,12 @@ class IslandMgr {
     }
 
     public function isValidSlot(int $slotNumber) {
-        return $slotNumber > 0 && $slotNumber <= 10;
+        return $slotNumber > 0 && $slotNumber <= 15;
     }
 
     public function getOshaxPossibleMoves() {
         $oshax = $this->game->globals->get(Constants::GLBL_OSHAX_LOCATION);
+        $this->game->dump('*****************oshax**', $oshax);
         return match ($oshax) {
             1 =>  [2, 6],
             2 =>  [1, 3, 6, 7, 8],
@@ -42,6 +43,8 @@ class IslandMgr {
             return [$move['param1'], $move['param2']];
         }, $previousMoves)));
 
+        $this->game->dump('****************$this->getOshaxPossibleMoves()***', $this->getOshaxPossibleMoves());
+        $this->game->dump('****************slotsSeen***', $slotsSeen);
         return array_diff($this->getOshaxPossibleMoves(), $slotsSeen);
     }
 
@@ -49,9 +52,10 @@ class IslandMgr {
         $this->game->contextMgr->insertContextLog(Constants::CONTEXT_ACTION_OSHAX_MOVE, $this->game->globals->get(Constants::GLBL_OSHAX_LOCATION), $slot);
         $this->game->globals->set(Constants::GLBL_OSHAX_LOCATION, $slot);
 
-        $remainingMoves = $this->game->incPlayerGlobal($playerId, Constants::GLBL_REMAINING_OSHAX_MOVES, -1);
+        $remainingMoves = $this->game->globals->inc(Constants::GLBL_REMAINING_OSHAX_MOVES, -1);
+        if ($remainingMoves == 0) $this->game->globals->set(Constants::GLBL_MANDATORY_MOVE_DONE, true);
 
-         $this->game->notify->all("oshaxMove", "", [
+        $this->game->notify->all("oshaxMove", "", [
             "player_id" => $playerId,
             "to" => $slot,
         ]);

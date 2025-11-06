@@ -13,7 +13,7 @@ use Bga\Games\TheIsleOfCatsDuel\Game;
 
 class PlayerTurn extends GameState {
 
-    
+
 
     function __construct(
         protected Game $game,
@@ -22,15 +22,12 @@ class PlayerTurn extends GameState {
             $game,
             id: 11,
             type: StateType::ACTIVE_PLAYER,
-            description: clienttranslate('${actplayer} must play a card or pass'),
-            descriptionMyTurn: clienttranslate('${you} must play a card or pass'),
+            description: clienttranslate('${actplayer} must move the Oshax'),
+            descriptionMyTurn: clienttranslate('You must select where to move the Oshax (${remainingMoves} remaining moves) '),
         );
     }
 
-    function onEnteringState(int $activePlayerId) {
-        // I can't access GLBL_REMAINING_OSHAX_MOVES because it is declared as a constant in TiocGlobals.inc.php.
-        // In order to access it, I should use the fully qualified name, like this:
-        $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_REMAINING_OSHAX_MOVES, 2);
+    function onEnteringState(int $activePlayerId, array $args) {
     }
     /**
      * Game state arguments, example content.
@@ -43,6 +40,8 @@ class PlayerTurn extends GameState {
         return [
             "playableCardsIds" => [1, 2],
             "oshaxValidMoves" => $this->game->islandMgr->getOshaxValidMoves(),
+            "remainingMoves" => $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES),
+            "mandatoryMoveDone" => $this->game->globals->get(Constants::GLBL_MANDATORY_MOVE_DONE),
         ];
     }
 
@@ -66,13 +65,13 @@ class PlayerTurn extends GameState {
             throw new UserException('You cannot reach this location');
         }
 
-        $remainingMoves = $this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_REMAINING_OSHAX_MOVES);
+        $remainingMoves = $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES);
         if ($remainingMoves == 0) {
             throw new UserException('You have no remaining move, use a fish to get an additional one');
         }
 
         $this->game->islandMgr->moveOshaxToSlot($activePlayerId, $slot);
-        
+
         // at the end of the action, move to the next state
         return PlayerTurn::class;
     }

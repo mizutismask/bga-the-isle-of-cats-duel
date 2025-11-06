@@ -341,6 +341,7 @@ abstract class BaseGame {
 	public takeAction(action: string, data?: any, options?: { lock: boolean; checkAction: boolean }): Promise<void> {
 		data = data || {}
 		data.version = this.gamedatas.version
+		log('takeAction', action, data)
 		return this.gameui.bgaPerformAction(action, data, options)
 	}
 

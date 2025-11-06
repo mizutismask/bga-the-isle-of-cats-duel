@@ -24,12 +24,14 @@ use Bga\Games\TheIsleOfCatsDuel\States\PlayerTurn;
 use Bga\GameFramework\Components\Counters\PlayerCounter;
 use Bga\Games\TheIsleOfCatsDuel\States\BoatChoice;
 use Bga\Games\TheIsleOfCatsDuel\Constants;
+use Bga\Games\TheIsleOfCatsDuel\DebugUtilTrait;
 
 require_once("TiocGlobals.inc.php");
 
 class Game extends \Bga\GameFramework\Table {
     use PlayerUtilTrait;
     use DBUtilTrait;
+    use DebugUtilTrait;
 
     public static array $CARD_TYPES;
 
@@ -150,6 +152,7 @@ class Game extends \Bga\GameFramework\Table {
         $result['playerOrderWorkingWithSpectators'] = $this->getPlayerIdsInOrder($currentPlayerId);
         $result['turnOrderClockwise'] = true;
         $result['version'] = $this->getGameVersion();
+        $result['oshaxLocation'] = $this->globals->get(Constants::GLBL_OSHAX_LOCATION);
         $this->playerFishCounter->fillResult($result);
 
         foreach ($result['players'] as $playerId => &$player) {

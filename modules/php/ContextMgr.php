@@ -47,6 +47,11 @@ class ContextMgr {
         $this->game->DbQuery($sql);
     }
 
+    function reset() {
+        $sql = "delete from context_log";
+        $this->game->DbQuery($sql);
+    }
+
     function resolveContextLog($contextId) {
         if (!$contextId) {
             $this->game->error("resolve context log can not be called with an undefined id");
