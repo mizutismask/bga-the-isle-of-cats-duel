@@ -63,6 +63,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	addTooltipOnClickHelpButton(idButton: string, tooltipContent: string, delay?: number): void
 	handSelectionChange(selection: TheIsleOfCatsDuelCard[], lastChange: TheIsleOfCatsDuelCard): void
 	takeAction(action: string, data?: any, options?: { lock: boolean; checkAction: boolean }): Promise<void>
+	gameui: GameGui
 }
 
 interface EnteringChooseActionArgs {

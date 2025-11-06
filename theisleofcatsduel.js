@@ -859,6 +859,28 @@ class ScoreBoard {
         document.getElementById(`score-winner-${playerId}`).classList.add('fa', 'fa-trophy', 'fa-lg');
     }
 }
+class Island {
+    constructor(game) {
+        this.game = game;
+        const container = document.createElement('div');
+        container.id = `island`;
+        game.gameui.getGameAreaElement().appendChild(container);
+        for (let i = 1; i <= 15; i++) {
+            const island = document.createElement('div');
+            island.id = `island-slot-${i}`;
+            island.classList.add('island-slot');
+            island.dataset.slotId = '' + i;
+            container.appendChild(island);
+        }
+        ;
+        [1, 3, 5, 6, 7, 8, 9, 10, 12, 14].forEach((i) => {
+            container.querySelector(`#island-slot-${i}`).classList.add('island-cat-slot');
+        });
+        [2, 4, 11, 13, 15].forEach((i) => {
+            container.querySelector(`#island-slot-${i}`).classList.add('island-card-slot');
+        });
+    }
+}
 /**
  * Player table.
  */
@@ -953,13 +975,14 @@ class TheIsleOfCatsDuel extends BaseGame {
             this.onEnteringEndScore();
         }
         this.gameui.getGameAreaElement().insertAdjacentHTML('beforeend', `<div id="boat-choice">
-                <div class="boat IBoat"></div>
-                <div class="boat OBoat"></div>
-                </div>`);
+			<div class="boat IBoat"></div>
+			<div class="boat OBoat"></div>
+			</div>`);
         // Example to add a div on the game area
         this.gameui.getGameAreaElement().insertAdjacentHTML('beforeend', `
-                <div id="player-tables"></div>
+			<div id="player-tables"></div>
             `);
+        this.island = new Island(this);
         // Setting up player boards
         Object.values(this.gamedatas.players).forEach((player) => {
             // example of setting up players boards

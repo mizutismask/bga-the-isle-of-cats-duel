@@ -17,6 +17,7 @@
 class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	public cardsManager: CardsManager
 	private originalTextChooseAction: string
+	private island: Island
 
 	private scoreBoard: ScoreBoard
 	private ticketsCounters: Counter[] = []
@@ -52,7 +53,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			animationsActive: () => this.gameui.bgaAnimationsActive()
 		})
 		this.cardsManager = new CardsManager(this)
-
+		
 		if (gamedatas.lastTurn) {
 			this.notif_lastTurn(false)
 		}
@@ -60,22 +61,23 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			// score or end
 			this.onEnteringEndScore()
 		}
-
+		
 		this.gameui.getGameAreaElement().insertAdjacentHTML(
 			'beforeend',
 			`<div id="boat-choice">
-                <div class="boat IBoat"></div>
-                <div class="boat OBoat"></div>
-                </div>`
+			<div class="boat IBoat"></div>
+			<div class="boat OBoat"></div>
+			</div>`
 		)
-
+		
 		// Example to add a div on the game area
 		this.gameui.getGameAreaElement().insertAdjacentHTML(
 			'beforeend',
 			`
-                <div id="player-tables"></div>
+			<div id="player-tables"></div>
             `
 		)
+		this.island = new Island(this)
 
 		// Setting up player boards
 		Object.values(this.gamedatas.players).forEach((player) => {

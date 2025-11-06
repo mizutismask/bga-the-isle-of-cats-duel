@@ -1,0 +1,19 @@
+#island {
+	display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+
+	.island-slot {
+		border: 2px solid;
+		&.island-cat-slot {
+			width: 200px;
+			height: 150px;
+			border-color: greenyellow;
+		}
+		&.island-card-slot {
+			width: 150px;
+			height: 200px;
+			border-color: burlywood;
+		}
+	}
+}
