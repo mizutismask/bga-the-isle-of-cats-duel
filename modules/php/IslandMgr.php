@@ -16,7 +16,7 @@ class IslandMgr {
     }
 
     public function getOshaxPossibleMoves() {
-        $oshax = $this->game->globals->get(GLBL_OSHAX_LOCATION);
+        $oshax = $this->game->globals->get(Constants::GLBL_OSHAX_LOCATION);
         return match ($oshax) {
             1 =>  [2, 6],
             2 =>  [1, 3, 6, 7, 8],

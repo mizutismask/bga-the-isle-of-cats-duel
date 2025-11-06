@@ -1,0 +1,32 @@
+{
+	"rootDir": ".",
+	"compilerOptions": {
+		"target": "es6",
+		"module": "none",
+		"lib": ["dom", "esnext"],
+		"sourceMap": false,
+		"outFile": "theisleofcatsduel.js",
+		"allowJs": true,
+		"skipLibCheck": true
+	},
+	"files": [
+		"src/begin.ts",
+		"bga-framework.d.ts",
+		"bga-animations.d.ts",
+		"bga-cards.d.ts",
+		"bga-autofit.d.ts",
+		"src/theisleofcatsduel.d.ts",
+		"node_modules/bga-help/src/help-manager.ts",
+		"node_modules/bga-jump-to/src/jump-to-manager.ts",
+        "src/cards/tooltipable.ts",
+		"src/cards/cardsManagerBase.ts",
+        "src/cards.ts",
+        "src/base-game.ts",
+        "src/utils.ts",
+        "src/end-score/end-score.ts",
+        "src/player-table/player-table.ts",
+        "src/settings.ts",
+		"src/theisleofcatsduel.ts",
+		"src/end.ts"
+	]
+}

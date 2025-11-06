@@ -141,17 +141,25 @@ class Game extends \Bga\GameFramework\Table {
     protected function getAllDatas(): array {
         $result = [];
 
-        // WARNING: We must only return information visible by the current player.
-        $current_player_id = (int) $this->getCurrentPlayerId();
+        $currentPlayerId = $this->getCurrentPlayerId();    // !! We must only return informations visible by this player !!
 
-        // Get information about players.
-        // NOTE: you can retrieve some extra field you added for "player" table in `dbmodel.sql` if you need it.
-        $result["players"] = $this->getCollectionFromDb(
-            "SELECT `player_id` `id`, `player_score` `score` FROM `player`"
-        );
+        // Get information about players
+        // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
+        $sql = "SELECT player_id id, player_score score, player_no playerNo FROM player ";
+        $result['players'] = $this->getCollectionFromDb($sql);
+        $result['playerOrderWorkingWithSpectators'] = $this->getPlayerIdsInOrder($currentPlayerId);
+        $result['turnOrderClockwise'] = true;
+        $result['version'] = $this->getGameVersion();
         $this->playerFishCounter->fillResult($result);
 
-        // TODO: Gather all information about current game situation (visible by player $current_player_id).
+        foreach ($result['players'] as $playerId => &$player) {
+            $currentPlayerOrder = intval($player['playerNo']);
+            $player['playerNo'] = $currentPlayerOrder;
+            //$player['discard'] = $this->cardManager->getCardsOfTypeArgFromLocation(TABLE_CARD, $currentPlayerOrder, MATERIAL_LOCATION_DISCARD);
+            //$player['hand'] = $this->cardManager->getCardsOfTypeArgFromLocation(TABLE_CARD, $currentPlayerOrder, MATERIAL_LOCATION_HAND);
+
+            // $player['cardsCount'] = intval($this->actionCards->countCardInLocation("hand", $playerId));
+        }
 
         return $result;
     }
@@ -206,6 +214,7 @@ class Game extends \Bga\GameFramework\Table {
         $this->playerFishCounter->initDb(array_keys($players), 3);
 
         $this->globals->set("round", 0);
+        $this->globals->set(Constants::GLBL_OSHAX_LOCATION, 1);
 
         $this->shapeMgr->setup(count($players));
         $this->cardMgr->setup();
@@ -215,6 +224,10 @@ class Game extends \Bga\GameFramework\Table {
         $this->activeNextPlayer();
 
         return BoatChoice::class;
+    }
+
+    function getGameVersion(): int {
+        return intval($this->gamestate->table_globals[300]);
     }
 
     /**

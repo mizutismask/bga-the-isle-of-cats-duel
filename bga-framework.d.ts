@@ -82,11 +82,12 @@ interface Player {
   color: string;
   color_back: any | null;
   eliminated: number;
-  id: string;
+  id: number;
   is_ai: string;
   name: string;
   score: string;
   zombie: number;
+  fish: number;
 }
 
 declare class GameNotifQueue {

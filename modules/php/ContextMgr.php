@@ -76,7 +76,7 @@ class ContextMgr {
         if(!$action) {
             $sql = "select * from context_log order by id desc";
         }else{
-            $sql = "select * from context_log order where action = '$action' order by id desc";
+            $sql = "select * from context_log where action = '$action' order by id desc";
         }
         $res = $this->game->getObjectListFromDB($sql);
         return $res;
