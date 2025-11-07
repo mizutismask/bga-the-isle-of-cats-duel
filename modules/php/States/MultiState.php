@@ -4,24 +4,22 @@ declare(strict_types=1);
 
 namespace Bga\Games\TheIsleOfCatsDuel\States;
 
-use BackedEnum;
 use Bga\GameFramework\Actions\Types\StringParam;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\UserException;
-use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 
-class BoatChoice extends GameState {
+class MultiState extends GameState {
     function __construct(
         protected Game $game,
     ) {
         parent::__construct(
             $game,
-            id: 10,
-            type: StateType::ACTIVE_PLAYER,
-            description: clienttranslate('${actplayer} must choose a boat'),
+            id: 50,
+            type: StateType::MULTIPLE_ACTIVE_PLAYER,
+            description: clienttranslate('All players must choose a boat'),
             descriptionMyTurn: clienttranslate('${you} must choose a boat'),
         );
     }
@@ -46,13 +44,10 @@ class BoatChoice extends GameState {
      * @throws UserException
      */
     #[PossibleAction]
-    public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $activePlayerId, array $args) {
-        $this->game->setPlayerGlobal($activePlayerId, 'boat', $boat);
-        $this->notify->player($activePlayerId, "dummyNotif", "", []);
-        if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), 'boat')) {
-            return NextPlayer::class;
-        }
-        return NextBoatChooser::class;
+    public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $currentPlayerId, array $args) {
+        $this->game->setPlayerGlobal($currentPlayerId, 'boat', $boat);
+        $this->notify->player($currentPlayerId, "dummyNotif", "", []);
+        $this->gamestate->setPlayerNonMultiactive($currentPlayerId, NextRound::class);
     }
 
     /**

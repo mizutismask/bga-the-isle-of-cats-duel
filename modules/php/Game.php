@@ -32,6 +32,7 @@ class Game extends \Bga\GameFramework\Table {
     use PlayerUtilTrait;
     use DBUtilTrait;
     use DebugUtilTrait;
+    use UtilTrait;
 
     public static array $CARD_TYPES;
 
