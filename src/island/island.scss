@@ -1,7 +1,7 @@
 #island {
 	display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 10px;
 
 	.island-slot {
 		border: 2px solid;
@@ -14,6 +14,11 @@
 			width: 150px;
 			height: 200px;
 			border-color: burlywood;
+		}
+
+		&.island-slot-disabled {
+			cursor: not-allowed;
+			background-color: lightgrey;
 		}
 	}
 }

@@ -50,7 +50,7 @@ class IslandMgr {
             return [$move['param1'], $move['param2']];
         }, $previousMoves)));
 
-        return array_diff($possibleMoves, $slotsSeen);
+        return array_values(array_diff($possibleMoves, $slotsSeen));
     }
 
     public function moveOshaxToSlot(int $playerId, int $slot) {
