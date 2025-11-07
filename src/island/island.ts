@@ -1,4 +1,5 @@
 class Island {
+	private cardsSlots: CardStock<TheIsleOfCatsDuelCard>[]=[]
 	constructor(private game: TheIsleOfCatsDuelGame, gamedatas: TheIsleOfCatsDuelGamedatas) {
 		const container = document.createElement('div')
 		container.id = `island`
@@ -21,7 +22,15 @@ class Island {
 			container.querySelector(`#island-slot-${i}`).classList.add('island-cat-slot')
 		})
 		;[2, 4, 11, 13, 15].forEach((i) => {
-			container.querySelector(`#island-slot-${i}`).classList.add('island-card-slot')
+			const cardSlot = container.querySelector(`#island-slot-${i}`) as HTMLElement
+			cardSlot.classList.add('island-card-slot')
+		})
+		for (let i = 1; i <= 5; i++) {
+			const cardSlot = container.querySelectorAll(`.island-card-slot`)[i - 1] as HTMLElement
+			this.cardsSlots[i] = new BgaCards.LineStock<TheIsleOfCatsDuelCard>(this.game.cardsManager, cardSlot)
+		}
+		gamedatas.islandCards.forEach((card) => {
+			this.cardsSlots[card.islandCardSlot].addCard(card)
 		})
 
 		const oshax = document.createElement('div')

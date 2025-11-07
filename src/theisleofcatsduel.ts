@@ -383,7 +383,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	private getSelectedIdsAsParam(stock: CardStock<TheIsleOfCatsDuelCard>) {
 		return stock
 			.getSelection()
-			.map((c) => c.id)
+			.map((c) => c.cardId)
 			.join(',')
 	}
 

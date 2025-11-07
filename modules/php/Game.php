@@ -153,6 +153,7 @@ class Game extends \Bga\GameFramework\Table {
         $result['turnOrderClockwise'] = true;
         $result['version'] = $this->getGameVersion();
         $result['oshaxLocation'] = $this->globals->get(Constants::GLBL_OSHAX_LOCATION);
+        $result['islandCards'] = $this->cardMgr->getIslandCards();
         $this->playerFishCounter->fillResult($result);
 
         foreach ($result['players'] as $playerId => &$player) {

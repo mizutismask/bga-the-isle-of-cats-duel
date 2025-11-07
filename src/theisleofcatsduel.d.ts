@@ -5,14 +5,15 @@ type PowerType = 'C' | 'B' | 'N'
 
 // remove this if you don't use cards. If you do, make sure the types are correct . By default, some number are send as string, I suggest to cast to right type in PHP.
 interface Card {
-	id: number
-	location: string
+	cardId: number
+	cardLocationId: string
 	location_arg: number
-	type: number
+	cardTypeId: number
 	type_arg: number
 }
 interface TheIsleOfCatsDuelCard extends Card {
 	name: string //translated
+	islandCardSlot: number
 }
 
 interface TheIsleOfCatsDuelPlayer extends Player {
@@ -43,6 +44,7 @@ interface TheIsleOfCatsDuelGamedatas {
 	counters: Map<string, CounterValue>
 	// Add here variables you set up in getAllDatas
 	hand: Array<TheIsleOfCatsDuelCard>
+	islandCards: Array<TheIsleOfCatsDuelCard>
 	oshaxLocation: number
 }
 

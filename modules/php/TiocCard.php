@@ -13,13 +13,14 @@ class TiocCard {
     public $playedMoveNumber;
     public $islandCardSlot;
 
-    public function __construct(int $cardId, int $cardLocationId, int $deckOrder = 1, ?int $playerId = null,  $playerPrivate = false, ?int $playedMoveNumber = null) {
+    public function __construct(int $cardId, int $cardLocationId, int $deckOrder = 1, ?int $playerId = null,  $playerPrivate = false, ?int $islandCardSlot=null, ?int $playedMoveNumber = null) {
         $this->cardId = $cardId;
         $this->cardLocationId = $cardLocationId;
         $this->deckOrder = $deckOrder;
         $this->playerId = $playerId;
         $this->playerPrivate = $playerPrivate;
         $this->playedMoveNumber = $playedMoveNumber;
+        $this->islandCardSlot = $islandCardSlot;
         $this->cardTypeId = null;
         if ($this->cardId >= 67 && $this->cardId <= 97) {
             $this->cardTypeId = CARD_TYPE_ID_ANYTIME;

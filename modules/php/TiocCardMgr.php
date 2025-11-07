@@ -204,6 +204,18 @@ class TiocCardMgr {
         }
         return $cards;
     }
+    public function getIslandCards() {
+        $this->load();
+        $cards = [];
+        foreach ($this->cards as $card) {
+            
+            if ($card->cardLocationId != CARD_LOCATION_ID_ISLAND_CARD_SLOT) {
+                continue;
+            }
+            $cards[] = $card;
+        }
+        return $cards;
+    }
 
     public function getHandCardCount($playerIdArray) {
         $this->load();
