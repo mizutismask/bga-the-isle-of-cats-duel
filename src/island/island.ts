@@ -53,7 +53,6 @@ class Island {
 	public enableSlots(slotNumbers: number[]) {
 		document.getElementById('island').querySelectorAll('.island-slot').forEach(slot=>slot.classList.add('island-slot-disabled'))
 		slotNumbers.forEach((slotNumber) => {
-			log(document.getElementById(`island-slot-${slotNumber}`))
 			document.getElementById(`island-slot-${slotNumber}`).classList.remove('island-slot-disabled')
 		})
 	}

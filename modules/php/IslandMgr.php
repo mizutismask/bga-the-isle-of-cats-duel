@@ -39,10 +39,13 @@ class IslandMgr {
 
     public function getOshaxValidMoves() {
         $fishAction = $this->game->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
+        $remainingMoves = $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES);
         if ($fishAction == "J") {
             $possibleMoves = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        } else {
+        } else if ($remainingMoves) {
             $possibleMoves = $this->getOshaxPossibleMoves();
+        } else {
+            $possibleMoves = [];
         }
 
         $previousMoves = $this->game->contextMgr->getAllContextLogs(Constants::CONTEXT_ACTION_OSHAX_MOVE);

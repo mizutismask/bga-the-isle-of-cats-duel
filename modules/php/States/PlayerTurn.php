@@ -78,12 +78,17 @@ class PlayerTurn extends GameState {
             throw new UserException('You cannot reach this location');
         }
 
+        $fishAction = $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
         $remainingMoves = $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES);
-        if ($remainingMoves == 0) {
+        if ($fishAction != "J" && $remainingMoves == 0) {
             throw new UserException('You have no remaining move, use a fish to get an additional one');
         }
 
         $this->game->islandMgr->moveOshaxToSlot($activePlayerId, $slot);
+        
+        if ($fishAction == "J") {
+            $fishAction = $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
+        }
 
         return PlayerTurn::class;
     }

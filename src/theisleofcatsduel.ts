@@ -275,8 +275,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		//todo
 		if (this.gameui.isCurrentPlayerActive()) {
 			this.resetClientActionData()
+			this.island.enableSlots(args.oshaxValidMoves)
 			if (args.remainingMoves > 0) {
-				this.island.enableSlots(args.oshaxValidMoves)
 				//nothing
 			} else if (args.mandatoryMoveDone) {
 				this.setChooseActionGamestateDescription(
