@@ -15,22 +15,21 @@ class PlayerTable {
         `
 		dojo.place(html, 'player-tables')
 
-		if (isMyTable) {
 			const handHtml = `
 			<div id="hand-${player.id}" class="cstm-player-hand"></div>
         `
 			dojo.place(handHtml, `player-table-${player.id}`, 'first')
 			this.initHand(player, cards)
-		}
 	}
 
 	private initHand(player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[] = []) {
+		log('initHand', player, cards)
 		this.handStock = new BgaCards.LineStock<TheIsleOfCatsDuelCard>(
 			this.game.cardsManager,
 			$('hand-' + player.id),
 			{}
 		)
-		this.handStock.setSelectionMode('single')
+		this.handStock.setSelectionMode('none')
 		if (cards) {
 			this.handStock.addCards(cards)
 		}

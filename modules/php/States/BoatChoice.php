@@ -50,7 +50,7 @@ class BoatChoice extends GameState {
         $this->game->setPlayerGlobal($activePlayerId, 'boat', $boat);
         $this->notify->player($activePlayerId, "dummyNotif", "", []);
         if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), 'boat')) {
-            return NextPlayer::class;
+            return NextRound::class;
         }
         return NextBoatChooser::class;
     }

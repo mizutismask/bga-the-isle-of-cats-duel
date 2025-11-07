@@ -194,7 +194,7 @@ class TiocCardMgr {
             if ($card->cardTypeId != CARD_TYPE_ID_LESSON) {
                 continue;
             }
-            if ($card->cardLocationId != CARD_LOCATION_ID_TABLE) {
+            if ($card->cardLocationId != CARD_LOCATION_ID_PLAYER_HAND) {
                 continue;
             }
             if ($card->playerId === null || $card->playerId != $playerId) {

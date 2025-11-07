@@ -108,7 +108,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.playerTables[player.id] = new PlayerTable(
 			this,
 			player,
-			Number(player.id) === this.getPlayerId() ? this.gamedatas.hand : []
+			player.hand
 		)
 	}
 

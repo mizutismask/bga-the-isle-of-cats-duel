@@ -20,6 +20,7 @@ interface TheIsleOfCatsDuelPlayer extends Player {
 	playerNo: number
 	cardsCount: number
 	tickets: number
+	hand: Array<TheIsleOfCatsDuelCard>
 }
 
 interface TheIsleOfCatsDuelGamedatas {
@@ -43,7 +44,6 @@ interface TheIsleOfCatsDuelGamedatas {
 	version: string
 	counters: Map<string, CounterValue>
 	// Add here variables you set up in getAllDatas
-	hand: Array<TheIsleOfCatsDuelCard>
 	islandCards: Array<TheIsleOfCatsDuelCard>
 	oshaxLocation: number
 }
