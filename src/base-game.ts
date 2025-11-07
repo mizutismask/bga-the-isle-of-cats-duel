@@ -52,6 +52,11 @@ abstract class BaseGame {
 				</div>
 			</div>
 
+			<div id="boat-choice">
+				<div class="boat IBoat"></div>
+				<div class="boat OBoat"></div>
+			</div>
+			<div id="island"></div>
 			<div id="player-tables"></div>
 		</div>`,
 			'game_play_area_background',

@@ -1,9 +1,7 @@
 class Island {
 	private cardsSlots: CardStock<TheIsleOfCatsDuelCard>[]=[]
 	constructor(private game: TheIsleOfCatsDuelGame, gamedatas: TheIsleOfCatsDuelGamedatas) {
-		const container = document.createElement('div')
-		container.id = `island`
-		game.gameui.getGameAreaElement().appendChild(container)
+		const container = document.getElementById('island')
 
 		for (let i = 1; i <= 15; i++) {
 			const islandSlot = document.createElement('div')

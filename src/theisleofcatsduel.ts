@@ -20,7 +20,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	private island: Island
 
 	private scoreBoard: ScoreBoard
-	private ticketsCounters: Counter[] = []
+	private fishCounters: Counter[] = []
 	private handCardsCounters: Counter[] = []
 
 	protected settings = [new Setting('customSounds', 'pref', 1)]
@@ -62,54 +62,14 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			this.onEnteringEndScore()
 		}
 
-		this.gameui.getGameAreaElement().insertAdjacentHTML(
-			'beforeend',
-			`<div id="boat-choice">
-			<div class="boat IBoat"></div>
-			<div class="boat OBoat"></div>
-			</div>`
-		)
-
-		// Example to add a div on the game area
-		this.gameui.getGameAreaElement().insertAdjacentHTML(
-			'beforeend',
-			`
-			<div id="player-tables"></div>
-            `
-		)
+		const gameArea = document.getElementById('custom-game-area')
 		this.island = new Island(this, gamedatas)
 
-		// Setting up player boards
-		Object.values(this.gamedatas.players).forEach((player) => {
-			// example of setting up players boards
-			this.gameui.getPlayerPanelElement(player.id).insertAdjacentHTML(
-				'beforeend',
-				`
-                    <span id="fish-player-counter-${player.id}"></span> Fishes
-                `
-			)
-			const counter = new ebg.counter()
-			counter.create(`fish-player-counter-${player.id}`, {
-				value: player.fish,
-				playerCounter: 'fish',
-				playerId: player.id
-			})
-
-			// example of adding a div for each player
-			document.getElementById('player-tables').insertAdjacentHTML(
-				'beforeend',
-				`
-                    <div id="player-table-${player.id}">
-                        <strong>${player.name}</strong>
-                        <div>Player zone content goes here</div>
-                    </div>
-                `
-			)
-		})
-
 		Object.values(this.gamedatas.playerOrderWorkingWithSpectators).forEach((p) => {
-			//this.setupPlayer(this.gamedatas.players[p])
+			this.setupPlayer(this.gamedatas.players[p])
 		})
+
+
 		//;(this.gameui as any).updateCounters(this.gamedatas.counters)
 
 		$('overall-content').classList.add(`player-count-${this.getPlayersCount()}`)
@@ -157,9 +117,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.gameui.getPlayerPanelElement(playerId).insertAdjacentHTML(
 			'afterbegin',
 			`<div id="counters-${player.id}" class="counters">
-				<div id="tickets-counter-${player.id}-wrapper" class="counter tickets-counter">
-					<div class="icon expTicket"></div> 
-					<span id="tickets-player-counter-${player.id}"></span>
+				<div id="fish-player-counter-${player.id}-wrapper" class="counter fish-counter">
+					<div class="icon fish"></div> 
+					<span id="fish-player-counter-${player.id}"></span>
 				</div>
 			
 				<div id="hand-cards-counter-${player.id}-wrapper" class="counter hand-cards-counter counter-left-part">
@@ -178,13 +138,14 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
             revealedTokensBackCounter.setValue(player.revealedTokensBackCount);
             this.revealedTokensBackCounters[playerId] = revealedTokensBackCounter;
 */
-		const ticketsCounter = new ebg.counter()
-		ticketsCounter.create(`tickets-player-counter-${player.id}`, {
-			value: player.tickets,
-			playerCounter: 'tickets',
-			playerId: playerId
+
+		const fishCounter = new ebg.counter()
+		fishCounter.create(`fish-player-counter-${player.id}`, {
+			value: player.fish,
+			playerCounter: 'fish',
+			playerId: player.id
 		})
-		this.ticketsCounters[playerId] = ticketsCounter
+		this.fishCounters[playerId] = fishCounter
 
 		const cardsCounter = new ebg.counter()
 		cardsCounter.create(`hand-cards-counter-${player.id}`)
