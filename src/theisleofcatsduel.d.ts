@@ -66,7 +66,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	addTooltipOnClickHelpButton(idButton: string, tooltipContent: string, delay?: number): void
 	handSelectionChange(selection: TheIsleOfCatsDuelCard[], lastChange: TheIsleOfCatsDuelCard): void
 	takeAction(action: string, data?: any, options?: { lock: boolean; checkAction: boolean }): Promise<void>
-	moveOshaxToSlot(slot: number): any
+	clickOnSlot(slot: number): any
 	gameui: GameGui
 }
 
@@ -78,6 +78,7 @@ interface EnteringPlayerTurnArgs {
 	canPass: boolean
 	canResetTurn: boolean
 	oshaxValidMoves: number[]
+	possibleSlotsForDiscovery: number[]
 	remainingMoves: number
 	mandatoryMoveDone: boolean
 }

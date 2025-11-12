@@ -69,7 +69,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			this.setupPlayer(this.gamedatas.players[p])
 		})
 
-
 		//;(this.gameui as any).updateCounters(this.gamedatas.counters)
 
 		$('overall-content').classList.add(`player-count-${this.getPlayersCount()}`)
@@ -105,11 +104,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	private setupPlayer(player: TheIsleOfCatsDuelPlayer) {
 		document.getElementById(`overall_player_board_${player.id}`).dataset.playerColor = player.color
 		this.setupMiniPlayerBoard(player)
-		this.playerTables[player.id] = new PlayerTable(
-			this,
-			player,
-			player.hand
-		)
+		this.playerTables[player.id] = new PlayerTable(this, player, player.hand)
 	}
 
 	private setupMiniPlayerBoard(player: TheIsleOfCatsDuelPlayer) {
@@ -240,6 +235,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			if (args.remainingMoves > 0) {
 				//nothing
 			} else if (args.mandatoryMoveDone) {
+				this.island.enableSlots(args.possibleSlotsForDiscovery)
 				this.setChooseActionGamestateDescription(
 					_('${you} can select one discovery and/or use fish or end your turn')
 				)
@@ -483,14 +479,13 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		}
 	}
 
-	public moveOshaxToSlot(slot: number) {
-		if (
-			this.gameui.isCurrentPlayerActive() &&
-			this.gamedatas.gamestate.name == 'PlayerTurn' &&
-			this.gamedatas.gamestate.args.remainingMoves > 0
-		) {
-			this.takeAction('actMoveOshax', { slot: slot })
-		}
+	public clickOnSlot(slot: number) {
+		if (this.gameui.isCurrentPlayerActive() && this.gamedatas.gamestate.name == 'PlayerTurn')
+			if (this.gamedatas.gamestate.args.remainingMoves > 0) {
+				this.takeAction('actMoveOshax', { slot: slot })
+			} else if (this.gamedatas.gamestate.args.mandatoryMoveDone) {
+				this.takeAction('actTakeDiscovery', { slot: slot })
+			}
 	}
 
 	public handSelectionChange(selection: TheIsleOfCatsDuelCard[], lastChange: TheIsleOfCatsDuelCard): void {

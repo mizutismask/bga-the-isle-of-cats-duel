@@ -44,13 +44,14 @@ class PlayerTurn extends GameState {
      */
     public function getArgs(): array {
         // Get some values from the current game situation from the database.
-
+        $mandatoryMoveDone = $this->game->globals->get(Constants::GLBL_MANDATORY_MOVE_DONE);
         return [
             "playableCardsIds" => [1, 2],
             "oshaxValidMoves" => $this->game->islandMgr->getOshaxValidMoves(),
             "remainingMoves" => $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES),
-            "mandatoryMoveDone" => $this->game->globals->get(Constants::GLBL_MANDATORY_MOVE_DONE),
+            "mandatoryMoveDone" => $mandatoryMoveDone,
             "currentFishAction" => $this->game->globals->get(Constants::GLBL_CURRENT_FISH_ACTION),
+            "possibleSlotsForDiscovery" => $mandatoryMoveDone ? $this->game->islandMgr->getPossibleSlotsForDiscovery() : [],
             "canTradeFishForMove" => FISH_ACTION_COST["M"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForJump" => FISH_ACTION_COST["J"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForTreasure" => FISH_ACTION_COST["T"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
@@ -85,7 +86,7 @@ class PlayerTurn extends GameState {
         }
 
         $this->game->islandMgr->moveOshaxToSlot($activePlayerId, $slot);
-        
+
         if ($fishAction == "J") {
             $fishAction = $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
         }

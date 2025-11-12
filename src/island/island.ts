@@ -12,7 +12,7 @@ class Island {
 
 			islandSlot.addEventListener('click', (evt) => {
 				if (evt.detail > 1) return
-				this.game.moveOshaxToSlot(parseInt(islandSlot.dataset.slotId))
+				this.game.clickOnSlot(parseInt(islandSlot.dataset.slotId))
 			})
 		}
 
