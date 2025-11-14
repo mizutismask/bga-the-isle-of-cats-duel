@@ -14,10 +14,38 @@
  * In this file, you are describing the logic of your user interface, in Typescript language.
  *
  */
+
+const SHAPE_LOCATION_ID_BAG = 0
+const SHAPE_LOCATION_ID_TABLE = 1
+const SHAPE_LOCATION_ID_FIELD = 2
+const SHAPE_LOCATION_ID_BOAT = 4
+const SHAPE_LOCATION_ID_DISCARD = 5
+const SHAPE_LOCATION_ID_TO_PLACE = 6
+const SHAPE_LOCATION_ID_ISLAND_CAT_SLOT = 7
+
+const SHAPE_TYPE_ID_CAT = 0
+const SHAPE_TYPE_ID_COMMON_TREASURE = 2
+
+const CAT_COLOR_NAMES = ['blue', 'green', 'red', 'purple', 'orange']
+const CAT_COLOR_ID_BLUE = 0
+const CAT_COLOR_ID_GREEN = 1
+const CAT_COLOR_ID_RED = 2
+const CAT_COLOR_ID_PURPLE = 3
+const CAT_COLOR_ID_ORANGE = 4
+
 class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
+	public TILE_SIZE: 40
+	public SMALL_TILE_SIZE: 7
+
 	public cardsManager: CardsManager
 	private originalTextChooseAction: string
 	private island: Island
+	public boatMgr: BoatMgr
+	public islandMgr: IslandMgr
+	public shapeControl: ShapeControl
+	shapesCreationInfo = {}
+	public commandMgr: CommandMgr
+	public tooltipScheduler: Scheduler
 
 	private scoreBoard: ScoreBoard
 	private fishCounters: Counter[] = []
@@ -25,6 +53,10 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 	protected settings = [new Setting('customSounds', 'pref', 1)]
 	private displayedTooltip
+
+	private clickConnectNb: number = 0
+	private clickConnectNbToElemMap = {}
+	private clickConnectIdToNbMap = {}
 
 	/*
             setup:
@@ -64,10 +96,17 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		const gameArea = document.getElementById('custom-game-area')
 		this.island = new Island(this, gamedatas)
-
 		Object.values(this.gamedatas.playerOrderWorkingWithSpectators).forEach((p) => {
 			this.setupPlayer(this.gamedatas.players[p])
 		})
+		this.boatMgr = new BoatMgr(this)
+		this.boatMgr.setup(gamedatas)
+		this.commandMgr = new CommandMgr(this)
+		this.commandMgr.setup(gamedatas)
+		this.islandMgr = new IslandMgr(this)
+		this.shapeControl = new ShapeControl(this)
+		this.tooltipScheduler = new Scheduler(() => this.updateTooltipsNow())
+
 
 		//;(this.gameui as any).updateCounters(this.gamedatas.counters)
 
@@ -146,6 +185,43 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		cardsCounter.create(`hand-cards-counter-${player.id}`)
 		cardsCounter.setValue(player.cardsCount)
 		this.handCardsCounters[playerId] = cardsCounter
+
+		const jstpl_player_panel = `
+			<div class="tioc-player-panel-row">
+				<div class="tioc-player-panel-pill-counter big" id="tioc-player-panel-order-${player.id}">0</div>
+			</div>
+
+			<div class="tioc-family-hidden tioc-player-panel-row tioc-break">
+				<div class="tioc-player-panel-pill">
+				<div class="tioc-player-panel-fish"></div>
+				<div class="tioc-player-panel-pill-counter" id="tioc-player-panel-fish-counter-${player.id}">0</div>
+				</div>
+
+				<div class="tioc-player-panel-pill">
+				<div class="tioc-player-panel-private-lesson"></div>
+				<div class="tioc-player-panel-pill-counter" id="tioc-player-panel-private-lesson-counter-${player.id}">0</div>
+				</div>
+			</div>
+
+			<div class="tioc-player-panel-row tioc-compact">
+				${['blue','green','orange','purple','red','common']
+				.map(color => `
+				<div class="tioc-player-panel-pill">
+					<div class="tioc-player-panel-shape-face-${color}"></div>
+					<div class="tioc-player-panel-pill-counter"
+						id="tioc-player-panel-shape-face-${color}-${player.id}">0</div>
+				</div>`).join('')}
+			</div>
+
+			<div class="tioc-player-panel-row">
+				<div id="tioc-player-panel-boat-container-${player.id}" class="tioc-player-panel-boat-container"></div>
+			</div>
+
+			<div class="tioc-player-panel-insert-point"></div>
+			`;
+
+		this.gameui.getPlayerPanelElement(playerId).insertAdjacentHTML('beforeend', jstpl_player_panel)
+
 	}
 
 	private setupHelpPopin() {
@@ -616,5 +692,534 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	 */
 	notif_highlightWinnerScore(notif: Notif<NotifWinnerArgs>) {
 		this.scoreBoard?.highlightWinnerScore(notif.args.playerId)
+	}
+
+	public clickConnect(element, fct) {
+		if (!this.clickConnectNbToElemMap) {
+			this.clickConnectNb = 0
+			this.clickConnectNbToElemMap = {}
+			this.clickConnectIdToNbMap = {}
+		}
+		this.clickDisconnect(element)
+		if (element.id && element.id.length > 0 && element.id in this.clickConnectIdToNbMap) {
+			const nb = this.clickConnectIdToNbMap[element.id]
+			if (nb in this.clickConnectNbToElemMap && this.clickConnectNbToElemMap[nb].element == element) {
+				if (this.clickConnectNbToElemMap[nb].link !== null) {
+					dojo.disconnect(this.clickConnectNbToElemMap[nb].link)
+				}
+				this.clickConnectNbToElemMap[nb].link = dojo.connect(element, 'onclick', fct)
+				return
+			}
+		}
+		const newNb = this.clickConnectNb++
+		this.clickConnectNbToElemMap[newNb] = {
+			element: element,
+			link: dojo.connect(element, 'onclick', fct)
+		}
+		if (element.id && element.id.length > 0) {
+			this.clickConnectIdToNbMap[element.id] = newNb
+		}
+	}
+	public clickDisconnect(element) {
+		if (!this.clickConnectNbToElemMap) {
+			this.clickConnectNb = 0
+			this.clickConnectNbToElemMap = {}
+			this.clickConnectIdToNbMap = {}
+		}
+		if (element.id && element.id.length > 0 && element.id in this.clickConnectIdToNbMap) {
+			const nb = this.clickConnectIdToNbMap[element.id]
+			if (nb in this.clickConnectNbToElemMap && this.clickConnectNbToElemMap[nb].element == element) {
+				if (this.clickConnectNbToElemMap[nb].link !== null) {
+					dojo.disconnect(this.clickConnectNbToElemMap[nb].link)
+					this.clickConnectNbToElemMap[nb].link = null
+				}
+				return
+			}
+		}
+		for (const nb in this.clickConnectNbToElemMap) {
+			if (this.clickConnectNbToElemMap[nb].element == element) {
+				dojo.disconnect(this.clickConnectNbToElemMap[nb].link)
+				delete this.clickConnectNbToElemMap[nb]
+				return
+			}
+		}
+	}
+	public tiocClickCleanup() {
+		if (!this.clickConnectNbToElemMap) {
+			this.clickConnectNb = 0
+			this.clickConnectNbToElemMap = {}
+			this.clickConnectIdToNbMap = {}
+		}
+		for (const nb in this.clickConnectNbToElemMap) {
+			if (!document.body.contains(this.clickConnectNbToElemMap[nb].element)) {
+				dojo.disconnect(this.clickConnectNbToElemMap[nb].link)
+				delete this.clickConnectNbToElemMap[nb]
+				break
+			}
+		}
+		for (const id in this.clickConnectIdToNbMap) {
+			const nb = this.clickConnectIdToNbMap[id]
+			if (!(nb in this.clickConnectNbToElemMap)) {
+				delete this.clickConnectIdToNbMap[id]
+			}
+		}
+	}
+	public removeAllClickable() {
+		const elements = document.querySelectorAll('.tioc-clickable')
+		for (const e of Array.from(elements)) {
+			this.clickDisconnect(e)
+			e.classList.remove('tioc-clickable')
+			e.classList.remove('tioc-clickable-no-border')
+		}
+		dojo.query('.tioc-selected').removeClass('tioc-selected')
+		this.tiocClickCleanup()
+	}
+	public removeClickableId(id, removeSelected = true) {
+		this.removeClickable(document.getElementById(id), removeSelected)
+	}
+	public removeClickable(element, removeSelected = true) {
+		if (element === null) {
+			return
+		}
+		this.clickDisconnect(element)
+		element.classList.remove('tioc-clickable')
+		element.classList.remove('tioc-clickable-no-border')
+		if (removeSelected) {
+			element.classList.remove('tioc-selected')
+		}
+	}
+	public removeClickableClickOnlyId(id) {
+		const element = document.getElementById(id)
+		if (element === null) {
+			return
+		}
+		this.clickDisconnect(element)
+		element.classList.add('tioc-clickable-no-border')
+	}
+
+	public allowSelect(element) {
+		element.classList.add('tioc-clickable')
+		this.clickConnect(element, (event) => {
+			//window.tiocWrap('allowSelect', () => {
+			element.classList.toggle('tioc-selected')
+			//})
+		})
+	}
+	public addOnClick(element, onClick) {
+		element.classList.add('tioc-clickable')
+		this.clickConnect(element, (event) => {
+			//window.tiocWrap('addOnClick', () => {
+			onClick(event)
+			//})
+		})
+	}
+	public removeAbsolutePosition(elementId) {
+		const elem = document.getElementById(elementId)
+		if (elem !== null) {
+			dojo.style(elem, {
+				left: null,
+				right: null,
+				top: null,
+				bottom: null,
+				position: null
+			})
+			elem.classList.remove('tioc-moving')
+			// Try to force reflow...
+			if (elem.offsetHeight !== undefined) {
+				void elem.offsetHeight
+			}
+			const parentElem = elem.parentElement
+			if (parentElem !== null) {
+				if (parentElem.offsetHeight !== undefined) {
+					void parentElem.offsetHeight
+				}
+			}
+		}
+	}
+	public addClass(elementId, className) {
+		const elem = document.getElementById(elementId)
+		if (elem != null) {
+			elem.classList.add(className)
+		}
+	}
+	public removeClass(elementId, className) {
+		const elem = document.getElementById(elementId)
+		if (elem != null) {
+			elem.classList.remove(className)
+		}
+	}
+	public tiocFadeOutAndDestroy(element, duration = 500, onEnd = null) {
+		if (duration === undefined || duration === null) {
+			duration = 500
+		}
+		if (this.gameui.bgaAnimationsActive()) {
+			duration = 1
+		}
+		const anim = dojo.fadeOut({
+			node: element,
+			duration: duration,
+			delay: 0
+		})
+		dojo.connect(anim, 'onEnd', (e) => {
+			//window.tiocWrap('tiocFadeOutAndDestroy_onEnd', () => {
+			dojo.destroy(e)
+			if (onEnd !== null) {
+				onEnd(e)
+			}
+			//})
+		})
+		anim.play()
+	}
+	public normalizeRotation(rotation) {
+		while (rotation >= 360) {
+			rotation -= 360
+		}
+		while (rotation < 0) {
+			rotation += 360
+		}
+		return rotation
+	}
+	public applyTransformToElement(element, rotation, flipH, flipV) {
+		const transform = []
+		const normalizedRot = this.normalizeRotation(rotation)
+		if (normalizedRot == 90) {
+			transform.push('translate(-50%, -50%) rotate(' + rotation + 'deg) translate(50%, -50%)')
+		} else if (normalizedRot == 180 || normalizedRot == 0) {
+			transform.push('rotate(' + rotation + 'deg)')
+		} else if (normalizedRot == 270) {
+			transform.push('translate(-50%, -50%) rotate(' + rotation + 'deg) translate(-50%, 50%)')
+		}
+		if (flipH) {
+			transform.push('scaleX(-1)')
+		}
+		if (flipV) {
+			transform.push('scaleY(-1)')
+		}
+
+		element.style.transform = transform.join(' ')
+	}
+
+	public addKnownShape(shape) {
+		this.shapesCreationInfo[shape.shapeId] = shape
+	}
+
+	public getShapeColorIdFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		if (!(shapeId in this.shapesCreationInfo)) {
+			return ''
+		}
+		return this.shapesCreationInfo[shapeId].colorId
+	}
+	public getShapeColorFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		if (!(shapeId in this.shapesCreationInfo)) {
+			return ''
+		}
+		const colorId = this.shapesCreationInfo[shapeId].colorId
+		if (colorId === null) {
+			return ''
+		}
+		return CAT_COLOR_NAMES[colorId]
+	}
+	public getCurrentColorFromShapeId(shapeId) {
+		const shapeElemId = 'tioc-shape-id-' + shapeId
+		const meepleElem = document.querySelector('#' + shapeElemId + ' .tioc-meeple')
+		if (meepleElem === null) {
+			return this.getShapeColorFromShapeId(shapeId)
+		}
+		for (let colorId = 0; colorId < CAT_COLOR_NAMES.length; ++colorId) {
+			if (meepleElem.classList.contains(CAT_COLOR_NAMES[colorId])) {
+				return CAT_COLOR_NAMES[colorId]
+			}
+		}
+		return this.getShapeColorFromShapeId(shapeId)
+	}
+	public getShapeDefIdFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		if (!(shapeId in this.shapesCreationInfo)) {
+			return 100
+		}
+		return this.shapesCreationInfo[shapeId].shapeDefId
+	}
+
+	public getShapeWidthFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		if (!(shapeId in this.shapesCreationInfo)) {
+			return 0
+		}
+		return this.shapesCreationInfo[shapeId].width
+	}
+	public getShapeHeightFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		if (!(shapeId in this.shapesCreationInfo)) {
+			return 0
+		}
+		return this.shapesCreationInfo[shapeId].height
+	}
+	public getShapeCoverageFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		const shapeArray = this.getShapeArrayFromShapeId(shapeId)
+		const h = shapeArray.length
+		const w = shapeArray[0].length
+		let nb = 0
+		for (let i = 0; i < w; ++i) {
+			for (let j = 0; j < h; ++j) {
+				if (shapeArray[j][i] != 0) {
+					++nb
+				}
+			}
+		}
+		return nb
+	}
+
+	public formatShapeElementForLog(shapeId, shapeTypeId, shapeDefId, colorId = null) {
+		const color_name = colorId ? CAT_COLOR_NAMES[colorId] : ''
+		const jstpl_shape_for_log = `<div class="tioc-shape shape-type-${shapeTypeId} ${color_name} shape-def-${shapeDefId}" data-shape-id="${shapeId}"></div>`
+		return jstpl_shape_for_log
+	}
+	public formatShapeElement(shapeId, shapeTypeId, shapeDefId, colorId = null) {
+		const color_name = colorId ? CAT_COLOR_NAMES[colorId] : ''
+		var jstpl_shape = `<div class="tioc-shape shape-type-${shapeTypeId} ${color_name} shape-def-${shapeDefId}" id="tioc-shape-id-${shapeId}" data-shape-id="${shapeId}"></div>`
+		return jstpl_shape
+	}
+	public createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null) {
+		const shape = dojo.place(this.formatShapeElement(shapeId, shapeTypeId, shapeDefId, colorId), location)
+		this.updateTooltips()
+		return shape
+	}
+	public forEachShapeGrid(shapeId, x, y, rotation, paramFlipH, paramFlipV, gridFunction) {
+		let shapeArray = this.getShapeArrayFromShapeId(shapeId)
+		const normalizedRot = this.normalizeRotation(rotation)
+		for (let r = 0; r < normalizedRot; r += 90) {
+			shapeArray = this._rotateArray90(shapeArray)
+		}
+		const invertFlip = normalizedRot == 90 || normalizedRot == 270
+		const flipH = invertFlip ? paramFlipV : paramFlipH
+		const flipV = invertFlip ? paramFlipH : paramFlipV
+		if (flipH) {
+			shapeArray = this._flipArrayH(shapeArray)
+		}
+		if (flipV) {
+			shapeArray = this._flipArrayV(shapeArray)
+		}
+		const h = shapeArray.length
+		const w = shapeArray[0].length
+		for (let i = 0; i < w; ++i) {
+			for (let j = 0; j < h; ++j) {
+				if (shapeArray[j][i] != 0) {
+					if (gridFunction(x + i, y + j) === false) {
+						return
+					}
+				}
+			}
+		}
+	}
+
+	public _flipArrayH(shapeArray) {
+		return shapeArray.map((a) => a.reverse())
+	}
+	public _flipArrayV(shapeArray) {
+		const newArray = JSON.parse(JSON.stringify(shapeArray))
+		return newArray.reverse()
+	}
+	public _rotateArray90(shapeArray) {
+		return shapeArray[0].map((val, index) => shapeArray.map((row) => row[index]).reverse())
+	}
+
+	public shapeIdNoTryShapes(shapeId) {
+		if (('' + shapeId).endsWith('-try-shapes')) {
+			return shapeId.substring(0, shapeId.indexOf('-try-shapes'))
+		}
+		return shapeId
+	}
+	public getShapeSizeFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		if (!(shapeId in this.shapesCreationInfo)) {
+			return {
+				width: 0,
+				height: 0
+			}
+		}
+		return {
+			width: this.shapesCreationInfo[shapeId].width,
+			height: this.shapesCreationInfo[shapeId].height
+		}
+	}
+	public getShapeTypeIdFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		if (!(shapeId in this.shapesCreationInfo)) {
+			return SHAPE_TYPE_ID_CAT
+		}
+		return this.shapesCreationInfo[shapeId].shapeTypeId
+	}
+	public getShapeTypeNameFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		switch (this.getShapeTypeIdFromShapeId(shapeId)) {
+			case SHAPE_TYPE_ID_CAT:
+				return _('Cat')
+			case SHAPE_TYPE_ID_COMMON_TREASURE:
+				return _('Treasure')
+		}
+		return ''
+	}
+	public getShapeArrayFromShapeId(shapeId) {
+		shapeId = this.shapeIdNoTryShapes(shapeId)
+		if (!(shapeId in this.shapesCreationInfo)) {
+			return [[1]]
+		}
+		return JSON.parse(JSON.stringify(this.shapesCreationInfo[shapeId].shapeArray))
+	}
+
+	public closeAllTooltips() {
+		/*for (const tooltipId in this.tooltips) {
+			if (this.tooltips[tooltipId] !== undefined && this.tooltips[tooltipId] !== null) {
+				this.tooltips[tooltipId].close()
+			}
+		}*/
+	}
+	public updateTooltips() {
+		this.tooltipScheduler.schedule()
+	}
+	public updateTooltipsNow() {
+		const shapes = document.querySelectorAll('.tioc-shape')
+
+		for (const shape of Array.from(shapes)) {
+			if (shape.closest('.tioc-player-boat') !== null) {
+				this.gameui.removeTooltip(shape.id)
+				continue
+			}
+			this.updateShapeElementTooltip(shape)
+		}
+		const cards = document.querySelectorAll('.tioc-card')
+		for (const card of Array.from(cards)) {
+			this.updateCardElementTooltip(card)
+		}
+		const buttons = document.querySelectorAll<HTMLElement>('.tioc-player-boat-hide-shapes')
+		for (const button of Array.from(buttons)) {
+			if (this.boatMgr.isPlayerBoatEmpty(button.dataset.playerId)) {
+				button.classList.add('inactive')
+			} else {
+				button.classList.remove('inactive')
+			}
+		}
+	}
+
+	public getColorNameFromColorId(colorId) {
+		switch (colorId) {
+			case CAT_COLOR_ID_BLUE:
+				return _('Blue')
+			case CAT_COLOR_ID_GREEN:
+				return _('Green')
+			case CAT_COLOR_ID_RED:
+				return _('Red')
+			case CAT_COLOR_ID_PURPLE:
+				return _('Purple')
+			case CAT_COLOR_ID_ORANGE:
+				return _('Orange')
+		}
+		return ''
+	}
+	public getColorNameFromColorCode(colorCode) {
+		switch (colorCode) {
+			case 'blue':
+				return _('Blue')
+			case 'green':
+				return _('Green')
+			case 'red':
+				return _('Red')
+			case 'purple':
+				return _('Purple')
+			case 'orange':
+				return _('Orange')
+		}
+		return ''
+	}
+	public updateShapeElementTooltip(shape, elementId = null) {
+		if (shape.dataset.shapeId === undefined || shape.dataset.shapeId === null) {
+			return
+		}
+		if (elementId === null) {
+			elementId = shape.id
+		}
+		this.gameui.removeTooltip(elementId)
+		const shapeClone = shape.cloneNode()
+		shapeClone.id = ''
+		shapeClone.style = ''
+		shapeClone.classList.remove('tioc-moving')
+		shapeClone.classList.remove('tioc-clickable')
+		shapeClone.classList.remove('tioc-selected')
+		shapeClone.classList.add('tioc-tooltip-wiggle')
+		let title = this.getShapeTypeNameFromShapeId(shape.dataset.shapeId)
+		let color = this.getCurrentColorFromShapeId(shape.dataset.shapeId)
+		color = this.getColorNameFromColorCode(color)
+		if (color.length > 0) {
+			color = dojo.string.substitute(_('Color: ${color}'), { color: color })
+		}
+		const w = this.getShapeWidthFromShapeId(shape.dataset.shapeId)
+		const h = this.getShapeHeightFromShapeId(shape.dataset.shapeId)
+		const nb = this.getShapeCoverageFromShapeId(shape.dataset.shapeId)
+
+		const description = dojo.string.substitute(
+			_('This shape has a width of ${w} square(s) and a height of ${h} square(s). It covers ${nb} square(s).'),
+			{
+				w: w,
+				h: h,
+				nb: nb
+			}
+		)
+		const jstpl_tooltip_shape = `${shapeClone.outerHTML}'  <h3>${title}</h3> <p>${description}</p><p>${color}</p>`
+		this.gameui.addTooltipHtml(elementId, jstpl_tooltip_shape, 1500)
+	}
+	public updateCardElementTooltip(card) {
+		this.gameui.removeTooltip(card.id)
+		const cardClone = card.cloneNode()
+		cardClone.id = ''
+		cardClone.style = ''
+		cardClone.classList.remove('tioc-moving')
+		cardClone.classList.remove('tioc-clickable')
+		cardClone.classList.remove('tioc-selected')
+		cardClone.classList.remove('tioc-card-buy')
+		cardClone.classList.add('tioc-card-tooltip-id-' + card.dataset.cardId)
+		cardClone.classList.add('tioc-tooltip-wiggle')
+		const cardTypeName = this.cardsManager.getCardTypeNameFromCardId(card.dataset.cardId)
+		//let color = this.cardsManager.getCurrentColorIdFromCardId(card.dataset.cardId)
+		let color = "blue"//this.getColorNameFromColorId(color)
+		const descNote = this.cardsManager.getDescriptionAndNoteFromCardId(card.dataset.cardId)
+
+		const jstpl_tooltip_card = `
+			${cardClone.outerHTML}
+			<h3>${cardTypeName} <small>(${card.dataset.cardId})</small></h3>
+			<p>${descNote.description}</p>
+			<p><i>${descNote.note}</i></p>
+			<p>${color}</p>
+		`
+		this.gameui.addTooltipHtml(card.id, jstpl_tooltip_card, 1000)
+	}
+	public showInformationDialog(title, paragraphArray, params = {}) {
+		this.closeAllTooltips()
+		const dialog = new ebg.popindialog()
+		dialog.create('tioc-information-dialog')
+		dialog.setTitle(title)
+		let html = '<div>'
+		if ('before' in params) {
+			html += params['before']
+		}
+		let nextIsHeader = false
+		for (const p of paragraphArray) {
+			if (nextIsHeader) {
+				nextIsHeader = false
+				html += '<h3>' + dojo.string.substitute(p, params) + '</h3>'
+			} else if (p.length == 0) {
+				nextIsHeader = true
+			} else {
+				html += '<p>' + dojo.string.substitute(p, params) + '</p>'
+			}
+		}
+		if ('after' in params) {
+			html += params['after']
+		}
+		html += '</div>'
+		dialog.setContent(html)
+		dialog.show()
 	}
 }

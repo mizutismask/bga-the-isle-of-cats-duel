@@ -46,6 +46,8 @@ interface TheIsleOfCatsDuelGamedatas {
 	// Add here variables you set up in getAllDatas
 	islandCards: Array<TheIsleOfCatsDuelCard>
 	oshaxLocation: number
+	shapes: any //todo type
+	boatUsedGridColor: any
 }
 
 interface CounterValue {
@@ -68,6 +70,23 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	takeAction(action: string, data?: any, options?: { lock: boolean; checkAction: boolean }): Promise<void>
 	clickOnSlot(slot: number): any
 	gameui: GameGui
+    gamedatas: TheIsleOfCatsDuelGamedatas
+
+	TILE_SIZE: number
+	SMALL_TILE_SIZE: number
+	commandMgr: CommandMgr
+	//fishMgr: FishMgr
+	islandMgr: IslandMgr
+	boatMgr: BoatMgr
+	//phase45Mgr: Phase45Mgr
+	shapeControl: ShapeControlApi
+	closeAllTooltips: () => void
+	addOnClick: (elem: Element, fct: (ev: any) => void) => void
+	getShapeColorFromShapeId: (shapeId: string) => string
+
+	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): void
+	addKnownShape(shape): void
+	updateShapeElementTooltip(shape, elementId = null): void
 }
 
 interface EnteringPlayerTurnArgs {

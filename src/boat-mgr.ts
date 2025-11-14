@@ -1,0 +1,704 @@
+/** Types */
+type Color = 'blue' | 'green' | 'red' | 'purple' | 'orange'
+type XY = { x: number; y: number }
+type Rect = { topX: number; topY: number; bottomX: number; bottomY: number }
+
+/** Boat grid sizing */
+const BOAT_TILE_BASE_LEFT = 32 as const
+const BOAT_TILE_BASE_TOP = 55 as const
+const BOAT_TILE_WIDTH = 22 as const
+const BOAT_TILE_HEIGHT = 9 as const
+
+const BOAT_TILE_HEIGHT_PER_COLUMN: readonly number[] = [
+	3, 5, 5, 5, 7, 7, 7, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 5, 5, 3, 3, 1
+] as const
+
+const BOAT_NB_MAP = 5 as const
+
+/** Placement of the 5 colored icons on each boat color */
+const BOAT_MAP_PLACEMENT: Readonly<Record<Color, XY>> = {
+	blue: { x: 14, y: 1 },
+	green: { x: 7, y: 0 },
+	red: { x: 1, y: 3 },
+	purple: { x: 9, y: 7 },
+	orange: { x: 19, y: 5 }
+} as const
+
+/** Rat coordinates per boat color */
+const BOAT_RAT_PLACEMENT: XY[] = [
+	{ x: 0, y: 5 },
+	{ x: 1, y: 5 },
+	{ x: 1, y: 6 },
+	{ x: 4, y: 1 },
+	{ x: 7, y: 3 },
+	{ x: 8, y: 3 },
+	{ x: 10, y: 8 },
+	{ x: 11, y: 0 },
+	{ x: 12, y: 0 },
+	{ x: 13, y: 0 },
+	{ x: 13, y: 8 },
+	{ x: 14, y: 0 },
+	{ x: 14, y: 7 },
+	{ x: 14, y: 8 },
+	{ x: 15, y: 6 },
+	{ x: 15, y: 7 },
+	{ x: 17, y: 2 },
+	{ x: 18, y: 2 },
+	{ x: 19, y: 3 }
+]
+
+/** Room IDs (kept as constants for drop-in compatibility) */
+const BOAT_ROOMS_ID_PARROT_BACK = 0 as const
+const BOAT_ROOMS_ID_MOON_TOP = 1 as const
+const BOAT_ROOMS_ID_MOON_BOTTOM = 2 as const
+const BOAT_ROOMS_ID_APPLE_MIDDLE = 3 as const
+const BOAT_ROOMS_ID_CORN_FRONT = 4 as const
+const BOAT_ROOMS_ID_PARROT_FRONT = 5 as const
+
+/** Room rectangles (inclusive coordinates) */
+const BOAT_ROOMS_RECTANGLE: readonly Rect[] = [
+	/* Back - Parrot  */ { topX: 0, topY: 1, bottomX: 2, bottomY: 7 },
+	/* Top - Moon     */ { topX: 3, topY: 0, bottomX: 9, bottomY: 1 },
+	/* Bottom - Moon  */ { topX: 3, topY: 8, bottomX: 9, bottomY: 8 },
+	/* Middle - Apple */ { topX: 5, topY: 3, bottomX: 11, bottomY: 5 },
+	/* Front - Corn   */ { topX: 16, topY: 1, bottomX: 19, bottomY: 6 },
+	/* Front - Parrot */ { topX: 20, topY: 3, bottomX: 21, bottomY: 5 }
+] as const
+
+const SHAPE_COLOR_COUNTERS = ['blue', 'green', 'orange', 'purple', 'red', 'common']
+
+class BoatMgr {
+	private playersIds: string[]
+	/** Root element selector for the current player's boat grid */
+	private boatRootSel: string
+	private game: TheIsleOfCatsDuelGame
+	/** Mapping from shapeId to used grid cells */
+	private used: Map<string, XY[]> = new Map()
+
+	/** CSS class used to mark clickable cells */
+	private clickableCls = 'tioc-clickable'
+
+	// Try shapes
+	private clientTryShapeBoatGridUsed = []
+	private clientTryShapeShapeGridUsed = []
+	// Current player
+	private clientPlayerBoatGridUsed = []
+	private clientPlayerShapeGridUsed = []
+	// Server
+	private serverBoatGridUsed = []
+	private serverPlayerShapeGridUsed = []
+
+	//private playerBoatColorName: {}
+	private shapesHiddenPerPlayerId: Array<boolean> = []
+	private placementShowGridOverlay: boolean = false
+	private overlayButtonPressedBeforePlacing: boolean = false
+	private overlayButtonChangedWhilePlacementShowGridOverlay: boolean = false
+	private overlayButtonPressedPerPlayerId: Array<boolean> = []
+	private playerShapeColorCounter = []
+
+	/** ctor */
+	constructor(game: TheIsleOfCatsDuelGame, boatRootSel = '#tioc-boat') {
+		this.game = game
+		this.boatRootSel = boatRootSel
+	}
+
+	public setup(gamedatas: TheIsleOfCatsDuelGamedatas) {
+		this.playersIds = Object.keys(gamedatas.players)
+
+		/** Builds tooltip HTML for legends */
+		const tpl = {
+			score: `
+    <div class="tioc-legend-score">
+      <ol>
+        <li>1. ${'${rats}'} (-1)</li>
+        <li>2. ${'${rooms}'} (-5)</li>
+        <li>3. ${'${cat_families}'}</li>
+        <li>4. ${'${rare_treasure}'} (3)</li>
+        <li>5. ${'${your_lessons}'}</li>
+        <li>6. ${'${public_lessons}'}</li>
+      </ol>
+      <ol>
+        <li>${'${families}'}</li>
+        <li>3 = 8</li>
+        <li>4 = 11</li>
+        <li>5 = 15</li>
+        <li>6 = 20</li>
+        <li>7 = 25</li>
+        <li>8 = 30</li>
+        <li>9 = 35</li>
+        <li>10 = 40</li>
+      </ol>
+    </div>
+  `,
+			round: `
+    <ol>
+      <li>${'${title}'}</li>
+      <li>${'${add_cats}'}</li>
+      <li>1. ${'${fishing}'}</li>
+      <li>2. ${'${explore}'}</li>
+      <li>3. ${'${read_lessons}'}</li>
+      <li>4. ${'${rescue_cats}'}</li>
+      <li>5. ${'${rare_finds}'}</li>
+      <li>${'${empty_fields}'}</li>
+    </ol>
+  `
+		}
+
+		/** Helper to apply tooltip templates */
+		const addLegendTooltip = (cls: string, tplKey: keyof typeof tpl, data: Record<string, string>) =>
+			this.game.gameui.addTooltipHtmlToClass(cls, tplKey)
+
+		addLegendTooltip('tioc-player-boat-legend-score', 'score', {
+			rats: _('Rats'),
+			rooms: _('Rooms'),
+			cat_families: _('Cat Families'),
+			rare_treasure: _('Rare Treasure'),
+			your_lessons: _('Your Lessons'),
+			public_lessons: _('Public Lessons'),
+			families: _('Families')
+		})
+
+		addLegendTooltip('tioc-player-boat-legend-round', 'round', {
+			title: _('Round Summary'),
+			add_cats: _('Add 2 cats per player to each of the fields.'),
+			fishing: _('Fishing (20 fish)'),
+			explore: _('Explore (7 cards)'),
+			read_lessons: _('Read Lessons'),
+			rescue_cats: _('Rescue Cats'),
+			rare_finds: _('Rare Finds (Oshax and Treasure)'),
+			empty_fields: _('Empty the fields.')
+		})
+
+		const preventEvent = (event) => {
+			event.preventDefault()
+			event.stopPropagation()
+			return false
+		}
+		for (const playerId in gamedatas.players) {
+			//this.playerBoatColorName[playerId] = gamedatas.players[playerId].boat_color_name
+
+			this.shapesHiddenPerPlayerId[playerId] = false
+			const hideShapesButtonElem = document.getElementById('tioc-player-boat-hide-shapes-' + playerId)
+			hideShapesButtonElem.innerText = _('Hide shapes')
+			dojo.connect(hideShapesButtonElem, 'touchstart', (event) =>
+				this.hideBoatPlayerShapes(hideShapesButtonElem, playerId)
+			)
+			dojo.connect(hideShapesButtonElem, 'mousedown', (event) =>
+				this.hideBoatPlayerShapes(hideShapesButtonElem, playerId)
+			)
+
+			dojo.connect(hideShapesButtonElem, 'touchend', (event) =>
+				this.showBoatPlayerShapes(hideShapesButtonElem, playerId)
+			)
+			dojo.connect(hideShapesButtonElem, 'mouseup', (event) =>
+				this.showBoatPlayerShapes(hideShapesButtonElem, playerId)
+			)
+			dojo.connect(hideShapesButtonElem, 'mouseleave', (event) =>
+				this.showBoatPlayerShapes(hideShapesButtonElem, playerId)
+			)
+
+			dojo.connect(hideShapesButtonElem, 'oncontextmenu', preventEvent)
+			this.game.gameui.addTooltip(
+				hideShapesButtonElem.id,
+				'',
+				_('Press to hide shapes that are on the boat and see the rooms hidden by the shapes')
+			)
+
+			this.overlayButtonPressedPerPlayerId[playerId] = false
+			const hideOverlayButtonElem = document.getElementById('tioc-player-boat-hide-overlay-' + playerId)
+			hideOverlayButtonElem.innerText = _('Room overlay')
+			dojo.connect(hideOverlayButtonElem, 'onclick', (event) =>
+				this.overlayButtonClicked(hideOverlayButtonElem, playerId)
+			)
+			dojo.connect(hideOverlayButtonElem, 'oncontextmenu', preventEvent)
+			this.game.gameui.addTooltip(
+				hideOverlayButtonElem.id,
+				'',
+				_('Enable to show the overlay that shows empty squares and room icons')
+			)
+
+			this.playerShapeColorCounter[playerId] = []
+			for (const colorCounter of SHAPE_COLOR_COUNTERS) {
+				const elemId = 'tioc-player-panel-shape-face-' + colorCounter + '-' + playerId
+				this.playerShapeColorCounter[playerId][colorCounter] = new ebg.counter()
+				this.playerShapeColorCounter[playerId][colorCounter].create(elemId)
+				this.playerShapeColorCounter[playerId][colorCounter].setValue(0)
+			}
+		}
+		// Build grid for all boats
+		let gridId = 0
+		for (let x = 0; x < BOAT_TILE_WIDTH; ++x) {
+			let baseY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
+			for (let y = 0; y < BOAT_TILE_HEIGHT; ++y) {
+				const isValidGrid = y >= baseY && y < baseY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+				const jstpl_shape_grid = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
+					BOAT_TILE_BASE_LEFT + x + x * this.game.TILE_SIZE
+				}px; top: ${BOAT_TILE_BASE_TOP + y + y * this.game.TILE_SIZE}px;"></div>`
+				for (const boatElem of dojo.query('.tioc-player-boat')) {
+					dojo.place(jstpl_shape_grid, boatElem)
+				}
+
+				const jstpl_shape_grid_small = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
+					BOAT_TILE_BASE_LEFT + x + x * this.game.SMALL_TILE_SIZE
+				}px; top: ${BOAT_TILE_BASE_TOP + y + y * this.game.SMALL_TILE_SIZE}px;"></div>`
+				for (const boatElem of dojo.query('.tioc-player-panel-boat-container')) {
+					dojo.place(jstpl_shape_grid_small, boatElem)
+				}
+			}
+		}
+		// Build array of used and unused boat grid for current player
+		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed)
+		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed)
+		for (const playerId in gamedatas.players) {
+			this.serverBoatGridUsed[playerId] = []
+			this.clearBoatGridUsed(this.serverBoatGridUsed[playerId])
+			this.serverPlayerShapeGridUsed[playerId] = []
+		}
+
+		// Place each shape on boat
+		for (const shape of gamedatas.shapes) {
+			this.game.addKnownShape(shape)
+			if (shape.shapeLocationId != SHAPE_LOCATION_ID_BOAT) {
+				continue
+			}
+			const gridElem = document.querySelector(
+				'#tioc-player-boat-' + shape.playerId + ' .tioc-grid.x_' + shape.boatTopX + '_y_' + shape.boatTopY
+			)
+			this.game.createShapeElement(gridElem.id, shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
+			this.applyTransformToShapeId(
+				shape.shapeId,
+				shape.boatRotation,
+				shape.boatHorizontalFlip,
+				shape.boatVerticalFlip
+			)
+		}
+
+		this.updatePlayerPanelBoat(gamedatas.boatUsedGridColor)
+	}
+
+	/** Enable click on all available boat grid squares and call back with x,y. */
+	allowPlaceShape = (cb: (x: number, y: number) => void): void => {
+		const root = document.querySelector(this.boatRootSel)
+		if (!root) return
+		root.querySelectorAll<HTMLElement>('.grid-square:not(.blocked)').forEach((sq) => {
+			sq.classList.add(this.clickableCls)
+			this.game.addOnClick(sq, (ev) => {
+				ev.preventDefault()
+				const x = Number(sq.dataset.x || sq.getAttribute('data-x'))
+				const y = Number(sq.dataset.y || sq.getAttribute('data-y'))
+				this.removeAllBoatClickable()
+				cb(x, y)
+			})
+		})
+	}
+
+	/** Remove all click handlers/visuals from the boat. */
+	removeAllBoatClickable = (): void => {
+		document.querySelectorAll(`.${this.clickableCls}`).forEach((el) => el.classList.remove(this.clickableCls))
+	}
+
+	/** Move a shape node into the boat grid at x,y. */
+	moveShapeToBoat = (number: number, shapeId: string, x: number, y: number, onEndAnim?: () => void): void => {
+		const node = document.getElementById(shapeId)
+		const target = document.querySelector<HTMLElement>(
+			`${this.boatRootSel} .grid-square[data-x="${x}"][data-y="${y}"]`
+		)
+		if (!node || !target) return
+		target.appendChild(node)
+		if (typeof onEndAnim === 'function') onEndAnim()
+	}
+
+	/** Apply rotation/flip transform on a shape by id. */
+	applyTransformToShapeId = (shapeId: string, rotation: number, flipH: boolean, flipV: boolean): void => {
+		const node = document.getElementById(shapeId) as HTMLElement | null
+		if (!node) return
+		const rot = `rotate(${(rotation || 0) * 90}deg)`
+		const fh = flipH ? 'scaleX(-1)' : 'scaleX(1)'
+		const fv = flipV ? 'scaleY(-1)' : 'scaleY(1)'
+		node.style.transform = `${rot} ${fh} ${fv}`.trim()
+	}
+
+	/** Mark grid squares used by a shape. */
+	markGridUsed = (shapeId: string, x: number, y: number): void => {
+		const arr = this.used.get(shapeId) ?? []
+		arr.push({ x, y })
+		this.used.set(shapeId, arr)
+		const sq = document.querySelector<HTMLElement>(`${this.boatRootSel} .grid-square[data-x="${x}"][data-y="${y}"]`)
+		if (sq) sq.classList.add('used')
+	}
+
+	/** Clear the used marks for a shape. */
+	markGridUnused = (shapeId: string): void => {
+		const arr = this.used.get(shapeId) ?? []
+		arr.forEach(({ x, y }) => {
+			const sq = document.querySelector<HTMLElement>(
+				`${this.boatRootSel} .grid-square[data-x="${x}"][data-y="${y}"]`
+			)
+			if (sq) sq.classList.remove('used')
+		})
+		this.used.delete(shapeId)
+	}
+
+	/** Returns true if the grid cell x,y matches provided color name. */
+	gridMapMatchesColor = (x: number, y: number, colorName: string): boolean => {
+		const sq = document.querySelector<HTMLElement>(`${this.boatRootSel} .grid-square[data-x="${x}"][data-y="${y}"]`)
+		if (!sq) return false
+		return sq.classList.contains(`color-${colorName}`)
+	}
+
+	/** Paint a color id onto a shape (oshax). */
+	placeColorIdOnShapeId = (shapeId: string, colorId: number | string): void => {
+		const node = document.getElementById(shapeId)
+		if (!node) return
+		;['blue', 'green', 'red', 'purple', 'orange'].forEach((c) => node.classList.remove(`oshax-${c}`))
+		node.classList.add(`oshax-${colorId}`)
+	}
+
+	isGridEmpty(x, y) {
+		if (x < 0 || x >= BOAT_TILE_WIDTH) {
+			return true
+		}
+		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
+		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+		if (y < minY || y >= maxY) {
+			return true
+		}
+		if (this.clientTryShapeBoatGridUsed[x][y]) {
+			return false
+		}
+		if (this.clientPlayerBoatGridUsed[x][y]) {
+			return false
+		}
+		if (this.serverBoatGridUsed[this.game.getPlayerId()][x][y]) {
+			return false
+		}
+		return true
+	}
+
+	isPlayerGridEmpty(playerId, x, y) {
+		if (playerId == this.game.getPlayerId()) {
+			return this.isGridEmpty(x, y)
+		}
+		if (x < 0 || x >= BOAT_TILE_WIDTH) {
+			return true
+		}
+		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
+		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+		if (y < minY || y >= maxY) {
+			return true
+		}
+		return !this.serverBoatGridUsed[playerId][x][y]
+	}
+
+	/** Utility: whether no tiles placed yet. */
+	isBoatEmpty = (): boolean => this.used.size === 0
+
+	isPlayerBoatEmpty(playerId) {
+		const shapes = document.querySelectorAll('#tioc-player-boat-' + playerId + ' .tioc-shape')
+		for (const shape of Array.from(shapes)) {
+			if (shape.classList.contains('tioc-hidden') || shape.classList.contains('tioc-animate-to-hidden-end')) {
+				continue
+			}
+			return false
+		}
+		return true
+	}
+
+	hideBoatPlayerShapes = (hideShapesButtonElem: HTMLElement, playerId: string): void => {
+		//;(window.tiocWrap ?? ((_, fn) => fn()))('hideBoatPlayerShapes', () => {
+		hideShapesButtonElem.classList.add('pressed')
+		document
+			.querySelectorAll(`#tioc-player-boat-${playerId} .tioc-shape`)
+			.forEach((el) => el.classList.add('tioc-shape-fade-out'))
+		this.shapesHiddenPerPlayerId[playerId] = true
+		this.updateGridOverlay()
+		//})
+	}
+
+	/** Show all shapes on a player's boat. */
+	showBoatPlayerShapes = (hideShapesButtonElem: HTMLElement, playerId: string): void => {
+		//;(window.tiocWrap ?? ((_, fn) => fn()))('showBoatPlayerShapes', () => {
+		hideShapesButtonElem.classList.remove('pressed')
+		document
+			.querySelectorAll(`#tioc-player-boat-${playerId} .tioc-shape`)
+			.forEach((el) => el.classList.remove('tioc-shape-fade-out'))
+		this.shapesHiddenPerPlayerId[playerId] = false
+		this.updateGridOverlay()
+		//})
+	}
+
+	/** Toggle overlay visibility for a player. */
+	overlayButtonClicked = (hideOverlayButtonElem: HTMLElement, playerId: string): void => {
+		//;(window.tiocWrap ?? ((_, fn) => fn()))('overlayButtonPressed', () => {
+		hideOverlayButtonElem.classList.toggle('pressed')
+		const curr = !!this.overlayButtonPressedPerPlayerId[playerId]
+		this.overlayButtonPressedPerPlayerId[playerId] = !curr
+		if (String(playerId) === String(this.game.getPlayerId()) && this.placementShowGridOverlay) {
+			this.overlayButtonChangedWhilePlacementShowGridOverlay = true
+		}
+		this.updateGridOverlay()
+		//})
+	}
+
+	/** Force-show overlay while placing a shape. */
+	showPlacementGridOverlay = (): void => {
+		this.placementShowGridOverlay = true
+		this.overlayButtonChangedWhilePlacementShowGridOverlay = false
+		this.overlayButtonPressedBeforePlacing = !!this.overlayButtonPressedPerPlayerId[String(this.game.getPlayerId())]
+		this.overlayButtonPressedPerPlayerId[String(this.game.getPlayerId())] = true
+		const btn = document.getElementById(`tioc-player-boat-hide-overlay-${this.game.getPlayerId()}`)
+		btn?.classList.add('pressed')
+		this.updateGridOverlay()
+	}
+
+	/** Restore overlay button after placement. */
+	hidePlacementGridOverlay = (): void => {
+		if (this.placementShowGridOverlay && !this.overlayButtonChangedWhilePlacementShowGridOverlay) {
+			this.overlayButtonPressedPerPlayerId[String(this.game.getPlayerId())] =
+				this.overlayButtonPressedBeforePlacing
+			const btn = document.getElementById(`tioc-player-boat-hide-overlay-${this.game.getPlayerId()}`)
+			if (this.overlayButtonPressedPerPlayerId[String(this.game.getPlayerId())]) btn?.classList.add('pressed')
+			else btn?.classList.remove('pressed')
+		}
+		this.placementShowGridOverlay = false
+		this.overlayButtonChangedWhilePlacementShowGridOverlay = false
+		this.updateGridOverlay()
+	}
+
+	/** Rescale all boats' grid positions. */
+	rescale = (scaleOtherBoats: number, scalePlayerBoat: number): void => {
+		for (const pid in this.playersIds) {
+			const scale = String(pid) === String(this.game.getPlayerId()) ? scalePlayerBoat : scaleOtherBoats
+			const grids = document.querySelectorAll<HTMLElement>(`#tioc-player-boat-${pid} .tioc-grid`)
+			grids.forEach((grid) => {
+				const x = parseInt(grid.dataset.x ?? '0', 10)
+				const y = parseInt(grid.dataset.y ?? '0', 10)
+				const x_px = ((BOAT_TILE_BASE_LEFT + x + x * this.game.TILE_SIZE) * scale) / 100
+				const y_px = ((BOAT_TILE_BASE_TOP + y + y * this.game.TILE_SIZE) * scale) / 100
+				grid.style.left = `${x_px}px`
+				grid.style.top = `${y_px}px`
+				const overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`)
+				if (overlay) {
+					;(overlay as HTMLElement).style.left = `${x_px}px`
+					;(overlay as HTMLElement).style.top = `${y_px}px`
+				}
+			})
+		}
+	}
+
+	/** Reset a boolean occupancy grid to “unused”. */
+	clearBoatGridUsed = (boatGridUsed: boolean[][]): void => {
+		boatGridUsed.length = BOAT_TILE_WIDTH
+		for (let x = 0; x < BOAT_TILE_WIDTH; x++) {
+			boatGridUsed[x] = []
+			boatGridUsed[x].length = BOAT_TILE_HEIGHT
+			for (let y = 0; y < BOAT_TILE_HEIGHT; y++) boatGridUsed[x][y] = false
+		}
+	}
+
+	/** Clear client-side try-shape markers. */
+	clearTryShapes = (): void => {
+		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed)
+		this.clientTryShapeShapeGridUsed = []
+	}
+
+	/** Build / refresh per-cell overlays on all boats. */
+	updateGridOverlay = (): void => {
+		for (const pid in this.playersIds) {
+			const grids = document.querySelectorAll<HTMLElement>(
+				`#tioc-player-boat-${pid} .tioc-grid[data-valid-grid="true"]`
+			)
+			grids.forEach((grid) => {
+				const x = parseInt(grid.dataset.x ?? '0', 10)
+				const y = parseInt(grid.dataset.y ?? '0', 10)
+				let overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`) as HTMLElement | null
+
+				if (!overlay) {
+					var jstpl_grid_overlay = `<div class="tioc-grid-overlay" id="tioc-grid-overlay-${pid}-${x}-${y}" data-x="${x}" data-y="${y}" style="left: ${grid.offsetLeft}px; top: ${grid.offsetTop}px;"></div>`
+
+					// Create overlay from template and insert into the player's boat root
+					overlay?.insertAdjacentHTML('beforeend', jstpl_grid_overlay)
+
+					// Either place a map icon...
+					let hasMap = false
+					//const boatColor = this.playerBoatColorName[pid]
+					const placement = BOAT_MAP_PLACEMENT
+					for (const colorName in placement) {
+						const p = placement[colorName as Color]
+						if (p.x === x && p.y === y) {
+							overlay?.insertAdjacentHTML('beforeend', `<div class="map-icon ${colorName}"></div>`)
+							hasMap = true
+							break
+						}
+					}
+					// ...or a room icon if inside any room rect
+					if (!hasMap && overlay) {
+						for (let roomIndex = 0; roomIndex < BOAT_ROOMS_RECTANGLE.length; roomIndex++) {
+							const rect = BOAT_ROOMS_RECTANGLE[roomIndex]
+							if (x >= rect.topX && x <= rect.bottomX && y >= rect.topY && y <= rect.bottomY) {
+								switch (roomIndex) {
+									case BOAT_ROOMS_ID_PARROT_BACK:
+										overlay.insertAdjacentHTML(
+											'beforeend',
+											`<div class="room-icon parrot-back"></div>`
+										)
+										break
+									case BOAT_ROOMS_ID_MOON_TOP:
+										overlay.insertAdjacentHTML(
+											'beforeend',
+											`<div class="room-icon moon-top"></div>`
+										)
+										break
+									case BOAT_ROOMS_ID_MOON_BOTTOM:
+										overlay.insertAdjacentHTML(
+											'beforeend',
+											`<div class="room-icon moon-bottom"></div>`
+										)
+										break
+									case BOAT_ROOMS_ID_APPLE_MIDDLE:
+										overlay.insertAdjacentHTML('beforeend', `<div class="room-icon apple"></div>`)
+										break
+									case BOAT_ROOMS_ID_CORN_FRONT:
+										overlay.insertAdjacentHTML('beforeend', `<div class="room-icon corn"></div>`)
+										break
+									case BOAT_ROOMS_ID_PARROT_FRONT:
+										overlay.insertAdjacentHTML(
+											'beforeend',
+											`<div class="room-icon parrot-front"></div>`
+										)
+										break
+								}
+								break
+							}
+						}
+					}
+				}
+
+				if (!overlay) return
+
+				// Show/hide global overlay toggle
+				if (this.overlayButtonPressedPerPlayerId[pid]) overlay.classList.remove('tioc-hidden')
+				else overlay.classList.add('tioc-hidden')
+
+				// Border classes depending on adjacency & hidden shapes
+				if (this.isPlayerGridEmpty(pid, x, y) || this.shapesHiddenPerPlayerId[pid]) {
+					overlay.classList.add('empty')
+					overlay.classList.remove('top', 'bottom', 'left', 'right')
+				} else {
+					overlay.classList.remove('empty')
+					this.isPlayerGridEmpty(pid, x, y - 1)
+						? overlay.classList.add('top')
+						: overlay.classList.remove('top')
+					this.isPlayerGridEmpty(pid, x, y + 1)
+						? overlay.classList.add('bottom')
+						: overlay.classList.remove('bottom')
+					this.isPlayerGridEmpty(pid, x - 1, y)
+						? overlay.classList.add('left')
+						: overlay.classList.remove('left')
+					this.isPlayerGridEmpty(pid, x + 1, y)
+						? overlay.classList.add('right')
+						: overlay.classList.remove('right')
+				}
+			})
+		}
+	}
+
+	public allowSelectTreasure(onSelectFct) {
+		const addOnClick = (shape) => {
+			const shapeId = shape.dataset.shapeId
+			let shapeGridUsed = null
+			if (shapeId in this.clientPlayerShapeGridUsed) {
+				shapeGridUsed = this.clientPlayerShapeGridUsed
+			} else if (shapeId in this.serverPlayerShapeGridUsed[this.game.getPlayerId()]) {
+				shapeGridUsed = this.serverPlayerShapeGridUsed[this.game.getPlayerId()]
+			}
+			if (shapeGridUsed === null) {
+				return
+			}
+			shape.classList.add('tioc-clickable')
+			for (const grid of shapeGridUsed[shapeId]) {
+				const gridElem = document.querySelector(
+					'#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-grid.x_' + grid.x + '_y_' + grid.y
+				)
+				this.game.addOnClick(gridElem, () => {
+					this.removeAllBoatClickable()
+					onSelectFct(shapeId)
+				})
+				gridElem.classList.add('tioc-clickable-no-border')
+			}
+		}
+		let shapes = document.querySelectorAll(
+			'#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-shape.shape-type-' + SHAPE_TYPE_ID_COMMON_TREASURE
+		)
+		for (const shape of Array.from(shapes)) {
+			addOnClick(shape)
+		}
+	}
+	public useShape(shapeId) {
+		const shapeElemId = 'tioc-shape-id-' + shapeId
+		dojo.addClass(shapeElemId, 'tioc-animate-to-hidden-start')
+		setTimeout(() => {
+			//window.tiocWrap('useShape_setTimeout', () => {
+			dojo.addClass(shapeElemId, 'tioc-animate-to-hidden-end')
+			//})
+		}, 1)
+		return this.markGridUnused(shapeId)
+	}
+	public unuseShape(shapeId, usedGrid) {
+		if (shapeId === null) {
+			return
+		}
+		const shapeElemId = 'tioc-shape-id-' + shapeId
+		dojo.removeClass(shapeElemId, 'tioc-animate-to-hidden-start')
+		dojo.removeClass(shapeElemId, 'tioc-animate-to-hidden-end')
+		for (const grid of usedGrid) {
+			this.markGridUsed(shapeId, grid.x, grid.y)
+		}
+	}
+	public updatePlayerPanelBoat(boatUsedGridColor) {
+		const panelBoatGridElems = document.querySelectorAll('.tioc-player-panel-boat-container .tioc-grid')
+		for (const gridElem of Array.from(panelBoatGridElems)) {
+			gridElem.classList.remove('colorless')
+			for (const colorName of CAT_COLOR_NAMES) {
+				gridElem.classList.remove(colorName)
+			}
+		}
+		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed)
+		this.clientPlayerShapeGridUsed = []
+		for (const playerId in this.serverBoatGridUsed) {
+			this.clearBoatGridUsed(this.serverBoatGridUsed[playerId])
+			this.serverPlayerShapeGridUsed[playerId] = []
+		}
+		const boatGridElems = document.querySelectorAll('.tioc-player-boat .tioc-grid')
+		for (const gridElem of Array.from(boatGridElems)) {
+			this.game.gameui.removeTooltip(gridElem.id)
+		}
+		for (const playerId in boatUsedGridColor) {
+			for (const gridColor of boatUsedGridColor[playerId]) {
+				const x = gridColor.x
+				const y = gridColor.y
+				this.serverBoatGridUsed[playerId][x][y] = true
+				if (!(gridColor.shapeId in this.serverPlayerShapeGridUsed[playerId])) {
+					this.serverPlayerShapeGridUsed[playerId][gridColor.shapeId] = []
+				}
+				this.serverPlayerShapeGridUsed[playerId][gridColor.shapeId].push({ x: x, y: y })
+				const colorId = gridColor.colorId
+				const gridElem = document.querySelector(
+					'#tioc-player-panel-boat-container-' + playerId + ' .tioc-grid.x_' + x + '_y_' + y
+				)
+				const shape = document.getElementById('tioc-shape-id-' + gridColor.shapeId)
+				const boatGridElem = document.querySelector(
+					'#tioc-player-boat-' + playerId + ' .tioc-grid.x_' + x + '_y_' + y
+				)
+				this.game.updateShapeElementTooltip(shape, boatGridElem.id)
+				if (colorId === null) {
+					gridElem.classList.add('colorless')
+				} else {
+					gridElem.classList.add(CAT_COLOR_NAMES[colorId])
+				}
+			}
+		}
+		//this.updatePlayerPanelShapeCount()
+		this.updateGridOverlay()
+	}
+}

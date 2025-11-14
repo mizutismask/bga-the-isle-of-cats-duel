@@ -27,6 +27,14 @@
 		"src/island/island.ts",
 		"src/player-table/player-table.ts",
 		"src/settings.ts",
+		"src/action-mgr.ts",
+		"src/boat-mgr.ts",
+		"src/try-shapes-mgr.ts",
+		"src/shape-control.ts",
+		"src/island-mgr.ts",
+		"src/title-mgr.ts",
+		"src/command-mgr.ts",
+		"src/scheduler.ts",
 		"src/theisleofcatsduel.ts",
 		"src/end.ts"
 	]

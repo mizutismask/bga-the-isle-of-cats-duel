@@ -71,4 +71,69 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 		cardDiv.style.backgroundPositionY = `-${yBackgroundPercent}%`
 		cardDiv.style.backgroundSize = `${IMAGE_ITEMS_PER_ROW * 100}%`
 	}
+
+	public getCardTypeNameFromCardId(cardId) {
+                    /*switch (this.getCardTypeIdFromCardId(cardId)) {
+                        
+                        case CARD_TYPE_ID_TREASURE:
+                            return _('Treasure');
+                        case CARD_TYPE_ID_PRIVATE_LESSON:
+                            return _('Lesson');
+                    }*/
+                    return 'todo';
+	}
+	
+	public getDescriptionAndNoteFromCardId(cardId) {
+		switch (parseInt(cardId)) {
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+				return {
+					description: _('Take any Oshax and place it on your boat.'),
+					note: '',
+				}
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+				return {
+					description: _('Gain 4 speed'),
+					note: '',
+				}
+			case 15:
+			case 16:
+			case 17:
+			case 18:
+			case 19:
+			case 20:
+			case 21:
+			case 22:
+				return {
+					description: _('Gain a half basket'),
+					note: '',
+				}
+			case 23:
+			case 24:
+			case 25:
+			case 26:
+			case 27:
+			case 28:
+			case 29:
+			case 30:
+			case 31:
+			case 32:
+                        
+		}
+		return {
+			description: '',
+			note: '',
+		}
+	}
 }

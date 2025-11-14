@@ -155,6 +155,8 @@ class Game extends \Bga\GameFramework\Table {
         $result['version'] = $this->getGameVersion();
         $result['oshaxLocation'] = $this->globals->get(Constants::GLBL_OSHAX_LOCATION);
         $result['islandCards'] = $this->cardMgr->getIslandCards();
+        $result['shapes'] = $this->shapeMgr->getShapesAsArray();
+        $result['boatUsedGridColor'] = $this->shapeMgr->getBoatUsedGridColor(array_keys($this->loadPlayersBasicInfos()));
         $this->playerFishCounter->fillResult($result);
 
         foreach ($result['players'] as $playerId => &$player) {

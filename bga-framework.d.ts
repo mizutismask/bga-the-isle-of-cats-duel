@@ -875,4 +875,5 @@ interface Dojo {
     forEach: Function;
     empty: (nodeId: ElementOrId) => void;
     byId: (nodeId: ElementOrId) => HTMLElement;
+    fadeOut: Function;
 }
