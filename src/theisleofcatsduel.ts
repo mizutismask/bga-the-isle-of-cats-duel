@@ -33,6 +33,9 @@ const CAT_COLOR_ID_RED = 2
 const CAT_COLOR_ID_PURPLE = 3
 const CAT_COLOR_ID_ORANGE = 4
 
+const TILE_SIZE: number = 40
+const SMALL_TILE_SIZE: number = 7
+
 class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	public TILE_SIZE: 40
 	public SMALL_TILE_SIZE: 7
@@ -106,7 +109,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.islandMgr = new IslandMgr(this)
 		this.shapeControl = new ShapeControl(this)
 		this.tooltipScheduler = new Scheduler(() => this.updateTooltipsNow())
-
 
 		//;(this.gameui as any).updateCounters(this.gamedatas.counters)
 
@@ -204,13 +206,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			</div>
 
 			<div class="tioc-player-panel-row tioc-compact">
-				${['blue','green','orange','purple','red','common']
-				.map(color => `
+				${['blue', 'green', 'orange', 'purple', 'red', 'common']
+					.map(
+						(color) => `
 				<div class="tioc-player-panel-pill">
 					<div class="tioc-player-panel-shape-face-${color}"></div>
 					<div class="tioc-player-panel-pill-counter"
 						id="tioc-player-panel-shape-face-${color}-${player.id}">0</div>
-				</div>`).join('')}
+				</div>`
+					)
+					.join('')}
 			</div>
 
 			<div class="tioc-player-panel-row">
@@ -218,10 +223,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			</div>
 
 			<div class="tioc-player-panel-insert-point"></div>
-			`;
+			`
 
 		this.gameui.getPlayerPanelElement(playerId).insertAdjacentHTML('beforeend', jstpl_player_panel)
-
 	}
 
 	private setupHelpPopin() {
@@ -1183,7 +1187,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		cardClone.classList.add('tioc-tooltip-wiggle')
 		const cardTypeName = this.cardsManager.getCardTypeNameFromCardId(card.dataset.cardId)
 		//let color = this.cardsManager.getCurrentColorIdFromCardId(card.dataset.cardId)
-		let color = "blue"//this.getColorNameFromColorId(color)
+		let color = 'blue' //this.getColorNameFromColorId(color)
 		const descNote = this.cardsManager.getDescriptionAndNoteFromCardId(card.dataset.cardId)
 
 		const jstpl_tooltip_card = `

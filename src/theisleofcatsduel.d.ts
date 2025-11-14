@@ -72,8 +72,6 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	gameui: GameGui
     gamedatas: TheIsleOfCatsDuelGamedatas
 
-	TILE_SIZE: number
-	SMALL_TILE_SIZE: number
 	commandMgr: CommandMgr
 	//fishMgr: FishMgr
 	islandMgr: IslandMgr

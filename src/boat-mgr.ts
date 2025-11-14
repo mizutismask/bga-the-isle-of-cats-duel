@@ -232,15 +232,15 @@ class BoatMgr {
 			for (let y = 0; y < BOAT_TILE_HEIGHT; ++y) {
 				const isValidGrid = y >= baseY && y < baseY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
 				const jstpl_shape_grid = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
-					BOAT_TILE_BASE_LEFT + x + x * this.game.TILE_SIZE
-				}px; top: ${BOAT_TILE_BASE_TOP + y + y * this.game.TILE_SIZE}px;"></div>`
+					BOAT_TILE_BASE_LEFT + x + x * TILE_SIZE
+				}px; top: ${BOAT_TILE_BASE_TOP + y + y * TILE_SIZE}px;"></div>`
 				for (const boatElem of dojo.query('.tioc-player-boat')) {
 					dojo.place(jstpl_shape_grid, boatElem)
 				}
 
 				const jstpl_shape_grid_small = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
-					BOAT_TILE_BASE_LEFT + x + x * this.game.SMALL_TILE_SIZE
-				}px; top: ${BOAT_TILE_BASE_TOP + y + y * this.game.SMALL_TILE_SIZE}px;"></div>`
+					BOAT_TILE_BASE_LEFT + x + x * SMALL_TILE_SIZE
+				}px; top: ${BOAT_TILE_BASE_TOP + y + y * SMALL_TILE_SIZE}px;"></div>`
 				for (const boatElem of dojo.query('.tioc-player-panel-boat-container')) {
 					dojo.place(jstpl_shape_grid_small, boatElem)
 				}
@@ -473,8 +473,8 @@ class BoatMgr {
 			grids.forEach((grid) => {
 				const x = parseInt(grid.dataset.x ?? '0', 10)
 				const y = parseInt(grid.dataset.y ?? '0', 10)
-				const x_px = ((BOAT_TILE_BASE_LEFT + x + x * this.game.TILE_SIZE) * scale) / 100
-				const y_px = ((BOAT_TILE_BASE_TOP + y + y * this.game.TILE_SIZE) * scale) / 100
+				const x_px = ((BOAT_TILE_BASE_LEFT + x + x * TILE_SIZE) * scale) / 100
+				const y_px = ((BOAT_TILE_BASE_TOP + y + y * TILE_SIZE) * scale) / 100
 				grid.style.left = `${x_px}px`
 				grid.style.top = `${y_px}px`
 				const overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`)
