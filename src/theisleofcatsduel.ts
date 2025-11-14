@@ -41,6 +41,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	public SMALL_TILE_SIZE: 7
 
 	public cardsManager: CardsManager
+	public jumpToManager: JumpToManager
 	private originalTextChooseAction: string
 	private island: Island
 	public boatMgr: BoatMgr
@@ -102,6 +103,12 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		Object.values(this.gamedatas.playerOrderWorkingWithSpectators).forEach((p) => {
 			this.setupPlayer(this.gamedatas.players[p])
 		})
+		this.jumpToManager = new JumpToManager(this, {
+            localStorageFoldedKey: 'tioc-duel-jumpto-folded',
+            topEntries: [
+                new JumpToEntry(_('Island'), 'island', { 'color': '#8ed225' })
+            ],
+        });
 		this.boatMgr = new BoatMgr(this)
 		this.boatMgr.setup(gamedatas)
 		this.commandMgr = new CommandMgr(this)
