@@ -10,7 +10,7 @@ const BOAT_TILE_WIDTH = 22 as const
 const BOAT_TILE_HEIGHT = 9 as const
 
 const BOAT_TILE_HEIGHT_PER_COLUMN: readonly number[] = [
-	3, 5, 5, 5, 7, 7, 7, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 5, 5, 3, 3, 1
+	1,7, 7, 9,  9,  9,  9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 1
 ] as const
 
 const BOAT_NB_MAP = 5 as const

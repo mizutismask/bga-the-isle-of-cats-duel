@@ -953,23 +953,23 @@ class TiocShapeMgr {
 const BOAT_TILE_WIDTH = 22;
 const BOAT_TILE_HEIGHT = 9;
 const BOAT_TILE_HEIGHT_PER_COLUMN = [
-    3,
+    1,
+    7,
+    7,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    9,
+    7,
+    7,
+    7,
+    7,
     5,
-    5,
-    5,
-    7,
-    7,
-    7,
-    9,
-    9,
-    9,
-    9,
-    9,
-    9,
-    9,
-    9,
-    7,
-    7,
     5,
     5,
     3,
@@ -978,7 +978,7 @@ const BOAT_TILE_HEIGHT_PER_COLUMN = [
 ];
 const BOAT_NB_MAP = 5;
 const BOAT_MAP_PLACEMENT = [
-    'blue' => [//boatO
+    'blue' => [ //boatO
         'blue' => ['x' => 9, 'y' => 7],
         'green' => ['x' => 12, 'y' => 2],
         'red' => ['x' => 17, 'y' => 5],
@@ -994,7 +994,7 @@ const BOAT_MAP_PLACEMENT = [
     ],
 ];
 const BOAT_RAT_PLACEMENT = [
-    'blue' => [//boatO
+    'blue' => [ //boatO
         ['x' => 1,  'y' => 7],
         ['x' => 2,  'y' => 6],
         ['x' => 2,  'y' => 7],
@@ -1015,7 +1015,7 @@ const BOAT_RAT_PLACEMENT = [
         ['x' => 14, 'y' => 6],
         ['x' => 17, 'y' => 6],
     ],
-    'green' => [//boatI
+    'green' => [ //boatI
         ['x' => 1, 'y' => 1],
         ['x' => 1, 'y' => 7],
         ['x' => 2, 'y' => 4],
