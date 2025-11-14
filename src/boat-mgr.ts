@@ -107,66 +107,49 @@ class BoatMgr {
 
 		/** Builds tooltip HTML for legends */
 		const tpl = {
-			score: `
+			score: (d: any) => `
     <div class="tioc-legend-score">
       <ol>
-        <li>1. ${'${rats}'} (-1)</li>
-        <li>2. ${'${rooms}'} (-5)</li>
-        <li>3. ${'${cat_families}'}</li>
-        <li>4. ${'${rare_treasure}'} (3)</li>
-        <li>5. ${'${your_lessons}'}</li>
-        <li>6. ${'${public_lessons}'}</li>
+        <li>1. ${d.rats} (-1)</li>
+        <li>2. ${d.rooms} (-5)</li>
+        <li>3. ${d.cat_families}</li>
+        <li>5. ${d.your_lessons}</li>
       </ol>
       <ol>
-        <li>${'${families}'}</li>
         <li>3 = 8</li>
         <li>4 = 11</li>
         <li>5 = 15</li>
-        <li>6 = 20</li>
-        <li>7 = 25</li>
-        <li>8 = 30</li>
-        <li>9 = 35</li>
-        <li>10 = 40</li>
+        <li>+1 = +5</li>
       </ol>
     </div>
   `,
-			round: `
+			round: (d: any) => `
     <ol>
-      <li>${'${title}'}</li>
-      <li>${'${add_cats}'}</li>
-      <li>1. ${'${fishing}'}</li>
-      <li>2. ${'${explore}'}</li>
-      <li>3. ${'${read_lessons}'}</li>
-      <li>4. ${'${rescue_cats}'}</li>
-      <li>5. ${'${rare_finds}'}</li>
-      <li>${'${empty_fields}'}</li>
+      <li>${d.title}</li>
+      <li>${d.moveExtraSpace}</li>
+      <li>${d.jump}</li>
+      <li>${d.takeTreasure}</li>
+      <li>${d.extraDiscovery}</li>
     </ol>
   `
 		}
 
-		/** Helper to apply tooltip templates */
-		const addLegendTooltip = (cls: string, tplKey: keyof typeof tpl, data: Record<string, string>) =>
-			this.game.gameui.addTooltipHtmlToClass(cls, tplKey)
+		const addLegendTooltip = (cls: string, key: keyof typeof tpl, data: any) =>
+			this.game.gameui.addTooltipHtmlToClass(cls, tpl[key](data))
 
 		addLegendTooltip('tioc-player-boat-legend-score', 'score', {
 			rats: _('Rats'),
 			rooms: _('Rooms'),
 			cat_families: _('Cat Families'),
-			rare_treasure: _('Rare Treasure'),
-			your_lessons: _('Your Lessons'),
-			public_lessons: _('Public Lessons'),
-			families: _('Families')
+			your_lessons: _('Your Lessons')
 		})
 
 		addLegendTooltip('tioc-player-boat-legend-round', 'round', {
-			title: _('Round Summary'),
-			add_cats: _('Add 2 cats per player to each of the fields.'),
-			fishing: _('Fishing (20 fish)'),
-			explore: _('Explore (7 cards)'),
-			read_lessons: _('Read Lessons'),
-			rescue_cats: _('Rescue Cats'),
-			rare_finds: _('Rare Finds (Oshax and Treasure)'),
-			empty_fields: _('Empty the fields.')
+			title: _('Fish actions'),
+			moveExtraSpace: _('1. Move one extra space'),
+			jump: _('2. Jump anywhere'),
+			takeTreasure: _('3. Take one treasure'),
+			extraDiscovery: _('4. Choose one extra discovery')
 		})
 
 		const preventEvent = (event) => {
