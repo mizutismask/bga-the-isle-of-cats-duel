@@ -978,12 +978,12 @@ const BOAT_TILE_HEIGHT_PER_COLUMN = [
 ];
 const BOAT_NB_MAP = 5;
 const BOAT_MAP_PLACEMENT = [
-    'blue' => [
-        'blue' => ['x' => 14, 'y' => 1],
-        'green' => ['x' => 7, 'y' => 0],
-        'red' => ['x' => 1, 'y' => 3],
-        'purple' => ['x' => 9, 'y' => 7],
-        'orange' => ['x' => 19, 'y' => 5],
+    'blue' => [//boatO
+        'blue' => ['x' => 9, 'y' => 7],
+        'green' => ['x' => 12, 'y' => 2],
+        'red' => ['x' => 17, 'y' => 5],
+        'purple' => ['x' => 3, 'y' => 0],
+        'orange' => ['x' => 0, 'y' => 4],
     ],
     'green' => [
         'blue' => ['x' => 1, 'y' => 3],
@@ -991,20 +991,6 @@ const BOAT_MAP_PLACEMENT = [
         'red' => ['x' => 19, 'y' => 5],
         'purple' => ['x' => 7, 'y' => 0],
         'orange' => ['x' => 9, 'y' => 7],
-    ],
-    'red' => [
-        'blue' => ['x' => 9, 'y' => 7],
-        'green' => ['x' => 1, 'y' => 3],
-        'red' => ['x' => 14, 'y' => 1],
-        'purple' => ['x' => 19, 'y' => 5],
-        'orange' => ['x' => 7, 'y' => 0],
-    ],
-    'purple' => [
-        'blue' => ['x' => 7, 'y' => 0],
-        'green' => ['x' => 19, 'y' => 5],
-        'red' => ['x' => 9, 'y' => 7],
-        'purple' => ['x' => 1, 'y' => 3],
-        'orange' => ['x' => 14, 'y' => 1],
     ],
 ];
 const BOAT_RAT_PLACEMENT = [

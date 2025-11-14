@@ -17,11 +17,11 @@ const BOAT_NB_MAP = 5 as const
 
 /** Placement of the 5 colored icons on each boat color */
 const BOAT_MAP_PLACEMENT: Readonly<Record<Color, XY>> = {
-	blue: { x: 14, y: 1 },
-	green: { x: 7, y: 0 },
-	red: { x: 1, y: 3 },
-	purple: { x: 9, y: 7 },
-	orange: { x: 19, y: 5 }
+	blue: { x: 9, y: 7 },
+	green: { x: 12, y: 2 },
+	red: { x: 17, y: 5 },
+	purple: { x: 3, y: 0 },
+	orange: { x: 0, y: 4 }
 } as const
 
 /** Rat coordinates per boat color */
