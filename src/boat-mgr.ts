@@ -487,7 +487,7 @@ class BoatMgr {
 
 	/** Build / refresh per-cell overlays on all boats. */
 	updateGridOverlay = (): void => {
-		for (const pid in this.playersIds) {
+		for (const pid of this.playersIds) {
 			const grids = document.querySelectorAll<HTMLElement>(
 				`#tioc-player-boat-${pid} .tioc-grid[data-valid-grid="true"]`
 			)
@@ -500,7 +500,8 @@ class BoatMgr {
 					var jstpl_grid_overlay = `<div class="tioc-grid-overlay" id="tioc-grid-overlay-${pid}-${x}-${y}" data-x="${x}" data-y="${y}" style="left: ${grid.offsetLeft}px; top: ${grid.offsetTop}px;"></div>`
 
 					// Create overlay from template and insert into the player's boat root
-					overlay?.insertAdjacentHTML('beforeend', jstpl_grid_overlay)
+					document.getElementById(`tioc-player-boat-${pid}`).insertAdjacentHTML('beforeend', jstpl_grid_overlay)
+					overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`)
 
 					// Either place a map icon...
 					let hasMap = false
