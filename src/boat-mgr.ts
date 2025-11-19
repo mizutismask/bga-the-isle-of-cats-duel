@@ -59,7 +59,7 @@ const BOAT_ROOMS_ID_PARROT_FRONT = 5 as const
 const BOAT_ROOMS_RECTANGLE: readonly Rect[] = [
 	/* Back - Parrot  */ { topX: 0, topY: 1, bottomX: 2, bottomY: 7 },
 	/* Top - Moon     */ { topX: 3, topY: 0, bottomX: 9, bottomY: 1 },
-	/* Bottom - Moon  */ { topX: 3, topY: 8, bottomX: 9, bottomY: 8 },
+	/* Bottom - Moon  */ { topX: 3, topY: 7, bottomX: 9, bottomY: 8 },
 	/* Middle - Apple */ { topX: 5, topY: 3, bottomX: 11, bottomY: 5 },
 	/* Front - Corn   */ { topX: 16, topY: 1, bottomX: 19, bottomY: 6 },
 	/* Front - Parrot */ { topX: 20, topY: 3, bottomX: 21, bottomY: 5 }
