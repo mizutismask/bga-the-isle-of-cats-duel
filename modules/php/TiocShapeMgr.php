@@ -1048,7 +1048,7 @@ const BOAT_ROOMS_RECTANGLE = [
     // Top - Moon
     ['topX' => 3, 'topY' => 0, 'bottomX' => 9, 'bottomY' => 1],
     // Bottom - Moon
-    ['topX' => 3, 'topY' => 8, 'bottomX' => 9, 'bottomY' => 8],
+    ['topX' => 3, 'topY' => 7, 'bottomX' => 9, 'bottomY' => 8],
     // Middle - Apple
     ['topX' => 5, 'topY' => 3, 'bottomX' => 11, 'bottomY' => 5],
     // Front (large) - Corn
