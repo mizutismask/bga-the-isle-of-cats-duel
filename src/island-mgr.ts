@@ -8,7 +8,7 @@
   private allowSmallCount = 0;
   private allowRareCount = 0;
 
-  constructor(game: TheIsleOfCatsDuelGame, rootSel = '#tioc-island') {
+  constructor(game: TheIsleOfCatsDuelGame, rootSel = '#island') {
     this.game = game;
     this.rootSel = rootSel;
   }
