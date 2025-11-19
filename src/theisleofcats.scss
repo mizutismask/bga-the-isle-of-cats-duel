@@ -762,6 +762,9 @@ $scale: 10;
     flex-basis: 100%;
 }
 
+$boat-width:968px;
+$boat-height:479px;
+
 $scale: 10;
 @while ($scale <=100) {
     $classStr: '';
@@ -771,10 +774,10 @@ $scale: 10;
     #{$classStr} .tioc-player-boat {
         margin: auto;
         position: relative;
-        background-image: url("img/player-board-standard-1.jpg");
-        width: calc(980px * #{$scale} / 100) !important;
-        height: calc(479px * #{$scale} / 100) !important;
-        background-size: calc(980px * #{$scale} / 100) calc(479px * #{$scale} / 100) !important;
+        background-image: url("img/OBoat.jpg");
+        width: calc($boat-width * #{$scale} / 100) !important;
+        height: calc($boat-height * #{$scale} / 100) !important;
+        background-size: calc($boat-width * #{$scale} / 100) calc($boat-height * #{$scale} / 100) !important;
     }
     #{$classStr} .tioc-player-boat .tioc-grid {
         z-index: 1;
