@@ -7,8 +7,8 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			animationManager: game.animationManager,
 			type: 'card',
 			getId: (card) => `theisleofcatsduel-card-${card.cardId}`,
-			cardWidth: 118,
-			cardHeight: 165,
+			cardWidth: 108,
+			cardHeight: 164,
 			cardBorderRadius: '10px',
 
 			setupDiv: (card: TheIsleOfCatsDuelCard, div: HTMLElement) => {

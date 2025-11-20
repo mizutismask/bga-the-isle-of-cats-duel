@@ -22,11 +22,11 @@ class TiocCard {
         $this->playedMoveNumber = $playedMoveNumber;
         $this->islandCardSlot = $islandCardSlot;
         $this->cardTypeId = null;
-        if ($this->cardId >= 67 && $this->cardId <= 97) {
+        if ($this->cardId >= 7 && $this->cardId <= 10) {
             $this->cardTypeId = CARD_TYPE_ID_ANYTIME;
-        } else if ($this->cardId >= 98 && $this->cardId <= 112) {
+        } else if ($this->cardId >= 1 && $this->cardId <= 6) {
             $this->cardTypeId = CARD_TYPE_ID_TREASURE;
-        } else if ($this->cardId >= 113 && $this->cardId <= 142) {
+        } else if ($this->cardId >= 11 && $this->cardId <= 32) {
             $this->cardTypeId = CARD_TYPE_ID_LESSON;
         }
     }

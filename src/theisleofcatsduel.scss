@@ -11,9 +11,9 @@
 @use '../node_modules/bga-help/bga-help';
 @use 'game-vars' as vars;
 
-$BASE_CARD_WIDTH: 246;
-$BASE_CARD_HEIGHT: 344;
-$cardSizeModifier: 0.5;
+$BASE_CARD_WIDTH: 460;
+$BASE_CARD_HEIGHT: 700;
+$cardSizeModifier: 1;
 $CARD_WIDTH: calc(#{$BASE_CARD_WIDTH}px * $cardSizeModifier); //also change in stock-utils.ts
 $CARD_HEIGHT: calc(#{$BASE_CARD_HEIGHT}px * $cardSizeModifier);
 $CARD_RATIO: list.slash($BASE_CARD_WIDTH, $BASE_CARD_HEIGHT);

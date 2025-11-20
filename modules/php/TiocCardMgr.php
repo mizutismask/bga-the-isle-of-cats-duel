@@ -15,9 +15,7 @@ namespace Bga\Games\TheIsleOfCatsDuel;
 use BgaVisibleSystemException;
 
 const CARD_NORMAL_RANGE_START = 1;
-const CARD_NORMAL_RANGE_END = 150;
-const CARD_FAMILY_RANGE_START = 151;
-const CARD_FAMILY_RANGE_END = 168;
+const CARD_NORMAL_RANGE_END = 32;
 
 const CARD_LOCATION_ID_DECK = 0;
 const CARD_LOCATION_ID_PLAYER_DRAFT = 1;
