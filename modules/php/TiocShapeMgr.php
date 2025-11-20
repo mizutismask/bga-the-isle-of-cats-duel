@@ -40,6 +40,37 @@ class TiocShapeMgr {
         $shapeId = 0;
         foreach (CAT_COLOR_IDS as $catColorId) {
             foreach (TiocShapeDefMgr::CAT_IDS as $shapeDefId) {
+                if (in_array($shapeDefId, TiocShapeDefMgr::SPECIAL_CAT_IDS)) {
+                    switch ($catColorId) {
+                        case CAT_COLOR_ID_BLUE:
+                            if (!in_array($shapeDefId, [407, 408])) {
+                                continue 2; //to the next shapeDefId
+                            }
+                            break;
+
+                        case CAT_COLOR_ID_GREEN:
+                            if (!in_array($shapeDefId, [409, 410])) {
+                                continue 2;
+                            }
+                            break;
+
+                        case CAT_COLOR_ID_ORANGE:
+                            if (!in_array($shapeDefId, [411, 412])) {
+                                continue 2;
+                            }
+                            break;
+                        case CAT_COLOR_ID_PURPLE:
+                            if (!in_array($shapeDefId, [413, 414])) {
+                                continue 2;
+                            }
+                            break;
+                        case CAT_COLOR_ID_RED:
+                            if (!in_array($shapeDefId, [415, 416])) {
+                                continue 2;
+                            }
+                            break;
+                    }
+                }
                 $this->shapes[] = new TiocShape(
                     $this->shapeDefMgr,
                     $shapeId++,
