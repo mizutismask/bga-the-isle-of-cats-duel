@@ -82,7 +82,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	addOnClick: (elem: Element, fct: (ev: any) => void) => void
 	getShapeColorFromShapeId: (shapeId: string) => string
 
-	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): void
+	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement
 	addKnownShape(shape): void
 	updateShapeElementTooltip(shape, elementId = null): void
 }

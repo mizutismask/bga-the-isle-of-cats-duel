@@ -12,6 +12,9 @@ declare const ebg: {
   popindialog: {
     new (): PopinDialog;
   };
+  zone: {
+    new (): Zone;
+  };
 };
 
 declare const dojo: Dojo;

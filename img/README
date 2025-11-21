@@ -9,4 +9,4 @@ Typically, this directory should contain fewer than 10 files, with no file large
 See: http://en.doc.boardgamearena.com/Game_art:_img_directory for more details.
 
 magick montage  `ls -v ./*.*` -tile 10 -geometry 108x164+0+0 -density 300 -quality 100 cards.jpg
-magick montage  `ls -v ./*.*` -tile 9 -geometry +0+0 -gravity North -background none -density 300 -quality 100 tiles.png
+magick montage `ls -v ./*.*` -tile 9 -geometry +0+0 -gravity North -background none -density 300 -quality 100 tiles.png

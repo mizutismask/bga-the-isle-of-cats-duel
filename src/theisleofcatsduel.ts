@@ -104,16 +104,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			this.setupPlayer(this.gamedatas.players[p])
 		})
 		this.jumpToManager = new JumpToManager(this, {
-            localStorageFoldedKey: 'tioc-duel-jumpto-folded',
-            topEntries: [
-                new JumpToEntry(_('Island'), 'island', { 'color': '#8ed225' })
-            ],
-        });
+			localStorageFoldedKey: 'tioc-duel-jumpto-folded',
+			topEntries: [new JumpToEntry(_('Island'), 'island', { 'color': '#8ed225' })]
+		})
+		this.setupTreasureZones()
 		this.boatMgr = new BoatMgr(this)
 		this.boatMgr.setup(gamedatas)
 		this.commandMgr = new CommandMgr(this)
 		this.commandMgr.setup(gamedatas)
 		this.islandMgr = new IslandMgr(this)
+		this.islandMgr.setup(gamedatas)
 		this.shapeControl = new ShapeControl(this)
 		this.tooltipScheduler = new Scheduler(() => this.updateTooltipsNow())
 
@@ -136,6 +136,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		log('Ending game setup')
 	}
+
+	private setupTreasureZones() {}
 
 	private setupTooltips() {
 		//todo change counter names
@@ -984,19 +986,19 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	}
 
 	public formatShapeElementForLog(shapeId, shapeTypeId, shapeDefId, colorId = null) {
-		const color_name = colorId ? CAT_COLOR_NAMES[colorId] : ''
+		const color_name = colorId == null ? '' : CAT_COLOR_NAMES[colorId]
 		const jstpl_shape_for_log = `<div class="tioc-shape shape-type-${shapeTypeId} ${color_name} shape-def-${shapeDefId}" data-shape-id="${shapeId}"></div>`
 		return jstpl_shape_for_log
 	}
 	public formatShapeElement(shapeId, shapeTypeId, shapeDefId, colorId = null) {
-		const color_name = colorId ? CAT_COLOR_NAMES[colorId] : ''
+		const color_name = colorId == null ? '' : CAT_COLOR_NAMES[colorId]
 		var jstpl_shape = `<div class="tioc-shape shape-type-${shapeTypeId} ${color_name} shape-def-${shapeDefId}" id="tioc-shape-id-${shapeId}" data-shape-id="${shapeId}"></div>`
 		return jstpl_shape
 	}
-	public createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null) {
-		const shape = dojo.place(this.formatShapeElement(shapeId, shapeTypeId, shapeDefId, colorId), location)
+	public createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement {
+		dojo.place(this.formatShapeElement(shapeId, shapeTypeId, shapeDefId, colorId), location)
 		this.updateTooltips()
-		return shape
+		return document.getElementById(`tioc-shape-id-${shapeId}`)
 	}
 	public forEachShapeGrid(shapeId, x, y, rotation, paramFlipH, paramFlipV, gridFunction) {
 		let shapeArray = this.getShapeArrayFromShapeId(shapeId)
@@ -1089,7 +1091,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		}*/
 	}
 	public updateTooltips() {
-		this.tooltipScheduler.schedule()
+		//this.tooltipScheduler.schedule()
 	}
 	public updateTooltipsNow() {
 		const shapes = document.querySelectorAll('.tioc-shape')

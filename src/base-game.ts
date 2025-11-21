@@ -51,12 +51,18 @@ abstract class BaseGame {
 					</table>
 				</div>
 			</div>
-
+			<div id="pieces"></div>
 			<div id="boat-choice">
 				<div class="boat IBoat"></div>
 				<div class="boat OBoat"></div>
 			</div>
 			<div id="island"></div>
+			<div id="tioc-common-treasure-container">
+                <div id="tioc-common-treasure-zone-100"></div>
+                <div id="tioc-common-treasure-zone-101"></div>
+                <div id="tioc-common-treasure-zone-102"></div>
+                <div id="tioc-common-treasure-zone-103"></div>
+            </div>
 			<div id="player-tables"></div>
 		</div>`,
 			'game_play_area_background',
