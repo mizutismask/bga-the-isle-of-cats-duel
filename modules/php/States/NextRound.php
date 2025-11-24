@@ -60,6 +60,6 @@ class NextRound extends \Bga\GameFramework\States\GameState {
             $this->game->getPlayerGlobal($playerId, GLBL_SELECTION_ACTION_DONE);
         }*/
 
-        return $end;
+        return false;//$end;
     }
 }

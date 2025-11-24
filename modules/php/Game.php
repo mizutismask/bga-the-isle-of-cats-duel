@@ -250,6 +250,37 @@ class Game extends \Bga\GameFramework\Table {
         $this->cardMgr->drawCardsForIsland(5);
     }
 
+    public function isCardSlot(int $slotId): bool {
+        return in_array($slotId, [2, 4, 11, 13, 15]);
+    }
+    public function getCardSlotFromGlobalSlot(int $slotId): int {
+        return match ($slotId) {
+            2 => 1,
+            4 => 2,
+            11 => 3,
+            13 => 4,
+            15 => 5
+        };
+    }
+    public function getCatSlotFromGlobalSlot(int $slotId): int {
+        return match ($slotId) {
+            1 => 1,
+            3 => 2,
+            5 => 3,
+            6 => 4,
+            7 => 5,
+            8 => 6,
+            9 => 7,
+            10 => 8,
+            12 => 9,
+            14 => 10
+        };
+    }
+
+    function getMoveNumber(): int {
+        return 1;//todo
+    }
+
     /**
      * Another example of debug function, to easily test the zombie code.
      */

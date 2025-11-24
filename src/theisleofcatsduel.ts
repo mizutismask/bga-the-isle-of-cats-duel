@@ -49,6 +49,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	public shapeControl: ShapeControl
 	shapesCreationInfo = {}
 	public commandMgr: CommandMgr
+	public actionMgr: ActionMgr
 	public tooltipScheduler: Scheduler
 
 	private scoreBoard: ScoreBoard
@@ -115,7 +116,15 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.islandMgr = new IslandMgr(this)
 		this.islandMgr.setup(gamedatas)
 		this.shapeControl = new ShapeControl(this)
+		this.actionMgr = new ActionMgr(this)
+
 		this.tooltipScheduler = new Scheduler(() => this.updateTooltipsNow())
+
+		const discard = document.getElementById('tioc-island-discard')
+		/*if (discard.childElementCount != 0) {
+			this.actionMgr.addCommand(_rescueCatStartCommand)
+			_rescueCatEndCommand
+		}*/
 
 		//;(this.gameui as any).updateCounters(this.gamedatas.counters)
 
@@ -573,7 +582,18 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			if (this.gamedatas.gamestate.args.remainingMoves > 0) {
 				this.takeAction('actMoveOshax', { slot: slot })
 			} else if (this.gamedatas.gamestate.args.mandatoryMoveDone) {
-				this.takeAction('actTakeDiscovery', { slot: slot })
+				//this.takeAction('actTakeDiscovery', { slot: slot })
+				if (this.island.isCardSlot(slot)) {
+				} else {
+					const shape = document.querySelector<HTMLElement>(`#island-slot-${slot} .tioc-shape`)
+					const shapeId = shape.id
+					//this.actionMgr.rescueCat(shape.dataset.cardId)
+					this.boatMgr.allowPlaceShape((x, y) => {
+						log("moveShapeToBoat")
+						debugger
+						this.boatMgr.moveShapeToBoat(this.getPlayerId(), shapeId, x, y)
+					})
+				}
 			}
 	}
 

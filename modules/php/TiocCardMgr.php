@@ -25,6 +25,7 @@ const CARD_LOCATION_ID_TABLE = 4;
 const CARD_LOCATION_ID_DISCARD = 5;
 const CARD_LOCATION_ID_DISCARD_PLAYED = 6;
 const CARD_LOCATION_ID_ISLAND_CARD_SLOT = 7;
+const CARD_LOCATION_ID_ISLAND_CAT_SLOT = 7;
 
 const CARD_TYPE_ID_ANYTIME = 2;
 const CARD_TYPE_ID_TREASURE = 3;
@@ -111,6 +112,15 @@ class TiocCardMgr {
         $this->load();
         foreach ($this->cards as $card) {
             if ($card->cardId == $cardId) {
+                return $card;
+            }
+        }
+        return null;
+    }
+    public function findByCardLocation($locationId, $cardSlot) {
+        $this->load();
+        foreach ($this->cards as $card) {
+            if ($card->cardLocationId == $locationId && $card->islandCardSlot == $cardSlot) {
                 return $card;
             }
         }
@@ -206,7 +216,7 @@ class TiocCardMgr {
         $this->load();
         $cards = [];
         foreach ($this->cards as $card) {
-            
+
             if ($card->cardLocationId != CARD_LOCATION_ID_ISLAND_CARD_SLOT) {
                 continue;
             }
@@ -298,11 +308,11 @@ class TiocCardMgr {
         return $cardIds;
     }
 
-    public function moveFamilyDraftCardsToHand() {
+    public function moveLessonToHand($cardId, $playerId) {
         $this->load();
         foreach ($this->cards as $card) {
-            if ($card->cardLocationId == CARD_LOCATION_ID_PLAYER_DRAFT && $card->playerId !== null) {
-                $card->moveToPlayerHand($card->playerId);
+            if ($card->cardId == $cardId) {
+                $card->moveToPlayerHand($playerId);
             }
         }
 

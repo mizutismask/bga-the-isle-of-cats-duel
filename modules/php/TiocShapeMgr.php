@@ -25,8 +25,10 @@ const COMMON_TREASURE_PER_PLAYERS = [
 const SHAPE_ROTATIONS = [0, 90, 180, 270];
 
 
+/** @package Bga\Games\TheIsleOfCatsDuel */
 class TiocShapeMgr {
     private $game = null;
+    /** @var TiocShape[] $shapes */
     private $shapes = null;
     private $shapeDefMgr = null;
 
@@ -210,6 +212,15 @@ class TiocShapeMgr {
         }
         return null;
     }
+    public function findByLocation($shapeLocation, $slotId) {
+        $this->load();
+        foreach ($this->shapes as $shape) {
+            if ($shape->shapeLocationId == $shapeLocation && $shape->islandCatSlot == $slotId) {
+                return $shape;
+            }
+        }
+        return null;
+    }
 
     public function getShapeTypeIdFromShapeId($shapeId) {
         $this->load();
@@ -268,6 +279,18 @@ class TiocShapeMgr {
         }
         $this->save();
         return $drawnShape;
+    }
+    public function moveToToPlaceLocation($shapeId) {
+        $this->load();
+        
+        foreach ($this->shapes as $shape) {
+            if ($shape->shapeId != $shapeId) {
+                continue;
+            }
+            $shape->moveToToPlaceLocation($this->game->getMoveNumber());
+            break;
+        }
+        $this->save();
     }
 
     public function getToPlaceShape() {

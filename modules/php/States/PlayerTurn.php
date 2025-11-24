@@ -12,6 +12,9 @@ use Bga\GameFramework\UserException;
 use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 
+use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CARD_SLOT;
+use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CAT_SLOT;
+
 const FISH_ACTION_COST = [
     "M" => 1,
     "J" => 2,
@@ -67,6 +70,42 @@ class PlayerTurn extends GameState {
      *
      * @throws UserException
      */
+    #[PossibleAction]
+    public function actTakeDiscovery(int $slot, int $activePlayerId, array $args) {
+        // check input values
+        if (!$this->game->islandMgr->isValidSlot($slot)) {
+            throw new UserException('This slot is not valid');
+        }
+
+        $validSlots = $args['possibleSlotsForDiscovery'];
+        if (!in_array($slot, $validSlots)) {
+            throw new UserException('You did not move the Oshax over this location');
+        }
+
+        $fishAction = $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
+        if ($fishAction && ["M", "J"] == $fishAction) {
+            throw new UserException('You have to finish your additional move before choosing a discovery');
+        }
+
+        if ($this->game->isCardSlot($slot)) {
+            $typedSlot = $this->game->getCardSlotFromGlobalSlot($slot);
+            $card = $this->game->cardMgr->findByCardLocation(CARD_LOCATION_ID_ISLAND_CARD_SLOT, $typedSlot);
+            if ($card->isTreasure()) {
+                //todo
+            } else if ($card->isLesson()) {
+                $this->game->cardMgr->moveLessonToHand($card->cardId, $activePlayerId);
+            }
+           
+        } else {
+            $typedSlot = $this->game->getCatSlotFromGlobalSlot($slot);
+            $shape = $this->game->shapeMgr->findByLocation(CARD_LOCATION_ID_ISLAND_CAT_SLOT, $typedSlot);
+            $this->game->shapeMgr->moveToToPlaceLocation($shape->shapeId);
+        }
+        $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN, true);
+
+        return PlayerTurn::class;
+    }
+
     #[PossibleAction]
     public function actMoveOshax(int $slot, int $activePlayerId, array $args) {
         // check input values

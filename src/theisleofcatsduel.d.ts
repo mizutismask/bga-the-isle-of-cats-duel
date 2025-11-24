@@ -57,6 +57,7 @@ interface CounterValue {
 
 interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	cardsManager: CardsManager
+	actionMgr: ActionMgr
 	animationManager: AnimationManager
 	getCurrentPlayer(): TheIsleOfCatsDuelPlayer
 	getPlayerId(): number

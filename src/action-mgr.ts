@@ -309,8 +309,46 @@ class ActionMgr {
 		this._rescueCatEndCommand(cmd, state)
 	}*/
 
+	public rescueCat(basketId: string) {
+		 {
+		const cmd = this.game.commandMgr
+		/*if (cmd.isInCommand())
+			return this.game.gameui.showMessage(
+				_('You must finish your current action (or undo) before you can do this'),
+				'error'
+			)*
+		
+	/*	if (
+			this.game.phase45Mgr.canTakeCommonTreasure() ||
+			this.game.phase45Mgr.canTakeRareTreasure() ||
+			this.game.phase45Mgr.canTakeSmallTreasure()
+		)
+			return this.game.showMessage(_('You must place the allowed treasures first'), 'error')*/
+
+		const state: any = {
+			actionTypeId: this.ACTION_TYPE_ID_RESCUE_BASKET,
+			basketId,
+			shapeId: null,
+			x: null,
+			y: null,
+			rotation: null,
+			flipH: null,
+			flipV: null
+		}
+		cmd.startCommand(state)
+		cmd.addSimple(
+			() => { },
+			() => {
+				this.game.islandMgr.removeAllIslandClickable()
+				this.game.boatMgr.removeAllBoatClickable()
+			}
+		)
+		this._rescueCatEndCommand(cmd, state)
+	}
+	}
+
 	/** Final portion shared by rescue flows. */
-	private _rescueCatEndCommand = (cmd: CommandMgr, state: any) => {
+	public _rescueCatEndCommand = (cmd: CommandMgr, state: any) => {
 		cmd.add(
 			(cont) => {
 				cmd.changeTitle(_('${you} must select a cat in one of the fields of the island'))

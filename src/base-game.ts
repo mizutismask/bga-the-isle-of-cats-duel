@@ -63,6 +63,7 @@ abstract class BaseGame {
                 <div id="tioc-common-treasure-zone-102"></div>
                 <div id="tioc-common-treasure-zone-103"></div>
             </div>
+			<div class="tioc-grid" id="tioc-island-discard"></div>
 			<div id="player-tables"></div>
 		</div>`,
 			'game_play_area_background',

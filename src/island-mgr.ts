@@ -104,7 +104,7 @@ class IslandMgr {
 	allowRescueCat = (cb: (shapeId: string, price: number) => void): void => {
 		const root = document.querySelector(this.rootSel)
 		if (!root) return
-		root.querySelectorAll<HTMLElement>('.shape.cat').forEach((el) => {
+		root.querySelectorAll<HTMLElement>('.shape').forEach((el) => {
 			el.classList.add(this.clickableCls)
 			this.game.addOnClick(el, (ev) => {
 				ev.preventDefault()

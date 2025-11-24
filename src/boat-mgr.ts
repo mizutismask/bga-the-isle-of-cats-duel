@@ -99,7 +99,7 @@ class BoatMgr {
 	/** ctor */
 	constructor(game: TheIsleOfCatsDuelGame, boatRootSel = '#tioc-boat') {
 		this.game = game
-		this.boatRootSel = boatRootSel
+		this.boatRootSel = '#tioc-player-boat-' + this.game.getPlayerId()
 	}
 
 	public setup(gamedatas: TheIsleOfCatsDuelGamedatas) {
@@ -261,9 +261,7 @@ class BoatMgr {
 
 	/** Enable click on all available boat grid squares and call back with x,y. */
 	allowPlaceShape = (cb: (x: number, y: number) => void): void => {
-		const root = document.querySelector(this.boatRootSel)
-		if (!root) return
-		root.querySelectorAll<HTMLElement>('.grid-square:not(.blocked)').forEach((sq) => {
+		document.querySelectorAll<HTMLElement>('#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-grid[data-valid-grid="true"]').forEach((sq) => {
 			sq.classList.add(this.clickableCls)
 			this.game.addOnClick(sq, (ev) => {
 				ev.preventDefault()
@@ -284,7 +282,7 @@ class BoatMgr {
 	moveShapeToBoat = (number: number, shapeId: string, x: number, y: number, onEndAnim?: () => void): void => {
 		const node = document.getElementById(shapeId)
 		const target = document.querySelector<HTMLElement>(
-			`${this.boatRootSel} .grid-square[data-x="${x}"][data-y="${y}"]`
+			`${this.boatRootSel} .tioc-grid[data-x="${x}"][data-y="${y}"]`
 		)
 		if (!node || !target) return
 		target.appendChild(node)
@@ -306,7 +304,7 @@ class BoatMgr {
 		const arr = this.used.get(shapeId) ?? []
 		arr.push({ x, y })
 		this.used.set(shapeId, arr)
-		const sq = document.querySelector<HTMLElement>(`${this.boatRootSel} .grid-square[data-x="${x}"][data-y="${y}"]`)
+		const sq = document.querySelector<HTMLElement>(`${this.boatRootSel} .tioc-grid[data-x="${x}"][data-y="${y}"]`)
 		if (sq) sq.classList.add('used')
 	}
 
@@ -315,7 +313,7 @@ class BoatMgr {
 		const arr = this.used.get(shapeId) ?? []
 		arr.forEach(({ x, y }) => {
 			const sq = document.querySelector<HTMLElement>(
-				`${this.boatRootSel} .grid-square[data-x="${x}"][data-y="${y}"]`
+				`${this.boatRootSel} .tioc-grid[data-x="${x}"][data-y="${y}"]`
 			)
 			if (sq) sq.classList.remove('used')
 		})
@@ -324,7 +322,7 @@ class BoatMgr {
 
 	/** Returns true if the grid cell x,y matches provided color name. */
 	gridMapMatchesColor = (x: number, y: number, colorName: string): boolean => {
-		const sq = document.querySelector<HTMLElement>(`${this.boatRootSel} .grid-square[data-x="${x}"][data-y="${y}"]`)
+		const sq = document.querySelector<HTMLElement>(`${this.boatRootSel} .tioc-grid[data-x="${x}"][data-y="${y}"]`)
 		if (!sq) return false
 		return sq.classList.contains(`color-${colorName}`)
 	}

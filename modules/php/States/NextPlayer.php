@@ -34,6 +34,8 @@ class NextPlayer extends \Bga\GameFramework\States\GameState
 
         $this->game->globals->set(Constants::GLBL_REMAINING_OSHAX_MOVES, 2);
         $this->game->globals->set(Constants::GLBL_MANDATORY_MOVE_DONE, false);
+        $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN, false);
+        
         $this->game->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
         $this->game->contextMgr->reset();
 
