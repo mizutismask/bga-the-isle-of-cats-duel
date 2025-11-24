@@ -145,8 +145,8 @@ class TiocShapeMgr {
                 $value['boat_rotation'],
                 $value['boat_horizontal_flip'],
                 $value['boat_vertical_flip'],
-                $value['island_cat_slot'],
                 $value['played_move_number'],
+                $value['island_cat_slot'],
             );
             $this->shapes[] = $shape;
         }

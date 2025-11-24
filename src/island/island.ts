@@ -16,8 +16,8 @@ class Island {
 			})
 		}
 
-		;[1, 3, 5, 6, 7, 8, 9, 10, 12, 14].forEach((i) => {
-			container.querySelector(`#island-slot-${i}`).classList.add('island-cat-slot')
+		;[1, 3, 5, 6, 7, 8, 9, 10, 12, 14].forEach((id, i) => {
+			container.querySelector(`#island-slot-${id}`).classList.add('island-cat-slot', `island-cat-slot-${i+1}`)
 		})
 		;[2, 4, 11, 13, 15].forEach((id, i) => {
 			const cardSlot = container.querySelector(`#island-slot-${id}`) as HTMLElement

@@ -72,11 +72,15 @@ svg {
 }
 
 .oshax {
-	width: 80px;
+	width: 60px;
 	aspect-ratio: 160/147;
 	background: url('img/oshax.png');
 	background-size: contain;
 	filter: drop-shadow(0 0 4px black);
+	position: absolute;
+	bottom: 5px;
+	right: 5px;
+	z-index: 2;
 }
 
 .boat {

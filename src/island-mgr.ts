@@ -30,7 +30,7 @@ class IslandMgr {
 		}
 
 		//sort by shapeDefId
-	/*	gamedatas.shapes.sort((a, b) => a.shapeId - b.shapeId)
+		/*	gamedatas.shapes.sort((a, b) => a.shapeId - b.shapeId)
 		for (const shape of gamedatas.shapes) {
 			log('shape', shape)
 			this.game.createShapeElement('pieces', shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
@@ -50,11 +50,14 @@ class IslandMgr {
 			shapeDefId: number
 			shapeLocationId: number
 			colorId?: number
+			islandCatSlot?: number
 		},
 		animateFromIsland: boolean = true
 	): void {
 		this.game.addKnownShape(shape)
 		const islandCreateId = 'tioc-island-discard'
+		let location = ''
+		let toCreate = false
 
 		//debugger;
 		switch (shape.shapeLocationId) {
@@ -67,25 +70,31 @@ class IslandMgr {
 							shape.shapeTypeId,
 							shape.shapeDefId
 						) as HTMLElement
-						log(shapeElem.id)
-						log(shape.shapeId)
-						log(this.commonTreasureZone[shape.shapeDefId])
 						this.commonTreasureZone[shape.shapeDefId].placeInZone(shapeElem.id, shape.shapeId)
+
 						break
 					}
 				}
 				break
 
+			case SHAPE_LOCATION_ID_ISLAND_CAT_SLOT:
+				log('island shape', shape, location)
+				const slot = document.querySelector(`.island-cat-slot-${shape.islandCatSlot}`)
+				if (slot) {
+					location = slot.id
+					toCreate = true
+				} else {
+					log('island cat slot not found', shape)
+				}
+				break
 			case SHAPE_LOCATION_ID_DISCARD:
 			case SHAPE_LOCATION_ID_TO_PLACE:
-				this.game.createShapeElement(
-					'tioc-island-discard',
-					shape.shapeId,
-					shape.shapeTypeId,
-					shape.shapeDefId,
-					shape.colorId
-				)
+				location = 'tioc-island-discard'
+				toCreate = true
 				break
+		}
+		if (toCreate) {
+			this.game.createShapeElement(location, shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
 		}
 
 		//this.shapeSorter.schedule();
