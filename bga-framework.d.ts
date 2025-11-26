@@ -854,7 +854,7 @@ declare class DojoAnimation {
 interface Dojo {
     attr: Function;
     create: Function;
-    place: (html: string, nodeId: string, action?: string) => void;
+    place: (html: string|HTMLElement, nodeId: string|HTMLElement, action?: string) => void;
     style: Function;
     hitch: Function;
     hasClass: (nodeId: string, className: string) => boolean;

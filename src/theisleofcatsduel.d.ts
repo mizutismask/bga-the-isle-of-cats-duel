@@ -71,7 +71,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	takeAction(action: string, data?: any, options?: { lock: boolean; checkAction: boolean }): Promise<void>
 	clickOnSlot(slot: number): any
 	gameui: GameGui
-    gamedatas: TheIsleOfCatsDuelGamedatas
+	gamedatas: TheIsleOfCatsDuelGamedatas
 
 	commandMgr: CommandMgr
 	//fishMgr: FishMgr
@@ -79,9 +79,15 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	boatMgr: BoatMgr
 	//phase45Mgr: Phase45Mgr
 	shapeControl: ShapeControlApi
+	normalizeRotation(rotation: number): number
+	forEachShapeGrid(shapeId, x, y, rotation, paramFlipH, paramFlipV, gridFunction): void
+	removeClickable(element: HTMLElement, removeSelected = true): void
 	closeAllTooltips: () => void
 	addOnClick: (elem: Element, fct: (ev: any) => void) => void
+	changeParent(mobile: string | HTMLElement, new_parent: string | HTMLElement, relation: string = 'last')
 	getShapeColorFromShapeId: (shapeId: string) => string
+	getShapeSizeFromShapeId(shapeId: string)
+	applyTransformToElement(element: HTMLElement, rotation: number, flipH: boolean, flipV: boolean)
 
 	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement
 	addKnownShape(shape): void

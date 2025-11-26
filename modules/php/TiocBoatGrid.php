@@ -91,7 +91,7 @@ class TiocBoatGrid {
         return $matchesColor;
     }
 
-    private function isGridValidAndEmpty($x, $y) {
+    public function isGridValidAndEmpty($x, $y) {
         if (!$this->isGridValid($x, $y)) {
             return false;
         }

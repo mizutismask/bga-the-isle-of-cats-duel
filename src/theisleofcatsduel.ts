@@ -417,6 +417,13 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					)
 					break
 			}
+			this.commandMgr.onUpdateActionButtons(stateName, args)
+		} else {
+			/*        if (!this.tryShapesMgr.isTryingShapes()) {
+						this.removeAllClickable();
+					}
+				}
+				this.tryShapesMgr.onUpdateActionButtons(stateName, args);*/
 		}
 	}
 
@@ -578,6 +585,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	}
 
 	public clickOnSlot(slot: number) {
+		log('clickOnSlot', slot)
 		if (this.gameui.isCurrentPlayerActive() && this.gamedatas.gamestate.name == 'PlayerTurn')
 			if (this.gamedatas.gamestate.args.remainingMoves > 0) {
 				this.takeAction('actMoveOshax', { slot: slot })
@@ -589,9 +597,12 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					const shapeId = shape.id
 					//this.actionMgr.rescueCat(shape.dataset.cardId)
 					this.boatMgr.allowPlaceShape((x, y) => {
-						log("moveShapeToBoat")
-						debugger
+						log('moveShapeToBoat')
 						this.boatMgr.moveShapeToBoat(this.getPlayerId(), shapeId, x, y)
+						const onConfirm = () => {
+							this.takeAction('actMoveShapeToBoat', { shapeId: shapeId, x: x, y: y })
+						}
+						this.shapeControl.attachToShapeId(shape.dataset.shapeId, x, y, onConfirm)
 					})
 				}
 			}
@@ -807,10 +818,10 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		dojo.query('.tioc-selected').removeClass('tioc-selected')
 		this.tiocClickCleanup()
 	}
-	public removeClickableId(id, removeSelected = true) {
+	public removeClickableId(id: string, removeSelected = true) {
 		this.removeClickable(document.getElementById(id), removeSelected)
 	}
-	public removeClickable(element, removeSelected = true) {
+	public removeClickable(element: HTMLElement, removeSelected = true) {
 		if (element === null) {
 			return
 		}
@@ -821,7 +832,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			element.classList.remove('tioc-selected')
 		}
 	}
-	public removeClickableClickOnlyId(id) {
+	public removeClickableClickOnlyId(id: string) {
 		const element = document.getElementById(id)
 		if (element === null) {
 			return
@@ -830,7 +841,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		element.classList.add('tioc-clickable-no-border')
 	}
 
-	public allowSelect(element) {
+	public allowSelect(element: HTMLElement) {
 		element.classList.add('tioc-clickable')
 		this.clickConnect(element, (event) => {
 			//window.tiocWrap('allowSelect', () => {
@@ -838,7 +849,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			//})
 		})
 	}
-	public addOnClick(element, onClick) {
+	public addOnClick(element: HTMLElement, onClick) {
 		element.classList.add('tioc-clickable')
 		this.clickConnect(element, (event) => {
 			//window.tiocWrap('addOnClick', () => {
@@ -846,7 +857,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			//})
 		})
 	}
-	public removeAbsolutePosition(elementId) {
+	public removeAbsolutePosition(elementId: string) {
 		const elem = document.getElementById(elementId)
 		if (elem !== null) {
 			dojo.style(elem, {
@@ -869,19 +880,19 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			}
 		}
 	}
-	public addClass(elementId, className) {
+	public addClass(elementId: string, className: string) {
 		const elem = document.getElementById(elementId)
 		if (elem != null) {
 			elem.classList.add(className)
 		}
 	}
-	public removeClass(elementId, className) {
+	public removeClass(elementId: string, className: string) {
 		const elem = document.getElementById(elementId)
 		if (elem != null) {
 			elem.classList.remove(className)
 		}
 	}
-	public tiocFadeOutAndDestroy(element, duration = 500, onEnd = null) {
+	public tiocFadeOutAndDestroy(element: HTMLElement, duration = 500, onEnd = null) {
 		if (duration === undefined || duration === null) {
 			duration = 500
 		}
@@ -903,7 +914,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		})
 		anim.play()
 	}
-	public normalizeRotation(rotation) {
+	public normalizeRotation(rotation: number) {
 		while (rotation >= 360) {
 			rotation -= 360
 		}
@@ -912,7 +923,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		}
 		return rotation
 	}
-	public applyTransformToElement(element, rotation, flipH, flipV) {
+	public applyTransformToElement(element: HTMLElement, rotation: number, flipH: boolean, flipV: boolean) {
 		const transform = []
 		const normalizedRot = this.normalizeRotation(rotation)
 		if (normalizedRot == 90) {
@@ -1065,7 +1076,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		}
 		return shapeId
 	}
-	public getShapeSizeFromShapeId(shapeId) {
+	public getShapeSizeFromShapeId(shapeId: string) {
 		shapeId = this.shapeIdNoTryShapes(shapeId)
 		if (!(shapeId in this.shapesCreationInfo)) {
 			return {
@@ -1255,4 +1266,62 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		dialog.setContent(html)
 		dialog.show()
 	}
+
+	public changeParent(mobile: string | HTMLElement, new_parent: string | HTMLElement, relation: string = 'last') {
+		if (mobile === null) {
+			console.error('attachToNewParent: mobile obj is null')
+			return
+		}
+		if (new_parent === null) {
+			console.error('attachToNewParent: new_parent is null')
+			return
+		}
+		if (typeof mobile == 'string') {
+			mobile = $(mobile)
+		}
+		if (typeof new_parent == 'string') {
+			new_parent = $(new_parent)
+		}
+		if (typeof relation == 'undefined') {
+			relation = 'last'
+		}
+		// const boundingClientRectZoomScale = this.getBoundingClientRectZoomScale(new_parent);
+		//let zoom = this.interface_autoscale === true ? (this.gameinterface_zoomFactor || 1) : 1;
+		//if (zoom < 1 && boundingClientRectZoomScale == 1) {
+		// in case the browser doesn't handle correctly the zoom scale on dojo.position, we consider the zoom is not set
+		let zoom = 1
+		//}
+		/* if (zoom <= 0) {
+                    zoom = 1;
+                }
+*/
+		var src = dojo.position(mobile)
+		dojo.style(mobile, 'position', 'absolute')
+		dojo.place(mobile, new_parent, relation)
+		var tgt = dojo.position(mobile)
+		var box = dojo.marginBox(mobile)
+		var cbox = dojo.contentBox(mobile)
+		var left = box.l + src.x - tgt.x
+		var top = box.t + src.y - tgt.y
+		this.positionObjectDirectly(mobile, left / zoom, top / zoom)
+		box.l += box.w - cbox.w
+		box.t += box.h - cbox.h
+		return box
+	}
+
+	/*getBoundingClientRectZoomScale(obj) {
+                const zoom = Math.round((this.interface_autoscale === true ? (this.gameinterface_zoomFactor || 1) : 1) * 1000) / 1000;
+
+                const object = obj ? $(obj) : document.getElementById('page-content');
+                const position = dojo.position(object);
+                if (position.w > 0) {
+                    const zoomScale = Math.round(position.w / object.offsetWidth * 1000) / 1000;
+                    return zoomScale > zoom ? 1 : zoomScale;
+                } else if (position.h > 0) {
+                    const zoomScale = Math.round(position.h / object.offsetHeight * 1000) / 1000;
+                    return zoomScale > zoom ? 1 : zoomScale;
+                } else {
+                    return 1;
+                }
+            }*/
 }

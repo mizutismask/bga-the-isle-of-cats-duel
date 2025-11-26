@@ -10,7 +10,7 @@ const BOAT_TILE_WIDTH = 22 as const
 const BOAT_TILE_HEIGHT = 9 as const
 
 const BOAT_TILE_HEIGHT_PER_COLUMN: readonly number[] = [
-	1,7, 7, 9,  9,  9,  9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 1
+	1, 7, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 1
 ] as const
 
 const BOAT_NB_MAP = 5 as const
@@ -44,7 +44,7 @@ const BOAT_RAT_PLACEMENT: XY[] = [
 	{ x: 13, y: 6 },
 	{ x: 13, y: 7 },
 	{ x: 14, y: 6 },
-	{ x: 17, y: 6 },
+	{ x: 17, y: 6 }
 ]
 
 /** Room IDs (kept as constants for drop-in compatibility) */
@@ -261,16 +261,20 @@ class BoatMgr {
 
 	/** Enable click on all available boat grid squares and call back with x,y. */
 	allowPlaceShape = (cb: (x: number, y: number) => void): void => {
-		document.querySelectorAll<HTMLElement>('#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-grid[data-valid-grid="true"]').forEach((sq) => {
-			sq.classList.add(this.clickableCls)
-			this.game.addOnClick(sq, (ev) => {
-				ev.preventDefault()
-				const x = Number(sq.dataset.x || sq.getAttribute('data-x'))
-				const y = Number(sq.dataset.y || sq.getAttribute('data-y'))
-				this.removeAllBoatClickable()
-				cb(x, y)
+		document
+			.querySelectorAll<HTMLElement>(
+				'#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-grid[data-valid-grid="true"]'
+			)
+			.forEach((sq) => {
+				sq.classList.add(this.clickableCls)
+				this.game.addOnClick(sq, (ev) => {
+					ev.preventDefault()
+					const x = Number(sq.dataset.x || sq.getAttribute('data-x'))
+					const y = Number(sq.dataset.y || sq.getAttribute('data-y'))
+					this.removeAllBoatClickable()
+					cb(x, y)
+				})
 			})
-		})
 	}
 
 	/** Remove all click handlers/visuals from the boat. */
@@ -318,6 +322,35 @@ class BoatMgr {
 			if (sq) sq.classList.remove('used')
 		})
 		this.used.delete(shapeId)
+	}
+
+	isGridValidAndEmpty(x, y) {
+		if (x < 0 || x >= BOAT_TILE_WIDTH) {
+			return false
+		}
+		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
+		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+		if (y < minY || y >= maxY) {
+			return false
+		}
+		if (this.clientTryShapeBoatGridUsed[x][y]) {
+			return false
+		}
+		if (this.clientPlayerBoatGridUsed[x][y]) {
+			return false
+		}
+		if (this.serverBoatGridUsed[this.game.getPlayerId()][x][y]) {
+			return false
+		}
+		return true
+	}
+
+	isBoatEmpty() {
+		return (
+			this.clientTryShapeBoatGridUsed.every((row) => row.every((cell) => !cell)) &&
+			this.clientPlayerBoatGridUsed.every((row) => row.every((cell) => !cell)) &&
+			this.serverBoatGridUsed[this.game.getPlayerId()].every((row) => row.every((cell) => !cell))
+		)
 	}
 
 	/** Returns true if the grid cell x,y matches provided color name. */
@@ -370,9 +403,6 @@ class BoatMgr {
 		}
 		return !this.serverBoatGridUsed[playerId][x][y]
 	}
-
-	/** Utility: whether no tiles placed yet. */
-	isBoatEmpty = (): boolean => this.used.size === 0
 
 	isPlayerBoatEmpty(playerId) {
 		const shapes = document.querySelectorAll('#tioc-player-boat-' + playerId + ' .tioc-shape')
@@ -498,7 +528,9 @@ class BoatMgr {
 					var jstpl_grid_overlay = `<div class="tioc-grid-overlay" id="tioc-grid-overlay-${pid}-${x}-${y}" data-x="${x}" data-y="${y}" style="left: ${grid.offsetLeft}px; top: ${grid.offsetTop}px;"></div>`
 
 					// Create overlay from template and insert into the player's boat root
-					document.getElementById(`tioc-player-boat-${pid}`).insertAdjacentHTML('beforeend', jstpl_grid_overlay)
+					document
+						.getElementById(`tioc-player-boat-${pid}`)
+						.insertAdjacentHTML('beforeend', jstpl_grid_overlay)
 					overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`)
 
 					// Either place a map icon...
