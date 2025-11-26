@@ -59,6 +59,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	cardsManager: CardsManager
 	actionMgr: ActionMgr
 	animationManager: AnimationManager
+	tryShapesMgr: TryShapesMgr
 	getCurrentPlayer(): TheIsleOfCatsDuelPlayer
 	getPlayerId(): number
 	getPlayerScore(playerId: number): number
@@ -87,7 +88,11 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	changeParent(mobile: string | HTMLElement, new_parent: string | HTMLElement, relation: string = 'last')
 	getShapeColorFromShapeId: (shapeId: string) => string
 	getShapeSizeFromShapeId(shapeId: string)
+	getShapeDefIdFromShapeId(shapeId)
+	getShapeTypeIdFromShapeId(shapeId) 
+	getShapeColorIdFromShapeId(shapeId)
 	applyTransformToElement(element: HTMLElement, rotation: number, flipH: boolean, flipV: boolean)
+	removeClickableId(id: string, removeSelected = true) 
 
 	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement
 	addKnownShape(shape): void

@@ -1,5 +1,6 @@
 class Island {
 	private cardsSlots: CardStock<TheIsleOfCatsDuelCard>[] = []
+	
 	constructor(private game: TheIsleOfCatsDuelGame, gamedatas: TheIsleOfCatsDuelGamedatas) {
 		const container = document.getElementById('island')
 
@@ -63,4 +64,6 @@ class Island {
 			//this.game.addOnClick(card, () => this.game.actionMgr.rescueCat('toto'))
 		})
 	}
+
+	
 }

@@ -50,6 +50,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	shapesCreationInfo = {}
 	public commandMgr: CommandMgr
 	public actionMgr: ActionMgr
+	public tryShapesMgr: TryShapesMgr
 	public tooltipScheduler: Scheduler
 
 	private scoreBoard: ScoreBoard
@@ -117,6 +118,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.islandMgr.setup(gamedatas)
 		this.shapeControl = new ShapeControl(this)
 		this.actionMgr = new ActionMgr(this)
+		this.tryShapesMgr = new TryShapesMgr(this)
 
 		this.tooltipScheduler = new Scheduler(() => this.updateTooltipsNow())
 
@@ -419,12 +421,11 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			}
 			this.commandMgr.onUpdateActionButtons(stateName, args)
 		} else {
-			/*        if (!this.tryShapesMgr.isTryingShapes()) {
-						this.removeAllClickable();
-					}
-				}
-				this.tryShapesMgr.onUpdateActionButtons(stateName, args);*/
+			if (!this.tryShapesMgr.isTryingShapes()) {
+				this.removeAllClickable()
+			}
 		}
+		this.tryShapesMgr.onUpdateActionButtons(stateName, args)
 	}
 
 	private selectInSetAction() {
@@ -587,7 +588,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	public clickOnSlot(slot: number) {
 		log('clickOnSlot', slot)
 		if (this.gameui.isCurrentPlayerActive() && this.gamedatas.gamestate.name == 'PlayerTurn')
-			if (this.gamedatas.gamestate.args.remainingMoves > 0) {
+			if (this.gamedatas.gamestate.args.remainingMoves > 0 && !this.tryShapesMgr.isInCmd) {
 				this.takeAction('actMoveOshax', { slot: slot })
 			} else if (this.gamedatas.gamestate.args.mandatoryMoveDone) {
 				//this.takeAction('actTakeDiscovery', { slot: slot })
@@ -600,7 +601,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 						log('moveShapeToBoat')
 						this.boatMgr.moveShapeToBoat(this.getPlayerId(), shapeId, x, y)
 						const onConfirm = () => {
-							this.takeAction('actMoveShapeToBoat', { shapeId: shapeId, x: x, y: y })
+							if (!this.tryShapesMgr.isInCmd) {
+								this.takeAction('actMoveShapeToBoat', { shapeId: shapeId, x: x, y: y })
+							}
 						}
 						this.shapeControl.attachToShapeId(shape.dataset.shapeId, x, y, onConfirm)
 					})

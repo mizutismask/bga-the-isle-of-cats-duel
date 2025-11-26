@@ -304,24 +304,40 @@ class BoatMgr {
 	}
 
 	/** Mark grid squares used by a shape. */
-	markGridUsed = (shapeId: string, x: number, y: number): void => {
-		const arr = this.used.get(shapeId) ?? []
-		arr.push({ x, y })
-		this.used.set(shapeId, arr)
-		const sq = document.querySelector<HTMLElement>(`${this.boatRootSel} .tioc-grid[data-x="${x}"][data-y="${y}"]`)
-		if (sq) sq.classList.add('used')
+	markGridUsed = (shapeId: string, x: number, y: number, tryShape = false): void => {
+		const boatGridUsed = tryShape ? this.clientTryShapeBoatGridUsed : this.clientPlayerBoatGridUsed
+		const shapeGridUsed = tryShape ? this.clientTryShapeShapeGridUsed : this.clientPlayerShapeGridUsed
+		boatGridUsed[x][y] = true
+		if (!(shapeId in shapeGridUsed)) {
+			shapeGridUsed[shapeId] = []
+		}
+		shapeGridUsed[shapeId].push({ x: x, y: y })
+		//this.updateCurrentPlayerTooltips();
 	}
 
 	/** Clear the used marks for a shape. */
-	markGridUnused = (shapeId: string): void => {
-		const arr = this.used.get(shapeId) ?? []
-		arr.forEach(({ x, y }) => {
-			const sq = document.querySelector<HTMLElement>(
-				`${this.boatRootSel} .tioc-grid[data-x="${x}"][data-y="${y}"]`
-			)
-			if (sq) sq.classList.remove('used')
-		})
-		this.used.delete(shapeId)
+	markGridUnused = (shapeId: string, tryShape = false): void => {
+		let boatGridUsed = null
+		let shapeGridUsed = null
+		if (tryShape) {
+			boatGridUsed = this.clientTryShapeBoatGridUsed
+			shapeGridUsed = this.clientTryShapeShapeGridUsed
+		} else {
+			if (shapeId in this.clientPlayerShapeGridUsed) {
+				boatGridUsed = this.clientPlayerBoatGridUsed
+				shapeGridUsed = this.clientPlayerShapeGridUsed
+			} else {
+				boatGridUsed = this.serverBoatGridUsed[this.game.getPlayerId()]
+				shapeGridUsed = this.serverPlayerShapeGridUsed[this.game.getPlayerId()]
+			}
+		}
+		for (const grid of shapeGridUsed[shapeId]) {
+			boatGridUsed[grid.x][grid.y] = false
+		}
+		const usedGrid = shapeGridUsed[shapeId]
+		delete shapeGridUsed[shapeId]
+		//this.updateCurrentPlayerTooltips();
+		return usedGrid
 	}
 
 	isGridValidAndEmpty(x, y) {

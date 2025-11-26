@@ -8,6 +8,7 @@ class IslandMgr {
 	private allowSmallCount = 0
 	private allowRareCount = 0
 	private commonTreasureZone = []
+	public inAllowTryShapes = false
 
 	constructor(game: TheIsleOfCatsDuelGame, rootSel = '#island') {
 		this.game = game
@@ -148,11 +149,6 @@ class IslandMgr {
 		this._enableTreasureClicks('.shape.treasure.rare')
 	}
 
-	/** Remove all island clickables. */
-	removeAllIslandClickable = (): void => {
-		document.querySelectorAll(`.${this.clickableCls}`).forEach((el) => el.classList.remove(this.clickableCls))
-	}
-
 	/** Checks for stock on the island. */
 	hasCommonTreasure = (): boolean => !!document.querySelector(`${this.rootSel} .shape.treasure.common`)
 	hasRareTreasure = (): boolean => !!document.querySelector(`${this.rootSel} .shape.treasure.rare`)
@@ -182,5 +178,83 @@ class IslandMgr {
 		root.querySelectorAll<HTMLElement>(selector).forEach((el) => {
 			el.classList.add(this.clickableCls)
 		})
+	}
+
+	disallowTryShapes() {
+		this.inAllowTryShapes = false
+	}
+	allowTryShapes() {
+		if (this.inAllowTryShapes) {
+			return
+		}
+		const onClick = (shape) => {
+			this.inAllowTryShapes = true
+			this.removeAllIslandClickable()
+			const shapeId = shape.dataset.shapeId + '-try-shapes'
+			const shapeClone = shape.cloneNode()
+			shapeClone.id += '-try-shapes'
+			shapeClone.classList.add('tioc-try-shapes')
+			shapeClone.classList.add('tioc-selected')
+			shape.parentElement.insertBefore(shapeClone, shape)
+			shape.classList.add('tioc-try-shapes-hidden')
+			this.game.boatMgr.allowPlaceShape((x, y) => {
+				this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shapeId, x, y)
+				this.game.shapeControl.attachToShapeId(
+					shapeId,
+					x,
+					y,
+					true /*canPutNextShapeAnywhere*/,
+					(shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
+						this.game.commandMgr.currentCommandStateValue().shapeList.push({
+							shapeId: shape.dataset.shapeId,
+							x: x,
+							y: y,
+							rotation: rotation,
+							flipH: flipH,
+							flipV: flipV,
+							usedGrid: usedGrid
+						})
+						for (const grid of usedGrid) {
+							this.game.boatMgr.markGridUsed(shape.dataset.shapeId, grid.x, grid.y, true)
+						}
+						this.game.boatMgr.updateGridOverlay()
+						this.game.shapeControl.detach()
+						this.disallowTryShapes()
+						this.allowTryShapes()
+						this.game.tryShapesMgr.updateButton()
+					}
+				)
+			})
+		}
+		const shapes = document.querySelectorAll<HTMLElement>('#tioc-island-and-field-container .tioc-shape')
+		const shapeForShapeDefId = {}
+		for (const shape of Array.from(shapes)) {
+			if (shape.classList.contains('tioc-try-shapes-hidden')) {
+				continue
+			}
+			const shapeId = shape.dataset.shapeId
+			const shapeDefId = this.game.getShapeDefIdFromShapeId(shapeId)
+			if (this.game.getShapeTypeIdFromShapeId(shapeId) == SHAPE_TYPE_ID_COMMON_TREASURE) {
+				shapeForShapeDefId[shapeDefId] = shape
+			} else {
+				this.game.addOnClick(shape, () => onClick(shape))
+			}
+		}
+		for (const shapeDefId in shapeForShapeDefId) {
+			const shape = shapeForShapeDefId[shapeDefId]
+			this.game.addOnClick(shape, () => onClick(shape))
+		}
+		//this.updateTopShapes()
+	}
+	removeAllIslandClickable() {
+		const clickable = document.querySelectorAll('#tioc-island-and-field-container .tioc-clickable')
+		for (const c of Array.from( clickable)) {
+			this.game.removeClickableId(c.id)
+		}
+		const selected = document.querySelectorAll('#tioc-island-and-field-container .tioc-selected')
+		for (const c of Array.from(selected)) {
+			this.game.removeClickableId(c.id)
+		}
+		//this.updateTopShapes()
 	}
 }
