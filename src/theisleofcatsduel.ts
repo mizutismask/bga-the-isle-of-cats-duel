@@ -254,18 +254,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					html: this.getHelpHtml(),
 					buttonBackground: 'white',
 					buttonColor: '#266059'
-				}),
-				new BgaHelpExpandableButton({
-					unfoldedHtml: `<div id="player-help-visible-wrapper" >
-										<div id="player-help-visible" class="player-help-visible" style="margin: 5px;" data-player-color="${
-											this.getCurrentPlayer()?.color ?? 'fff'
-										}"></div>
-									</div>`,
-					//foldedHtml: `?`,
-					expandedWidth: '250px',
-					expandedHeight: '182px',
-					expandedRadius: '3%',
-					foldedContentExtraClasses: 'button-help-expandable'
 				})
 			]
 		})
