@@ -241,8 +241,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			<div class="tioc-player-panel-row">
 				<div id="tioc-player-panel-boat-container-${player.id}" class="tioc-player-panel-boat-container"></div>
 			</div>
-
-			<div class="tioc-player-panel-insert-point"></div>
 			`
 
 		this.gameui.getPlayerPanelElement(playerId).insertAdjacentHTML('beforeend', jstpl_player_panel)
@@ -329,6 +327,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 	private onEnteringChooseAction(args: EnteringPlayerTurnArgs) {
 		//todo
+		document.getElementById('boat-choice').remove()
 		if (this.gameui.isCurrentPlayerActive()) {
 			this.resetClientActionData()
 			this.island.enableSlots(args.oshaxValidMoves)
@@ -387,7 +386,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
         */
 
 			case 'BoatChoice':
-				document.getElementById("boat-choice").remove()
 				break
 		}
 	}
@@ -408,20 +406,22 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					this.setActionBarChooseAction(false)
 					break
 				case 'BoatChoice':
-					this.statusBar.addActionButton(
-						_('Choose the first boat'),
-						() => this.takeAction('actChooseBoat', { boat: 'OBoat' }),
-						{ id: 'choose-oboat-button' }
-					)
-					this.statusBar.addActionButton(
-						_('Choose the second boat'),
-						() => this.takeAction('actChooseBoat', { boat: 'IBoat' }),
-						{ id: 'choose-iboat-button' }
-					)
-					const oButton = document.getElementById('choose-oboat-button')
-					document.querySelector("#boat-choice .OBoat").appendChild(oButton)
-					const iButton = document.getElementById('choose-iboat-button')
-					document.querySelector("#boat-choice .IBoat").appendChild(iButton)
+					if (!document.getElementById('choose-oboat-button')) {
+						this.statusBar.addActionButton(
+							_('Choose the first boat'),
+							() => this.takeAction('actChooseBoat', { boat: 'OBoat' }),
+							{ id: 'choose-oboat-button' }
+						)
+						this.statusBar.addActionButton(
+							_('Choose the second boat'),
+							() => this.takeAction('actChooseBoat', { boat: 'IBoat' }),
+							{ id: 'choose-iboat-button' }
+						)
+						const oButton = document.getElementById('choose-oboat-button')
+						document.querySelector('#boat-choice .OBoat').appendChild(oButton)
+						const iButton = document.getElementById('choose-iboat-button')
+						document.querySelector('#boat-choice .IBoat').appendChild(iButton)
+					}
 					break
 			}
 			this.commandMgr.onUpdateActionButtons(stateName, args)

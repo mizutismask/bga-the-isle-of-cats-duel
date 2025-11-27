@@ -222,8 +222,8 @@ class BoatMgr {
 				}
 
 				const jstpl_shape_grid_small = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
-					BOAT_TILE_BASE_LEFT + x + x * SMALL_TILE_SIZE
-				}px; top: ${BOAT_TILE_BASE_TOP + y + y * SMALL_TILE_SIZE}px;"></div>`
+					 x + x * SMALL_TILE_SIZE
+				}px; top: ${+y + y * SMALL_TILE_SIZE}px;"></div>`
 				for (const boatElem of dojo.query('.tioc-player-panel-boat-container')) {
 					dojo.place(jstpl_shape_grid_small, boatElem)
 				}
