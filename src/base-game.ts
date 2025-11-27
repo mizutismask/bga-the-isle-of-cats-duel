@@ -53,10 +53,10 @@ abstract class BaseGame {
 			</div>
 			<div id="pieces"></div>
 			<div id="boat-choice">
-				<div class="boat tioc-player-boat OBoat temp-boat"></div>
-				<div class="boat tioc-player-boat IBoat temp-boat"></div>
+				<div class="boat tioc-player-boat OBoat temp-boat board-shadow"></div>
+				<div class="boat tioc-player-boat IBoat temp-boat board-shadow"></div>
 			</div>
-			<div id="island"></div>
+			<div id="island" class="board-shadow"></div>
 			<div id="tioc-common-treasure-container">
                 <div id="tioc-common-treasure-zone-100"></div>
                 <div id="tioc-common-treasure-zone-101"></div>

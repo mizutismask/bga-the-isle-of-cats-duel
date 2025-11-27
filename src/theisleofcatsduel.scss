@@ -26,6 +26,10 @@ $CARD_RATIO: list.slash($BASE_CARD_WIDTH, $BASE_CARD_HEIGHT);
 	border-radius: 3%;
 }
 
+.board-shadow{
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
 html {
 	/*background: rgb(21, 104, 134);
     background-repeat: no-repeat;

@@ -14,7 +14,7 @@ class PlayerTable {
 		dojo.place(html, 'player-tables')
 
 		const boatHtml = (PLAYER_ID: number, PLAYER_COLOR: string, PLAYER_NAME: string) => `
-<div id="tioc-player-board-${PLAYER_ID}" class="whiteblock">
+<div id="tioc-player-board-${PLAYER_ID}" class="">
     <div class="tioc-player-name-row">
         <h3 class="tioc-player-name" style="color: #${PLAYER_COLOR};">${PLAYER_NAME}</h3>
     </div>
@@ -28,7 +28,7 @@ class PlayerTable {
                             <div id="tioc-top-shapes-middle-${PLAYER_ID}" class="tioc-top-shapes-middle"></div>
                             <div id="tioc-top-shapes-right-${PLAYER_ID}"></div>
                         </div>
-                        <div id="tioc-player-boat-${PLAYER_ID}" class="tioc-player-boat">
+                        <div id="tioc-player-boat-${PLAYER_ID}" class="tioc-player-boat board-shadow">
                             <a href="#" class="action-button bgabutton bgabutton_blue tioc-player-boat-hide-overlay" onclick="return false;" id="tioc-player-boat-hide-overlay-${PLAYER_ID}" data-player-id="${PLAYER_ID}"></a>
                             <a href="#" class="action-button bgabutton bgabutton_blue tioc-player-boat-hide-shapes" onclick="return false;" id="tioc-player-boat-hide-shapes-${PLAYER_ID}" data-player-id="${PLAYER_ID}"></a>
                             <div class="tioc-player-boat-legend-score" id="tioc-player-boat-legend-score-${PLAYER_ID}"></div>
