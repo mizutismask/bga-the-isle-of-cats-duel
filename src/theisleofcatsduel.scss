@@ -68,6 +68,7 @@ svg {
 .gamestate_BoatChoice {
 	#boat-choice {
 		display: flex;
+		gap: 10px;
 	}
 }
 
@@ -84,14 +85,16 @@ svg {
 }
 
 .boat {
-	background-image: url('img/boats.png');
-	background-size: 200%;
+	//background-image: url('img/boats.png');
+	//background-size: 200%;
 
-	.OBoat {
-		background-position: 0 0;
+	&.OBoat {
+		//background-position: 0 0;
+		background-image: url('img/OBoat.jpg');
 	}
-	.IBoat {
-		background-position: 100% 0;
+	&.IBoat {
+		//background-position: 100% 0;
+		background-image: url('img/IBoat.jpg');
 	}
 }
 

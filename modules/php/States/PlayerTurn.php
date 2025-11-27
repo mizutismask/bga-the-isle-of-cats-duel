@@ -95,7 +95,6 @@ class PlayerTurn extends GameState {
             } else if ($card->isLesson()) {
                 $this->game->cardMgr->moveLessonToHand($card->cardId, $activePlayerId);
             }
-           
         } else {
             $typedSlot = $this->game->getCatSlotFromGlobalSlot($slot);
             $shape = $this->game->shapeMgr->findByLocation(CARD_LOCATION_ID_ISLAND_CAT_SLOT, $typedSlot);
@@ -157,6 +156,32 @@ class PlayerTurn extends GameState {
 
         return PlayerTurn::class;
     }
+
+    #[PossibleAction]
+    public function actMoveShapeToBoat($action, string $shapeTypeId, int $activePlayerId, array $args) {
+        $shapeId = $this->game->value_req($action, 'shapeId');
+        $shapeTypeId = $this->shapeMgr->getShapeTypeIdFromShapeId($shapeId);
+        $shapePlacement = $this->actionTypePlaceShape($playerId, $action, $shapeTypeId);
+        if ($shapePlacement->previousShapeLocationId != SHAPE_LOCATION_ID_TO_PLACE)
+            throw new BgaVisibleSystemException("BUG! Shape is not to place");
+        if ($shapePlacement->matchesMapColor) {
+            
+            $this->turnActionMgr->allowTakeCommonTreasure($playerId);
+        }
+
+        $this->tiocNotifyAllPlayers(
+            NTF_MOVE_SHAPE_TO_BOAT,
+            $shapePlacement->matchesMapColor
+                ? clienttranslate('${player_name} places the drawn shape on their boat, covering a map of matching color ${shape_img}')
+                : clienttranslate('${player_name} places the drawn shape on their boat ${shape_img}'),
+            [
+                'player_id' => $playerId,
+                'player_name' => $this->loadPlayersBasicInfos()[$playerId]['player_name'],
+                'shape' => $shapePlacement->shape,
+                'shape_img' => $shapePlacement->shape,
+            ]
+        );
+    }
     #[PossibleAction]
     public function actPlayCard(int $card_id, int $activePlayerId, array $args) {
         // check input values
@@ -201,6 +226,34 @@ class PlayerTurn extends GameState {
 
         // at the end of the action, move to the next state
         return NextPlayer::class;
+    }
+
+    private function actionTypePlaceShape($playerId, $action, $shapeTypeId, $oshaxColorId = null)
+    {
+        $mustTouchOtherShapes = true;
+        if ($this->game->turnActionMgr->canPutNextShapeAnywhere($playerId)) {
+            $mustTouchOtherShapes = false;
+            $this->game->turnActionMgr->takeNextShapeAnywhere($playerId);
+        }
+        $shapeId = $this->game->value_req($action, 'shapeId');
+        $x = $this->game->value_req($action, 'x');
+        $y = $this->game->value_req($action, 'y');
+        $rotation = $this->game->value_req($action, 'rotation');
+        $flipH =$this->game->value_req($action, 'flipH');
+        $flipV = $this->game->value_req($action, 'flipV');
+        return $this->game->shapeMgr->validateAndPlaceOnBoat(
+            $playerId,
+            $this->playerOrderMgr->getPlayerBoatColorName($playerId),
+            $shapeTypeId,
+            $shapeId,
+            $x,
+            $y,
+            $rotation,
+            $flipH,
+            $flipV,
+            $mustTouchOtherShapes,
+            $oshaxColorId
+        );
     }
 
     /**

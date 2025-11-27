@@ -304,6 +304,14 @@ trait UtilTrait {
     }
 
     function array_contains_card(array $array, string $cardId) {
-        return $this->array_some($array, fn ($card) => $card->id == $cardId);
+        return $this->array_some($array, fn($card) => $card->id == $cardId);
+    }
+
+    function value_req(array $array, string $key) {
+        if (!array_key_exists($key, $array))
+            throw new \BgaVisibleSystemException("BUG! key $key does not exist");
+        if ($array[$key] === null)
+            throw new \BgaVisibleSystemException("BUG! key $key is null");
+        return $array[$key];
     }
 }

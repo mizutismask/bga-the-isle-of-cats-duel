@@ -217,7 +217,7 @@ class BoatMgr {
 				const jstpl_shape_grid = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
 					BOAT_TILE_BASE_LEFT + x + x * TILE_SIZE
 				}px; top: ${BOAT_TILE_BASE_TOP + y + y * TILE_SIZE}px;"></div>`
-				for (const boatElem of dojo.query('.tioc-player-boat')) {
+				for (const boatElem of dojo.query('.tioc-player-boat:not(.temp-boat)')) {
 					dojo.place(jstpl_shape_grid, boatElem)
 				}
 
