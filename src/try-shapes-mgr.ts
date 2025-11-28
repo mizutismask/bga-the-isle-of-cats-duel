@@ -105,7 +105,7 @@ class TryShapesMgr {
 			shapeList: []
 		}
 		if (initialShapeList !== null) {
-			debugger
+			//debugger
 			for (const shapeInfo of initialShapeList) {
 				const gridElem = document.querySelector(
 					'#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-grid.x_' + shapeInfo.x + '_y_' + shapeInfo.y

@@ -315,12 +315,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 	private onEnteringChooseAction(args: EnteringPlayerTurnArgs) {
 		//todo
-		document.getElementById('boat-choice').remove()
+		document.getElementById('boat-choice')?.remove()
 		if (this.gameui.isCurrentPlayerActive()) {
 			this.resetClientActionData()
 			this.island.enableSlots(args.oshaxValidMoves)
 			if (args.remainingMoves > 0) {
 				//nothing
+			} else if (args.remainingTreasures > 0) {
+				this.setChooseActionGamestateDescription(
+					_('${you} can select one treasure and place it on your boat or end your turn')
+				)
 			} else if (args.mandatoryMoveDone) {
 				this.island.enableSlots(args.possibleSlotsForDiscovery)
 				this.setChooseActionGamestateDescription(

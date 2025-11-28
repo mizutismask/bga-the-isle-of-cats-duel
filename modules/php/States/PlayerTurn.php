@@ -14,6 +14,8 @@ use Bga\Games\TheIsleOfCatsDuel\Game;
 
 use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CARD_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CAT_SLOT;
+use const Bga\Games\TheIsleOfCatsDuel\NTF_MOVE_SHAPE_TO_BOAT;
+use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_TO_PLACE;
 
 const FISH_ACTION_COST = [
     "M" => 1,
@@ -55,6 +57,7 @@ class PlayerTurn extends GameState {
             "mandatoryMoveDone" => $mandatoryMoveDone,
             "currentFishAction" => $this->game->globals->get(Constants::GLBL_CURRENT_FISH_ACTION),
             "possibleSlotsForDiscovery" => $mandatoryMoveDone ? $this->game->islandMgr->getPossibleSlotsForDiscovery() : [],
+            "remainingTreasures" => $this->globals->get(Constants::GLBL_REMAINING_TREASURES, 0),
             "canTradeFishForMove" => FISH_ACTION_COST["M"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForJump" => FISH_ACTION_COST["J"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForTreasure" => FISH_ACTION_COST["T"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
@@ -160,23 +163,23 @@ class PlayerTurn extends GameState {
     #[PossibleAction]
     public function actMoveShapeToBoat($action, string $shapeTypeId, int $activePlayerId, array $args) {
         $shapeId = $this->game->value_req($action, 'shapeId');
-        $shapeTypeId = $this->shapeMgr->getShapeTypeIdFromShapeId($shapeId);
-        $shapePlacement = $this->actionTypePlaceShape($playerId, $action, $shapeTypeId);
+        $shapeTypeId = $this->game->shapeMgr->getShapeTypeIdFromShapeId($shapeId);
+        $shapePlacement = $this->actionTypePlaceShape($activePlayerId, $action, $shapeTypeId);
         if ($shapePlacement->previousShapeLocationId != SHAPE_LOCATION_ID_TO_PLACE)
-            throw new BgaVisibleSystemException("BUG! Shape is not to place");
+            throw new \BgaVisibleSystemException("BUG! Shape is not to place");
         if ($shapePlacement->matchesMapColor) {
-            
-            $this->turnActionMgr->allowTakeCommonTreasure($playerId);
+            $this->globals->set(Constants::GLBL_REMAINING_TREASURES, 1);
+            //$this->turnActionMgr->allowTakeCommonTreasure($playerId);
         }
 
-        $this->tiocNotifyAllPlayers(
+        $this->game->tiocNotifyAllPlayers(
             NTF_MOVE_SHAPE_TO_BOAT,
             $shapePlacement->matchesMapColor
                 ? clienttranslate('${player_name} places the drawn shape on their boat, covering a map of matching color ${shape_img}')
                 : clienttranslate('${player_name} places the drawn shape on their boat ${shape_img}'),
             [
-                'player_id' => $playerId,
-                'player_name' => $this->loadPlayersBasicInfos()[$playerId]['player_name'],
+                'player_id' => $activePlayerId,
+                'player_name' => $this->game->loadPlayersBasicInfos()[$activePlayerId]['player_name'],
                 'shape' => $shapePlacement->shape,
                 'shape_img' => $shapePlacement->shape,
             ]

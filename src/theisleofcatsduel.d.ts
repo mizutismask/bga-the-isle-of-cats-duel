@@ -109,6 +109,7 @@ interface EnteringPlayerTurnArgs {
 	oshaxValidMoves: number[]
 	possibleSlotsForDiscovery: number[]
 	remainingMoves: number
+	remainingTreasures: number
 	mandatoryMoveDone: boolean
 }
 

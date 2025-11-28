@@ -270,7 +270,6 @@ class ShapeControl {
 	}
 	public _buildRotateClicker(direction) {
 		return (event) => {
-			debugger
 			event.preventDefault()
 			let rotation = this._calculateRotation(this.rotation, 90 * direction)
 			this.rotation = rotation

@@ -295,6 +295,17 @@ class Game extends \Bga\GameFramework\Table {
         }
     }
 
+    public function tiocNotifyAllPlayers($notifType, $notifLog, $notifArgs)
+    {
+        $this->notifyAllPlayers($notifType, $notifLog, toNotifArray($notifArgs));
+    }
+
+    public function tiocNotifyPlayer($playerId, $notifType, $notifLog, $notifArgs)
+    {
+        $this->notifyPlayer($playerId, $notifType, $notifLog, toNotifArray($notifArgs));
+    }
+
+
     /*
     Another example of debug function, to easily create situations you want to test.
     Here, put a card you want to test in your hand (assuming you use the Deck component).
