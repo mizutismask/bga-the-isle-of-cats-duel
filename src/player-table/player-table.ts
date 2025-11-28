@@ -15,9 +15,7 @@ class PlayerTable {
 
 		const boatHtml = (PLAYER_ID: number, PLAYER_COLOR: string, PLAYER_NAME: string) => `
 <div id="tioc-player-board-${PLAYER_ID}" class="">
-    <div class="tioc-player-name-row">
-        <h3 class="tioc-player-name" style="color: #${PLAYER_COLOR};">${PLAYER_NAME}</h3>
-    </div>
+    <h3 class="tioc-player-name tioc-player-name-row" style="color: #${PLAYER_COLOR};">${PLAYER_NAME}</h3>
     <div class="tioc-basket-private-lesson-boat-wrap">
         <div class="tioc-private-lesson-boat-wrap">
             <div class="tioc-player-top-shapes-boat-wrap">

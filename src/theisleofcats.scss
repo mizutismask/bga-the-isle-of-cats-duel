@@ -29,9 +29,12 @@ $color-from-names: (
 
 .tioc-player-name-row {
 	margin-top: 5px;
-	display: flex;
-	align-items: center;
-	justify-content: start;
+	background-color: whitesmoke;
+	border-radius: 10px 10px 0 0;
+	padding: 3px;
+	display: inline;
+	border: 3px solid #28bbcc;
+	line-height: 25px;
 }
 
 .tioc-player-panel-row {
