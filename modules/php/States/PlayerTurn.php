@@ -234,10 +234,10 @@ class PlayerTurn extends GameState {
     private function actionTypePlaceShape($playerId, $action, $shapeTypeId, $oshaxColorId = null)
     {
         $mustTouchOtherShapes = true;
-        if ($this->game->turnActionMgr->canPutNextShapeAnywhere($playerId)) {
+       /* if ($this->game->turnActionMgr->canPutNextShapeAnywhere($playerId)) {
             $mustTouchOtherShapes = false;
             $this->game->turnActionMgr->takeNextShapeAnywhere($playerId);
-        }
+        }*/
         $shapeId = $this->game->value_req($action, 'shapeId');
         $x = $this->game->value_req($action, 'x');
         $y = $this->game->value_req($action, 'y');
