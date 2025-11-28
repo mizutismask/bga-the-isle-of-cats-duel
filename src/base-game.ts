@@ -56,14 +56,20 @@ abstract class BaseGame {
 				<div class="boat tioc-player-boat OBoat temp-boat board-shadow"></div>
 				<div class="boat tioc-player-boat IBoat temp-boat board-shadow"></div>
 			</div>
-			<div id="island" class="board-shadow"></div>
-			<div id="tioc-common-treasure-container">
-                <div id="tioc-common-treasure-zone-100"></div>
-                <div id="tioc-common-treasure-zone-101"></div>
-                <div id="tioc-common-treasure-zone-102"></div>
-                <div id="tioc-common-treasure-zone-103"></div>
-            </div>
-			<div class="tioc-grid" id="tioc-island-discard"></div>
+			<div class="island-wrapper">
+				<div id="island" class="board-shadow"></div>
+				<div class="around-island-wrapper">
+					<div  class="around-island">
+						<div id="tioc-round-counter-cats"></div>
+						<div id="tioc-common-treasure-container">
+							<div id="tioc-common-treasure-zone-100"></div>
+							<div id="tioc-common-treasure-zone-101"></div>
+							<div id="tioc-common-treasure-zone-102"></div>
+							<div id="tioc-common-treasure-zone-103"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 			<div id="player-tables"></div>
 		</div>`,
 			'game_play_area_background',

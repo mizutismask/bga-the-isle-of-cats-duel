@@ -93,6 +93,10 @@ class IslandMgr {
 				location = 'tioc-island-discard'
 				toCreate = true
 				break
+			case SHAPE_LOCATION_ID_FIELD:
+				location = 'tioc-round-counter-cats'
+				toCreate = true
+				break
 		}
 		if (toCreate) {
 			this.game.createShapeElement(location, shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)

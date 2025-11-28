@@ -47,11 +47,21 @@ html {
 
 #custom-game-area {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	align-content: center;
+	justify-content: center;
 	flex-wrap: wrap;
 	gap: 10px;
 	padding: 0px 33px;
+}
+
+#player-tables{
+//	display: flex;
+//	gap: 20px;
+}
+
+#tioc-round-counter-cats{
+	margin-top: 10px;
 }
 
 @mixin selected-element {
@@ -63,6 +73,10 @@ svg {
 	width: auto;
 }
 
+.around-island{
+	display: flex;
+	gap: 20px;
+}
 #boat-choice {
 	display: none;
 	width: 100%;
@@ -75,7 +89,10 @@ svg {
 		gap: 10px;
 	}
 }
-
+#tioc-round-counter-cats{
+	display: flex;
+	gap: 10px;
+}
 .oshax {
 	width: 60px;
 	aspect-ratio: 160/147;
