@@ -222,7 +222,7 @@ class BoatMgr {
 				}
 
 				const jstpl_shape_grid_small = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
-					 x + x * SMALL_TILE_SIZE
+					x + x * SMALL_TILE_SIZE
 				}px; top: ${+y + y * SMALL_TILE_SIZE}px;"></div>`
 				for (const boatElem of dojo.query('.tioc-player-panel-boat-container')) {
 					dojo.place(jstpl_shape_grid_small, boatElem)
@@ -295,12 +295,25 @@ class BoatMgr {
 
 	/** Apply rotation/flip transform on a shape by id. */
 	applyTransformToShapeId = (shapeId: string, rotation: number, flipH: boolean, flipV: boolean): void => {
-		const node = document.getElementById(shapeId) as HTMLElement | null
+		const node = document.getElementById('tioc-shape-id-' + shapeId)
 		if (!node) return
-		const rot = `rotate(${(rotation || 0) * 90}deg)`
-		const fh = flipH ? 'scaleX(-1)' : 'scaleX(1)'
-		const fv = flipV ? 'scaleY(-1)' : 'scaleY(1)'
-		node.style.transform = `${rot} ${fh} ${fv}`.trim()
+		const transform = []
+		const normalizedRot = this.game.normalizeRotation(rotation)
+		if (normalizedRot == 90) {
+			transform.push('translate(-50%, -50%) rotate(' + rotation + 'deg) translate(50%, -50%)')
+		} else if (normalizedRot == 180 || normalizedRot == 0) {
+			transform.push('rotate(' + rotation + 'deg)')
+		} else if (normalizedRot == 270) {
+			transform.push('translate(-50%, -50%) rotate(' + rotation + 'deg) translate(-50%, 50%)')
+		}
+		if (flipH) {
+			transform.push('scaleX(-1)')
+		}
+		if (flipV) {
+			transform.push('scaleY(-1)')
+		}
+
+		node.style.transform = transform.join(' ')
 	}
 
 	/** Mark grid squares used by a shape. */

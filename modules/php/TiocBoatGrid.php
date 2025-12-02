@@ -76,9 +76,9 @@ class TiocBoatGrid {
         return $foundValidPlace;
     }
 
-    public function shapeCoversMapColor($shapeArray, $x, $y, $rotation, $flipH, $flipV, $shapeColorName, $boatColorName) {
+    public function shapeCoversMapColor($shapeArray, $x, $y, $rotation, $flipH, $flipV, $shapeColorName, $boatShape) {
         $matchesColor = false;
-        $mapPosition = BOAT_MAP_PLACEMENT[$boatColorName][$shapeColorName];
+        $mapPosition = BOAT_MAP_PLACEMENT[$boatShape][$shapeColorName];
         $mapX = $mapPosition['x'];
         $mapY = $mapPosition['y'];
         $this->forEachShapeGrid($shapeArray, $x, $y, $rotation, $flipH, $flipV, function ($gridX, $gridY) use ($mapX, $mapY, &$matchesColor) {

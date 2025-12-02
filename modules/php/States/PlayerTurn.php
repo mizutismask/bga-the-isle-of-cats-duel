@@ -15,6 +15,7 @@ use Bga\Games\TheIsleOfCatsDuel\Game;
 use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CARD_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CAT_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_MOVE_SHAPE_TO_BOAT;
+use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_TO_PLACE;
 
 const FISH_ACTION_COST = [
@@ -161,11 +162,10 @@ class PlayerTurn extends GameState {
     }
 
     #[PossibleAction]
-    public function actMoveShapeToBoat($action, string $shapeTypeId, int $activePlayerId, array $args) {
-        $shapeId = $this->game->value_req($action, 'shapeId');
+    public function actMoveShapeToBoat(string $shapeId, int $x, int $y, int $rotation, int $flipH, int $flipV, int $activePlayerId, array $args) {
         $shapeTypeId = $this->game->shapeMgr->getShapeTypeIdFromShapeId($shapeId);
-        $shapePlacement = $this->actionTypePlaceShape($activePlayerId, $action, $shapeTypeId);
-        if ($shapePlacement->previousShapeLocationId != SHAPE_LOCATION_ID_TO_PLACE)
+        $shapePlacement = $this->actionTypePlaceShape($activePlayerId, ["shapeId" => $shapeId, "x" => $x, "y" => $y, "rotation" => $rotation, "flipH" => $flipH, "flipV" => $flipV], $shapeTypeId);
+        if ($shapePlacement->previousShapeLocationId != SHAPE_LOCATION_ID_TO_PLACE && $shapePlacement->previousShapeLocationId != SHAPE_LOCATION_ID_ISLAND_CAT_SLOT)
             throw new \BgaVisibleSystemException("BUG! Shape is not to place");
         if ($shapePlacement->matchesMapColor) {
             $this->globals->set(Constants::GLBL_REMAINING_TREASURES, 1);
@@ -231,10 +231,9 @@ class PlayerTurn extends GameState {
         return NextPlayer::class;
     }
 
-    private function actionTypePlaceShape($playerId, $action, $shapeTypeId, $oshaxColorId = null)
-    {
+    private function actionTypePlaceShape($playerId, $action, $shapeTypeId, $oshaxColorId = null) {
         $mustTouchOtherShapes = true;
-       /* if ($this->game->turnActionMgr->canPutNextShapeAnywhere($playerId)) {
+        /* if ($this->game->turnActionMgr->canPutNextShapeAnywhere($playerId)) {
             $mustTouchOtherShapes = false;
             $this->game->turnActionMgr->takeNextShapeAnywhere($playerId);
         }*/
@@ -242,11 +241,11 @@ class PlayerTurn extends GameState {
         $x = $this->game->value_req($action, 'x');
         $y = $this->game->value_req($action, 'y');
         $rotation = $this->game->value_req($action, 'rotation');
-        $flipH =$this->game->value_req($action, 'flipH');
+        $flipH = $this->game->value_req($action, 'flipH');
         $flipV = $this->game->value_req($action, 'flipV');
         return $this->game->shapeMgr->validateAndPlaceOnBoat(
             $playerId,
-            $this->playerOrderMgr->getPlayerBoatColorName($playerId),
+            $this->game->getPlayerGlobal($playerId, "boat"),
             $shapeTypeId,
             $shapeId,
             $x,

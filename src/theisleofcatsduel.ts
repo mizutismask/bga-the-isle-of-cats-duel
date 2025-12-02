@@ -330,6 +330,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				this.setChooseActionGamestateDescription(
 					_('${you} can select one discovery and/or use fish or end your turn')
 				)
+
+				//this.actionMgr.allowRescueCat();
 			}
 
 			//const actions = this.getPossibleActions(args)
@@ -593,14 +595,20 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				} else {
 					const shape = document.querySelector<HTMLElement>(`#island-slot-${slot} .tioc-shape`)
 					const shapeId = shape.id
-					//this.actionMgr.rescueCat(shape.dataset.cardId)
+					//this.actionMgr.rescueCat(shapeId)
 					this.boatMgr.allowPlaceShape((x, y) => {
 						log('moveShapeToBoat')
 						this.boatMgr.moveShapeToBoat(this.getPlayerId(), shapeId, x, y)
-						const onConfirm = () => {
-							if (!this.tryShapesMgr.isInCmd) {//shapeId: shapeId, x: x, y: y
-								const cmd = this.commandMgr;
-								this.takeAction('actMoveShapeToBoat', {  actions: JSON.stringify(cmd.commandGroupsStateValues()),  })
+						const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
+							if (!this.tryShapesMgr.isInCmd) {
+								this.takeAction('actMoveShapeToBoat', {
+									shapeId: shapeId,
+									x: x,
+									y: y,
+									rotation: rotation,
+									flipH: flipH ? 1 : 0,
+									flipV: flipV ? 1 : 0
+								})
 							}
 						}
 						this.shapeControl.attachToShapeId(shape.dataset.shapeId, x, y, onConfirm)

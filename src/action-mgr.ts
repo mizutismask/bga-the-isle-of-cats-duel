@@ -1,5 +1,3 @@
-
-
 interface CardTreasureType {
 	CARD_TREASURE_TYPE_ID_ONE_RARE_TWO_COMMON: number
 	CARD_TREASURE_TYPE_ID_TWO_SMALL_TWO_COMMON: number
@@ -309,10 +307,10 @@ class ActionMgr {
 		this._rescueCatEndCommand(cmd, state)
 	}*/
 
-	public rescueCat(basketId: string) {
-		 {
-		const cmd = this.game.commandMgr
-		/*if (cmd.isInCommand())
+	public rescueCat(shapeId: string) {
+		{
+			const cmd = this.game.commandMgr
+			/*if (cmd.isInCommand())
 			return this.game.gameui.showMessage(
 				_('You must finish your current action (or undo) before you can do this'),
 				'error'
@@ -325,9 +323,33 @@ class ActionMgr {
 		)
 			return this.game.showMessage(_('You must place the allowed treasures first'), 'error')*/
 
+			const state: any = {
+				actionTypeId: this.ACTION_TYPE_ID_RESCUE_BASKET,
+				basketId: shapeId,
+				shapeId: null,
+				x: null,
+				y: null,
+				rotation: null,
+				flipH: null,
+				flipV: null
+			}
+			cmd.startCommand(state)
+			cmd.addSimple(
+				() => {},
+				() => {
+					this.game.islandMgr.removeAllIslandClickable()
+					this.game.boatMgr.removeAllBoatClickable()
+				}
+			)
+			this._rescueCatEndCommand(cmd, state, shapeId)
+		}
+	}
+
+	/*public allowRescueCat() {
+		const cmd = this.game.commandMgr
 		const state: any = {
-			actionTypeId: this.ACTION_TYPE_ID_RESCUE_BASKET,
-			basketId,
+			actionTypeId: this.ACTION_TYPE_ID_TO_PLACE_SHAPE,
+			basketId: null,
 			shapeId: null,
 			x: null,
 			y: null,
@@ -335,32 +357,77 @@ class ActionMgr {
 			flipH: null,
 			flipV: null
 		}
-		cmd.startCommand(state)
-		cmd.addSimple(
-			() => { },
-			() => {
-				this.game.islandMgr.removeAllIslandClickable()
-				this.game.boatMgr.removeAllBoatClickable()
-			}
-		)
-		this._rescueCatEndCommand(cmd, state)
-	}
-	}
-
-	/** Final portion shared by rescue flows. */
-	public _rescueCatEndCommand = (cmd: CommandMgr, state: any) => {
-		cmd.add(
-			(cont) => {
-				cmd.changeTitle(_('${you} must select a cat in one of the fields of the island'))
-				this.game.islandMgr.allowRescueCat((shapeId, price) => {
+		this.game.islandMgr.allowRescueCat((shapeId, price) => {
 					cmd.changeTitle(_('${you} must select where to put the cat on your boat'))
 					this.game.boatMgr.allowPlaceShape((x, y) => {
 						state.shapeId = shapeId
 						state.x = x
 						state.y = y
 						this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shapeId, x, y)
-						cont(price)
 					})
+				})
+	}*/
+	/** Final portion shared by rescue flows. */
+	public _rescueCatEndCommand = (cmd: CommandMgr, state: any, shapeId) => {
+		cmd.add(
+			(cont) => {
+				cmd.changeTitle(_('${you} must select where to put the cat on your boat'))
+				this.game.boatMgr.allowPlaceShape((x, y) => {
+					state.shapeId = shapeId
+					state.x = x
+					state.y = y
+					this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shapeId, x, y)
+debugger
+					cmd.add(
+						(cont) => {
+							cmd.changeTitle(_('${you} must confirm the position of the cat on your boat'))
+							const canAnywhere = false
+							debugger
+							this.game.shapeControl.attachToShapeId(
+								state.shapeId,
+								state.x,
+								state.y,
+								canAnywhere,
+								(shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
+									debugger
+									Object.assign(state, { shapeId, x, y, rotation, flipH, flipV })
+									this.game.shapeControl.detach()
+									let canTakeCommonTreasure = false
+									const color = this.game.getShapeColorFromShapeId(shapeId)
+									for (const g of usedGrid) {
+										this.game.boatMgr.markGridUsed(state.shapeId, g.x, g.y)
+										if (this.game.boatMgr.gridMapMatchesColor(g.x, g.y, color))
+											canTakeCommonTreasure = true
+									}
+									this.game.boatMgr.updateGridOverlay()
+									/*this.game.phase45Mgr.catRescued()
+						if (canTakeCommonTreasure) this.game.phase45Mgr.allowTakeCommonTreasure()
+						if (canAnywhere) this.game.phase45Mgr.takeNextShapeAnywhere()*/
+									cont({ usedGrid, canTakeCommonTreasure, canPutNextShapeAnywhere: canAnywhere })
+								}
+							)
+						},
+						(info: any) => {
+							this.game.boatMgr.applyTransformToShapeId(
+								state.shapeId,
+								state.rotation,
+								state.flipH,
+								state.flipV
+							)
+							for (const g of info.usedGrid) this.game.boatMgr.markGridUsed(state.shapeId, g.x, g.y)
+							this.game.boatMgr.updateGridOverlay()
+							/*this.game.phase45Mgr.catRescued()
+				if (info.canTakeCommonTreasure) this.game.phase45Mgr.allowTakeCommonTreasure()
+				if (info.canPutNextShapeAnywhere) this.game.phase45Mgr.takeNextShapeAnywhere()*/
+						},
+						(info: any) => {
+							this.game.boatMgr.markGridUnused(state.shapeId)
+							this.game.boatMgr.updateGridOverlay()
+							/*this.game.phase45Mgr.undoCatRescued()
+				if (info.canTakeCommonTreasure) this.game.phase45Mgr.undoAllowTakeCommonTreasure()
+				if (info.canPutNextShapeAnywhere) this.game.phase45Mgr.undoTakeNextShapeAnywhere()*/
+						}
+					)
 				})
 			},
 			(price: number) => {
@@ -369,49 +436,6 @@ class ActionMgr {
 			(price: number) => {
 				this.game.shapeControl.detach()
 				this.game.islandMgr.moveShapeToIsland(state.shapeId, price)
-			}
-		)
-
-		cmd.add(
-			(cont) => {
-				cmd.changeTitle(_('${you} must confirm the position of the cat on your boat'))
-				const canAnywhere = false
-				this.game.shapeControl.attachToShapeId(
-					state.shapeId,
-					state.x,
-					state.y,
-					canAnywhere,
-					(shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
-						Object.assign(state, { shapeId, x, y, rotation, flipH, flipV })
-						this.game.shapeControl.detach()
-						let canTakeCommonTreasure = false
-						const color = this.game.getShapeColorFromShapeId(shapeId)
-						for (const g of usedGrid) {
-							this.game.boatMgr.markGridUsed(state.shapeId, g.x, g.y)
-							if (this.game.boatMgr.gridMapMatchesColor(g.x, g.y, color)) canTakeCommonTreasure = true
-						}
-						this.game.boatMgr.updateGridOverlay()
-						/*this.game.phase45Mgr.catRescued()
-						if (canTakeCommonTreasure) this.game.phase45Mgr.allowTakeCommonTreasure()
-						if (canAnywhere) this.game.phase45Mgr.takeNextShapeAnywhere()*/
-						cont({ usedGrid, canTakeCommonTreasure, canPutNextShapeAnywhere: canAnywhere })
-					}
-				)
-			},
-			(info: any) => {
-				this.game.boatMgr.applyTransformToShapeId(state.shapeId, state.rotation, state.flipH, state.flipV)
-				for (const g of info.usedGrid) this.game.boatMgr.markGridUsed(state.shapeId, g.x, g.y)
-				this.game.boatMgr.updateGridOverlay()
-				/*this.game.phase45Mgr.catRescued()
-				if (info.canTakeCommonTreasure) this.game.phase45Mgr.allowTakeCommonTreasure()
-				if (info.canPutNextShapeAnywhere) this.game.phase45Mgr.takeNextShapeAnywhere()*/
-			},
-			(info: any) => {
-				this.game.boatMgr.markGridUnused(state.shapeId)
-				this.game.boatMgr.updateGridOverlay()
-				/*this.game.phase45Mgr.undoCatRescued()
-				if (info.canTakeCommonTreasure) this.game.phase45Mgr.undoAllowTakeCommonTreasure()
-				if (info.canPutNextShapeAnywhere) this.game.phase45Mgr.undoTakeNextShapeAnywhere()*/
 			}
 		)
 
@@ -426,7 +450,7 @@ class ActionMgr {
 	takeCommonTreasure = (shapeId: string, doFct: (() => void) | null = null, undoFct: (() => void) | null = null) => {
 		/*if (!this.game.phase45Mgr.canTakeCommonTreasure())
 			return this.game.gameui.showMessage(_('You cannot take a common treasure now'), 'error')*/
-	/*	this._takeTreasure(
+		/*	this._takeTreasure(
 			shapeId,
 			this.ACTION_TYPE_ID_COMMON_TREASURE,
 			doFct ?? (() => this.game.phase45Mgr.takeCommonTreasure?.()),

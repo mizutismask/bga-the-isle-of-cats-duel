@@ -480,7 +480,7 @@ class TiocShapeMgr {
         return false;
     }
 
-    public function validateAndPlaceOnBoat($playerId, $boatColorName, $shapeTypeId, $shapeId, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes, $oshaxColorId = null) {
+    public function validateAndPlaceOnBoat($playerId, $boatShape, $shapeTypeId, $shapeId, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes, $oshaxColorId = null) {
         if ($x < 0 || $y < 0 || array_search($rotation, SHAPE_ROTATIONS) === false || ($flipH != 0 && $flipH != 1) || ($flipV != 0 && $flipV != 1))
             throw new BgaVisibleSystemException("BUG! Invalid transform for shapeId $shapeId");
         if ($oshaxColorId !== null) {
@@ -500,7 +500,7 @@ class TiocShapeMgr {
 
         $previousShapeLocationId = $shape->shapeLocationId;
 
-        $matchesMapColor = $this->validateBoatWithNewShape($playerId, $boatColorName, $shape, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes);
+        $matchesMapColor = $this->validateBoatWithNewShape($playerId, $boatShape, $shape, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes);
         $shape->moveToBoat($playerId, $x, $y, $rotation, $flipH, $flipV, $this->game->getMoveNumber());
 
         $this->save();
@@ -947,7 +947,6 @@ class TiocShapeMgr {
                 $shape->moveToTable();
 
                 $playerId = $playerIdArray[array_rand($playerIdArray)];
-                $boatColorName = $playerOrderMgr->getPlayerBoatColorName($playerId);
                 $x = random_int(0, BOAT_TILE_WIDTH - 1);
                 $minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[$x]) / 2;
                 $y = $minY + random_int(0, BOAT_TILE_HEIGHT_PER_COLUMN[$x]);
@@ -955,13 +954,13 @@ class TiocShapeMgr {
                 $flipH = random_int(0, 1);
                 $flipV = random_int(0, 1);
                 $oshaxColorId = null;
-                if ($shape->isOshax()) {
+              /*  if ($shape->isOshax()) {
                     $oshaxColorId = CAT_COLOR_IDS[array_rand(CAT_COLOR_IDS)];
-                }
+                }*/
                 try {
                     $this->validateAndPlaceOnBoat(
                         $playerId,
-                        $boatColorName,
+                        $this->game->getPlayerGlobal($playerId, "boat"),
                         $shape->shapeTypeId,
                         $shape->shapeId,
                         $x,
@@ -984,7 +983,7 @@ class TiocShapeMgr {
         $this->save();
     }
 
-    private function validateBoatWithNewShape($playerId, $boatColorName, $newShape, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes) {
+    private function validateBoatWithNewShape($playerId, $boatShape, $newShape, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes) {
         $boat = new TiocBoatGrid();
         $boatHasShape = false;
         foreach ($this->shapes as $shape) {
@@ -999,7 +998,7 @@ class TiocShapeMgr {
         if ($newShape->colorId === null) {
             return false;
         }
-        return $boat->shapeCoversMapColor($newShape->shapeArray, $x, $y, $rotation, $flipH, $flipV, CAT_COLOR_NAMES[$newShape->colorId], $boatColorName);
+        return $boat->shapeCoversMapColor($newShape->shapeArray, $x, $y, $rotation, $flipH, $flipV, CAT_COLOR_NAMES[$newShape->colorId], $boatShape);
     }
 }
 
@@ -1032,14 +1031,14 @@ const BOAT_TILE_HEIGHT_PER_COLUMN = [
 ];
 const BOAT_NB_MAP = 5;
 const BOAT_MAP_PLACEMENT = [
-    'blue' => [ //boatO
+    'OBoat' => [
         'blue' => ['x' => 9, 'y' => 7],
         'green' => ['x' => 12, 'y' => 2],
         'red' => ['x' => 17, 'y' => 5],
         'purple' => ['x' => 3, 'y' => 0],
         'orange' => ['x' => 0, 'y' => 4],
     ],
-    'green' => [
+    'IBoat' => [
         'blue' => ['x' => 1, 'y' => 3],
         'green' => ['x' => 14, 'y' => 1],
         'red' => ['x' => 19, 'y' => 5],
