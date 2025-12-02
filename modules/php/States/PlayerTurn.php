@@ -184,6 +184,19 @@ class PlayerTurn extends GameState {
                 'shape_img' => $shapePlacement->shape,
             ]
         );
+
+        if ($this->game->shapeMgr->isShapeWithFish($this->game->shapeMgr->getShapeDefIdFromShapeId($shapeId))) {
+            $this->game->playerFishCounter->inc($activePlayerId, 1);
+            $this->game->tiocNotifyAllPlayers(
+                "message",
+                clienttranslate('${player_name} gains 1 ${fish_img}'),
+                [
+                    'player_id' => $activePlayerId,
+                    'player_name' => $this->game->loadPlayersBasicInfos()[$activePlayerId]['player_name'],
+                      'fish_img' => "",
+                ]
+            );
+        }
     }
     #[PossibleAction]
     public function actPlayCard(int $card_id, int $activePlayerId, array $args) {

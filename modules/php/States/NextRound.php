@@ -36,10 +36,7 @@ class NextRound extends \Bga\GameFramework\States\GameState {
 
             $round = $this->globals->inc("round", 1);
             $this->game->giveExtraTime($activePlayerId);
-            $this->game->shapeMgr->emptyIsland();
-            $this->game->shapeMgr->drawFromBag(10);
-            $this->game->cardMgr->emptyIsland();
-            $this->game->cardMgr->drawCardsForIsland(5);
+            $this->game->resetIsland();
 
             if ($round > 0) {
                 $nextFirstPlayer = $this->game->switchFirstPlayer();
@@ -60,6 +57,6 @@ class NextRound extends \Bga\GameFramework\States\GameState {
             $this->game->getPlayerGlobal($playerId, GLBL_SELECTION_ACTION_DONE);
         }*/
 
-        return false;//$end;
+        return false; //$end;
     }
 }

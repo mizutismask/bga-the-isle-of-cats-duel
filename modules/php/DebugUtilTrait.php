@@ -24,6 +24,10 @@ trait DebugUtilTrait {
         $this->playerFishCounter->inc($this->getCurrentPlayerId(), 1);
     }
 
+    function debug_resetIsland() {
+        $this->resetIsland();
+    }
+
     /*function cd() {
         $this->debugCompleteDestinations();
     }*/

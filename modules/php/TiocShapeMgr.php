@@ -231,6 +231,15 @@ class TiocShapeMgr {
         }
         return null;
     }
+    public function getShapeDefIdFromShapeId($shapeId) {
+        $this->load();
+        foreach ($this->shapes as $shape) {
+            if ($shape->shapeId == $shapeId) {
+                return $shape->shapeDefId;
+            }
+        }
+        return null;
+    }
 
     public function fieldIsEmpty() {
         $this->load();
@@ -1000,6 +1009,10 @@ class TiocShapeMgr {
         }
         return $boat->shapeCoversMapColor($newShape->shapeArray, $x, $y, $rotation, $flipH, $flipV, CAT_COLOR_NAMES[$newShape->colorId], $boatShape);
     }
+
+    public function isShapeWithFish(int $shapeDefId): bool {
+        return in_array($shapeDefId, SHAPES_WITH_FISH);
+    }
 }
 
 
@@ -1110,3 +1123,5 @@ const BOAT_ROOMS_RECTANGLE = [
     ['topX' => 20, 'topY' => 3, 'bottomX' => 21, 'bottomY' => 5],
     // The rest: no icon (and not listed here)
 ];
+
+    const SHAPES_WITH_FISH = [408, 410, 412, 414, 416];

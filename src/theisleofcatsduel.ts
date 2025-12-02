@@ -275,21 +275,38 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	/* @Override */
 	public bgaFormatText(log: string, args: any): { log: string; args: any } {
 		try {
-			if (log && args && !args.processed) {
-				args.processed = true
-
-				//displays gems
-				;['gemType'].forEach((field) => {
-					if (typeof args[field] === 'number') {
-						args[field] = `<span class="log-icon gem gem-${args[field]}"></span>`
-					}
-				})
-			}
+			  const keys = ['shape_img', 'shapes_img', 'fish_img'];
+                        for (const i in keys) {
+                            const key = keys[i];
+                            args[key] = this.getHtmlForLogArgs(key, args);
+                        }
 		} catch (e) {
 			console.error(log, args, 'Exception thrown', e.stack)
 		}
 		return { log, args }
 	}
+
+	public getHtmlForLogArgs(key:string, args:[]) {
+                if (!(key in args)) {
+                    return '';
+                }
+                switch (key) {
+                    case 'shape_img':
+                        const shape = args[key];
+                        return this.formatShapeElementForLog(shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId);
+                    case 'shapes_img':
+                        const shapes = args[key];
+                        let html = '';
+                        for (const shape of shapes) {
+                            html += this.formatShapeElementForLog(shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId);
+                        }
+                        return html;
+                    case 'fish_img':
+                        return '<div class="tioc-log-fish"></div>';
+                }
+                return '';
+            }
+
 
 	///////////////////////////////////////////////////
 	//// Game & client states

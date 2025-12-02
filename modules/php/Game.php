@@ -250,6 +250,13 @@ class Game extends \Bga\GameFramework\Table {
         $this->cardMgr->drawCardsForIsland(5);
     }
 
+   public  function resetIsland() {
+        $this->shapeMgr->emptyIsland();
+        $this->shapeMgr->drawFromBag(10);
+        $this->cardMgr->emptyIsland();
+        $this->cardMgr->drawCardsForIsland(5);
+    }
+
     public function isCardSlot(int $slotId): bool {
         return in_array($slotId, [2, 4, 11, 13, 15]);
     }
