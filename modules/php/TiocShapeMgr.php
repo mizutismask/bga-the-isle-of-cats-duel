@@ -291,7 +291,7 @@ class TiocShapeMgr {
     }
     public function moveToToPlaceLocation($shapeId) {
         $this->load();
-        
+
         foreach ($this->shapes as $shape) {
             if ($shape->shapeId != $shapeId) {
                 continue;
@@ -355,6 +355,20 @@ class TiocShapeMgr {
         }
         return $allShapeArray;
     }
+    public function getIslandShapesAsArray() {
+        $this->load();
+        $allShapeArray = [];
+        foreach ($this->shapes as $shape) {
+            if ($shape->isOnIsland()) {
+                $shapeArray = (array)$shape;
+                if (!$shape->isVisible()) {
+                    $shapeArray['bagOrder'] = 0;
+                }
+                $allShapeArray[] = $shapeArray;
+            }
+        }
+        return $allShapeArray;
+    }
 
     public function emptyTheFields() {
         $discardedShapes = [];
@@ -400,7 +414,7 @@ class TiocShapeMgr {
             throw new BgaVisibleSystemException("BUG! Invalid shapeId $shapeId");
         if (!$shape->isOnPlayerBoat($playerId))
             throw new BgaVisibleSystemException("BUG! shapeId $shapeId is not on player boat");
-        if (!$shape->isCommonTreasure() && !$shape->isRareTreasure())
+        if (!$shape->isCommonTreasure() )
             throw new BgaVisibleSystemException("BUG! shapeId $shapeId is not a treasure");
 
         $shape->moveToDiscard();
@@ -408,30 +422,11 @@ class TiocShapeMgr {
         return $shape;
     }
 
-    public function getPlayerRareTreasure($playerId) {
-        $this->load();
-        return array_values(array_filter($this->shapes, function ($shape) use (&$playerId) {
-            return $shape->isRareTreasure() && $shape->isOnPlayerBoat($playerId);
-        }));
-    }
-
-    public function countOshax($playerId) {
-        $this->load();
-        return count(array_filter($this->shapes, function ($shape) use (&$playerId) {
-            return $shape->isOshax() && $shape->isOnPlayerBoat($playerId);
-        }));
-    }
-
     public function countCat($playerId) {
         $this->load();
         return count(array_filter($this->shapes, function ($shape) use (&$playerId) {
             return $shape->isCat() && $shape->isOnPlayerBoat($playerId);
         }));
-    }
-
-    public function countRareTreasure($playerId) {
-        $this->load();
-        return count($this->getPlayerRareTreasure($playerId));
     }
 
     public function countCommonTreasure($playerId) {
@@ -963,7 +958,7 @@ class TiocShapeMgr {
                 $flipH = random_int(0, 1);
                 $flipV = random_int(0, 1);
                 $oshaxColorId = null;
-              /*  if ($shape->isOshax()) {
+                /*  if ($shape->isOshax()) {
                     $oshaxColorId = CAT_COLOR_IDS[array_rand(CAT_COLOR_IDS)];
                 }*/
                 try {
@@ -1124,4 +1119,4 @@ const BOAT_ROOMS_RECTANGLE = [
     // The rest: no icon (and not listed here)
 ];
 
-    const SHAPES_WITH_FISH = [408, 410, 412, 414, 416];
+const SHAPES_WITH_FISH = [408, 410, 412, 414, 416];

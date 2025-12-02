@@ -16,6 +16,15 @@ interface TheIsleOfCatsDuelCard extends Card {
 	islandCardSlot: number
 }
 
+interface Shape {
+	shapeId: number
+	shapeTypeId: number
+	shapeDefId: number
+	shapeLocationId: number
+	colorId?: number
+	islandCatSlot?: number
+}
+
 interface TheIsleOfCatsDuelPlayer extends Player {
 	playerNo: number
 	cardsCount: number
@@ -89,10 +98,10 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	getShapeColorFromShapeId: (shapeId: string) => string
 	getShapeSizeFromShapeId(shapeId: string)
 	getShapeDefIdFromShapeId(shapeId)
-	getShapeTypeIdFromShapeId(shapeId) 
+	getShapeTypeIdFromShapeId(shapeId)
 	getShapeColorIdFromShapeId(shapeId)
 	applyTransformToElement(element: HTMLElement, rotation: number, flipH: boolean, flipV: boolean)
-	removeClickableId(id: string, removeSelected = true) 
+	removeClickableId(id: string, removeSelected = true)
 
 	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement
 	addKnownShape(shape): void
@@ -124,6 +133,11 @@ interface NotifScoreArgs {
 	playerId: number
 	score: number
 	scoreType: string
+}
+
+interface NotifResetIslandArgs {
+	shapes: Shape[]
+	cards: TheIsleOfCatsDuelCard[]
 }
 
 interface NotifOshaxMoveArgs {

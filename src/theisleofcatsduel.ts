@@ -697,7 +697,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['lastTurn', 1],
 			['importantMessage', 3000],
 			['counter', 1],
-			['updateCounters', 1]
+			['updateCounters', 1],
+			['resetIsland', 1],
 		]
 
 		notifs.forEach((notif) => {
@@ -705,6 +706,11 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			//comment to prevent formating to glue these 2 lines
 			;(this.gameui as any).notifqueue.setSynchronous(notif[0], notif[1])
 		})
+	}
+
+	notif_resetIsland(notif: Notif<NotifResetIslandArgs>) {
+		log('notif_resetIsland', notif)
+		this.island.resetIsland(notif.args.cards, notif.args.shapes)
 	}
 
 	/**

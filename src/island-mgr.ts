@@ -44,17 +44,7 @@ class IslandMgr {
 		}
 	}
 	/** Create a shape element and place it according to its location */
-	public createAndPlaceShape(
-		shape: {
-			shapeId: number
-			shapeTypeId: number
-			shapeDefId: number
-			shapeLocationId: number
-			colorId?: number
-			islandCatSlot?: number
-		},
-		animateFromIsland: boolean = true
-	): void {
+	public createAndPlaceShape(shape: Shape, animateFromIsland: boolean = true): void {
 		this.game.addKnownShape(shape)
 		const islandCreateId = 'tioc-island-discard'
 		let location = ''
@@ -252,7 +242,7 @@ class IslandMgr {
 	}
 	removeAllIslandClickable() {
 		const clickable = document.querySelectorAll('#tioc-island-and-field-container .tioc-clickable')
-		for (const c of Array.from( clickable)) {
+		for (const c of Array.from(clickable)) {
 			this.game.removeClickableId(c.id)
 		}
 		const selected = document.querySelectorAll('#tioc-island-and-field-container .tioc-selected')

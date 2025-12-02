@@ -250,11 +250,16 @@ class Game extends \Bga\GameFramework\Table {
         $this->cardMgr->drawCardsForIsland(5);
     }
 
-   public  function resetIsland() {
+    public  function resetIsland() {
         $this->shapeMgr->emptyIsland();
         $this->shapeMgr->drawFromBag(10);
         $this->cardMgr->emptyIsland();
         $this->cardMgr->drawCardsForIsland(5);
+
+        $this->notify->all("resetIsland", "", [
+            "cards" => $this->cardMgr->getIslandCards(),
+            "shapes" => $this->shapeMgr->getIslandShapesAsArray()
+        ]);
     }
 
     public function isCardSlot(int $slotId): bool {
@@ -285,7 +290,7 @@ class Game extends \Bga\GameFramework\Table {
     }
 
     function getMoveNumber(): int {
-        return 1;//todo
+        return 1; //todo
     }
 
     /**
@@ -302,13 +307,11 @@ class Game extends \Bga\GameFramework\Table {
         }
     }
 
-    public function tiocNotifyAllPlayers($notifType, $notifLog, $notifArgs)
-    {
+    public function tiocNotifyAllPlayers($notifType, $notifLog, $notifArgs) {
         $this->notifyAllPlayers($notifType, $notifLog, toNotifArray($notifArgs));
     }
 
-    public function tiocNotifyPlayer($playerId, $notifType, $notifLog, $notifArgs)
-    {
+    public function tiocNotifyPlayer($playerId, $notifType, $notifLog, $notifArgs) {
         $this->notifyPlayer($playerId, $notifType, $notifLog, toNotifArray($notifArgs));
     }
 

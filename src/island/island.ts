@@ -1,6 +1,6 @@
 class Island {
 	private cardsSlots: CardStock<TheIsleOfCatsDuelCard>[] = []
-	
+
 	constructor(private game: TheIsleOfCatsDuelGame, gamedatas: TheIsleOfCatsDuelGamedatas) {
 		const container = document.getElementById('island')
 
@@ -54,10 +54,7 @@ class Island {
 	}
 
 	public enableSlots(slotNumbers: number[]) {
-		document
-			.getElementById('island')
-			.querySelectorAll('.island-slot')
-			.forEach((slot) => slot.classList.add('island-slot-disabled'))
+		this.disableAllSlots(true)
 		slotNumbers.forEach((slotNumber) => {
 			const card = document.getElementById(`island-slot-${slotNumber}`)
 			card.classList.remove('island-slot-disabled')
@@ -65,5 +62,19 @@ class Island {
 		})
 	}
 
-	
+	public resetIsland(cards: Array<TheIsleOfCatsDuelCard>, shapes: Array<Shape>) {
+		this.disableAllSlots(false)
+		this.cardsSlots.forEach((cardSlot) => cardSlot.removeAll())
+		cards.forEach((card) => this.cardsSlots[card.islandCardSlot].addCard(card))
+		document.querySelectorAll("#island .tioc-shape").forEach((shape) => shape.remove())
+		//this.game.islandMgr.emptyIsland()
+		shapes.forEach((shape) => this.game.islandMgr.createAndPlaceShape(shape, false))
+	}
+
+	private disableAllSlots(disable: boolean) {
+		document
+			.getElementById('island')
+			.querySelectorAll('.island-slot')
+			.forEach((slot) => slot.classList.toggle('island-slot-disabled', disable))
+	}
 }
