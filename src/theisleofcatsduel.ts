@@ -708,7 +708,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['importantMessage', 3000],
 			['counter', 1],
 			['updateCounters', 1],
-			['resetIsland', 1]
+			['resetIsland', 1],
+			['NTF_MOVE_SHAPE_TO_BOAT', 1],
+			['NTF_UPDATE_BOAT_USED_GRID_COLOR', 1]
 		]
 
 		notifs.forEach((notif) => {
@@ -723,6 +725,15 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.island.resetIsland(notif.args.cards, notif.args.shapes)
 	}
 
+	notif_NTF_MOVE_SHAPE_TO_BOAT(notif) {
+		log('notif_NTF_MOVE_SHAPE_TO_BOAT', notif)
+		this.boatMgr.moveAndTransformShapeToBoat(notif.args.player_id, notif.args.shape)
+	}
+
+	notif_NTF_UPDATE_BOAT_USED_GRID_COLOR(notif) {
+		log('notif_NTF_UPDATE_BOAT_USED_GRID_COLOR', notif)
+		this.boatMgr.updatePlayerPanelBoat(notif.args.boatUsedGridColor)
+	}
 	/**
 	 * Updates a total or subtotal
 	 * @param notif

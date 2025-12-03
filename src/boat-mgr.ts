@@ -283,14 +283,14 @@ class BoatMgr {
 		document.querySelectorAll(`.${this.clickableCls}`).forEach((el) => el.classList.remove(this.clickableCls))
 	}
 
-	/** Move a shape node into the boat grid at x,y. 
+	/** Move a shape node into the boat grid at x,y.
 	 * @param shapeId - technical id, not html element id
-	*/
+	 */
 	moveShapeToBoat = (playerId: number, shapeId: string, x: number, y: number, onEndAnim?: () => void): void => {
 		log('moveShapeToBoat', playerId, shapeId, x, y)
 		const node = document.getElementById('tioc-shape-id-' + shapeId)
 		const target = document.querySelector<HTMLElement>(
-			`${this.boatRootSel} .tioc-grid[data-x="${x}"][data-y="${y}"]`
+			`${'#tioc-player-boat-' + playerId} .tioc-grid[data-x="${x}"][data-y="${y}"]`
 		)
 		log('node', node, 'target', target)
 		if (!node || !target) return
@@ -319,6 +319,27 @@ class BoatMgr {
 		}
 
 		node.style.transform = transform.join(' ')
+	}
+
+	moveAndTransformShapeToBoat(playerId:number, shape) {
+		this.game.addKnownShape(shape)
+		// Note: does not create the shape, there are no use case
+		const playerBoatElemId = 'tioc-player-boat-' + playerId
+		log('moveAndTransformShapeToBoat', playerBoatElemId, shape)
+		const shapeElem = document.getElementById('tioc-shape-id-' + shape.shapeId)
+		// If the shape is already on the boat, the player placed it
+		// so don't move it
+		if (shapeElem.closest('#' + playerBoatElemId) !== null) {
+			return
+		}
+		this.moveShapeToBoat(playerId, shape.shapeId, shape.boatTopX, shape.boatTopY, () => {
+			this.applyTransformToShapeId(
+				shape.shapeId,
+				shape.boatRotation,
+				shape.boatHorizontalFlip,
+				shape.boatVerticalFlip
+			)
+		})
 	}
 
 	/** Mark grid squares used by a shape. */
