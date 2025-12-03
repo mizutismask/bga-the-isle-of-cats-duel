@@ -275,38 +275,42 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	/* @Override */
 	public bgaFormatText(log: string, args: any): { log: string; args: any } {
 		try {
-			  const keys = ['shape_img', 'shapes_img', 'fish_img'];
-                        for (const i in keys) {
-                            const key = keys[i];
-                            args[key] = this.getHtmlForLogArgs(key, args);
-                        }
+			const keys = ['shape_img', 'shapes_img', 'fish_img']
+			for (const i in keys) {
+				const key = keys[i]
+				args[key] = this.getHtmlForLogArgs(key, args)
+			}
 		} catch (e) {
 			console.error(log, args, 'Exception thrown', e.stack)
 		}
 		return { log, args }
 	}
 
-	public getHtmlForLogArgs(key:string, args:[]) {
-                if (!(key in args)) {
-                    return '';
-                }
-                switch (key) {
-                    case 'shape_img':
-                        const shape = args[key];
-                        return this.formatShapeElementForLog(shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId);
-                    case 'shapes_img':
-                        const shapes = args[key];
-                        let html = '';
-                        for (const shape of shapes) {
-                            html += this.formatShapeElementForLog(shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId);
-                        }
-                        return html;
-                    case 'fish_img':
-                        return '<div class="tioc-log-fish"></div>';
-                }
-                return '';
-            }
-
+	public getHtmlForLogArgs(key: string, args: []) {
+		if (!(key in args)) {
+			return ''
+		}
+		switch (key) {
+			case 'shape_img':
+				const shape = args[key]
+				return this.formatShapeElementForLog(shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
+			case 'shapes_img':
+				const shapes = args[key]
+				let html = ''
+				for (const shape of shapes) {
+					html += this.formatShapeElementForLog(
+						shape.shapeId,
+						shape.shapeTypeId,
+						shape.shapeDefId,
+						shape.colorId
+					)
+				}
+				return html
+			case 'fish_img':
+				return '<div class="tioc-log-fish"></div>'
+		}
+		return ''
+	}
 
 	///////////////////////////////////////////////////
 	//// Game & client states
@@ -316,7 +320,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	//
 	public onEnteringState(stateName: string, args: any) {
 		log('Entering state: ' + stateName, args)
-
+		this.shapeControl.detach()
+		this.removeAllClickable()
 		switch (stateName) {
 			case 'PlayerTurn':
 				if (args?.args) {
@@ -341,14 +346,17 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			} else if (args.remainingTreasures > 0) {
 				this.setChooseActionGamestateDescription(
 					_('${you} can select one treasure and place it on your boat or end your turn')
-					
 				)
-				this.islandMgr.allowTakeTreasure()	
+				this.islandMgr.allowTakeTreasure()
 			} else if (args.mandatoryMoveDone) {
-				this.island.enableSlots(args.possibleSlotsForDiscovery)
-				this.setChooseActionGamestateDescription(
-					_('${you} can select one discovery and/or use fish or end your turn')
-				)
+				if (args.possibleSlotsForDiscovery.length > 0) {
+					this.island.enableSlots(args.possibleSlotsForDiscovery)
+					this.setChooseActionGamestateDescription(
+						_('${you} can select one discovery and/or use fish or end your turn')
+					)
+				} else {
+					this.setChooseActionGamestateDescription(_('${you} can use fish or end your turn'))
+				}
 
 				//this.actionMgr.allowRescueCat();
 			}
@@ -592,7 +600,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		//dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
 		if (chooseActionArgs.canPass) {
-			this.statusBar.addActionButton(_('End my turn'), () => this.pass())
+			this.statusBar.addActionButton(_('End my turn'), () => this.pass(), { color: 'alert' })
 		}
 
 		if (chooseActionArgs.canResetTurn) {
@@ -617,7 +625,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					//this.actionMgr.rescueCat(shapeId)
 					this.boatMgr.allowPlaceShape((x, y) => {
 						log('moveShapeToBoat')
-						this.boatMgr.moveShapeToBoat(this.getPlayerId(),  shape.dataset.shapeId, x, y)
+						this.boatMgr.moveShapeToBoat(this.getPlayerId(), shape.dataset.shapeId, x, y)
 						const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
 							if (!this.tryShapesMgr.isInCmd) {
 								this.takeAction('actMoveShapeToBoat', {
@@ -700,7 +708,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['importantMessage', 3000],
 			['counter', 1],
 			['updateCounters', 1],
-			['resetIsland', 1],
+			['resetIsland', 1]
 		]
 
 		notifs.forEach((notif) => {
@@ -887,6 +895,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		element.classList.add('tioc-clickable')
 		this.clickConnect(element, (event) => {
 			//window.tiocWrap('addOnClick', () => {
+			//debugger
 			onClick(event)
 			//})
 		})

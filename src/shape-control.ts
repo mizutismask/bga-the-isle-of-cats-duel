@@ -22,6 +22,7 @@ class ShapeControl {
 	}
 
 	public attachToShapeId(shapeId, x, y, onConfirmFunction) {
+		this.detach()//detach any previous selection
 		this.shapeId = shapeId
 		this.x = x
 		this.y = y
@@ -76,6 +77,7 @@ class ShapeControl {
 			grid.classList.add('tioc-clickable-no-border')
 			this.game.addOnClick(grid, (event) => {
 				event.preventDefault()
+				log("_attach", grid.dataset.x, grid.dataset.y)
 				this._moveToPosIfFar(parseInt(grid.dataset.x), parseInt(grid.dataset.y))
 			})
 		})
@@ -106,6 +108,7 @@ class ShapeControl {
 			this._forEachShapeGrid((x, y) => {
 				usedGrid.push({ x: x, y: y })
 			})
+			//debugger
 			onConfirmFunction(
 				this.shapeId,
 				this.x,

@@ -271,6 +271,7 @@ class BoatMgr {
 					ev.preventDefault()
 					const x = Number(sq.dataset.x || sq.getAttribute('data-x'))
 					const y = Number(sq.dataset.y || sq.getAttribute('data-y'))
+					log('allowPlaceShape click on', x, y)
 					this.removeAllBoatClickable()
 					cb(x, y)
 				})
@@ -286,7 +287,6 @@ class BoatMgr {
 	 * @param shapeId - technical id, not html element id
 	*/
 	moveShapeToBoat = (playerId: number, shapeId: string, x: number, y: number, onEndAnim?: () => void): void => {
-		debugger
 		log('moveShapeToBoat', playerId, shapeId, x, y)
 		const node = document.getElementById('tioc-shape-id-' + shapeId)
 		const target = document.querySelector<HTMLElement>(

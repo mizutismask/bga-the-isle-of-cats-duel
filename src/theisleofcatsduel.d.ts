@@ -82,7 +82,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	clickOnSlot(slot: number): any
 	gameui: GameGui
 	gamedatas: TheIsleOfCatsDuelGamedatas
-
+	
 	commandMgr: CommandMgr
 	//fishMgr: FishMgr
 	islandMgr: IslandMgr
@@ -102,10 +102,11 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	getShapeColorIdFromShapeId(shapeId)
 	applyTransformToElement(element: HTMLElement, rotation: number, flipH: boolean, flipV: boolean)
 	removeClickableId(id: string, removeSelected = true)
-
+	
 	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement
 	addKnownShape(shape): void
 	updateShapeElementTooltip(shape, elementId = null): void
+	removeAbsolutePosition(elementId: string) 
 }
 
 interface EnteringPlayerTurnArgs {

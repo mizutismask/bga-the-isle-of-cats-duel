@@ -17,6 +17,7 @@ use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CAT_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_MOVE_SHAPE_TO_BOAT;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_TO_PLACE;
+use const Bga\Games\TheIsleOfCatsDuel\SHAPE_TYPE_ID_COMMON_TREASURE;
 
 const FISH_ACTION_COST = [
     "M" => 1,
@@ -51,13 +52,16 @@ class PlayerTurn extends GameState {
     public function getArgs(): array {
         // Get some values from the current game situation from the database.
         $mandatoryMoveDone = $this->game->globals->get(Constants::GLBL_MANDATORY_MOVE_DONE);
+        $discoveryTaken = $this->game->getPlayerGlobal($this->game->getMostlyActivePlayerId(), Constants::GLBL_DISCOVERY_TAKEN);
         return [
             "playableCardsIds" => [1, 2],
             "oshaxValidMoves" => $this->game->islandMgr->getOshaxValidMoves(),
             "remainingMoves" => $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES),
             "mandatoryMoveDone" => $mandatoryMoveDone,
+            "canPass" => $mandatoryMoveDone,
+            "canResetTurn" => $mandatoryMoveDone,
             "currentFishAction" => $this->game->globals->get(Constants::GLBL_CURRENT_FISH_ACTION),
-            "possibleSlotsForDiscovery" => $mandatoryMoveDone ? $this->game->islandMgr->getPossibleSlotsForDiscovery() : [],
+            "possibleSlotsForDiscovery" => $mandatoryMoveDone  && $discoveryTaken == false ? $this->game->islandMgr->getPossibleSlotsForDiscovery() : [],
             "remainingTreasures" => $this->globals->get(Constants::GLBL_REMAINING_TREASURES, 0),
             "canTradeFishForMove" => FISH_ACTION_COST["M"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForJump" => FISH_ACTION_COST["J"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
@@ -164,12 +168,20 @@ class PlayerTurn extends GameState {
     #[PossibleAction]
     public function actMoveShapeToBoat(string $shapeId, int $x, int $y, int $rotation, int $flipH, int $flipV, int $activePlayerId, array $args) {
         $shapeTypeId = $this->game->shapeMgr->getShapeTypeIdFromShapeId($shapeId);
+        $isTreasure = $shapeTypeId == SHAPE_TYPE_ID_COMMON_TREASURE;
         $shapePlacement = $this->actionTypePlaceShape($activePlayerId, ["shapeId" => $shapeId, "x" => $x, "y" => $y, "rotation" => $rotation, "flipH" => $flipH, "flipV" => $flipV], $shapeTypeId);
-        if ($shapePlacement->previousShapeLocationId != SHAPE_LOCATION_ID_TO_PLACE && $shapePlacement->previousShapeLocationId != SHAPE_LOCATION_ID_ISLAND_CAT_SLOT)
+        $authorizedPreviousLocation = in_array($shapePlacement->previousShapeLocationId, [SHAPE_LOCATION_ID_TO_PLACE, SHAPE_LOCATION_ID_ISLAND_CAT_SLOT]);
+        $isShapeFromIsland = SHAPE_LOCATION_ID_ISLAND_CAT_SLOT == $shapePlacement->previousShapeLocationId;
+        if (!$authorizedPreviousLocation && !($isTreasure && $this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_REMAINING_TREASURES) == 0))
             throw new \BgaVisibleSystemException("BUG! Shape is not to place");
         if ($shapePlacement->matchesMapColor) {
             $this->globals->set(Constants::GLBL_REMAINING_TREASURES, 1);
             //$this->turnActionMgr->allowTakeCommonTreasure($playerId);
+        }
+        if ($isTreasure) {
+            $this->game->globals->inc(Constants::GLBL_REMAINING_TREASURES, -1);
+        }else if($isShapeFromIsland) {
+            $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN, true);
         }
 
         $this->game->tiocNotifyAllPlayers(
@@ -193,10 +205,11 @@ class PlayerTurn extends GameState {
                 [
                     'player_id' => $activePlayerId,
                     'player_name' => $this->game->loadPlayersBasicInfos()[$activePlayerId]['player_name'],
-                      'fish_img' => "",
+                    'fish_img' => "",
                 ]
             );
         }
+        return PlayerTurn::class;
     }
     #[PossibleAction]
     public function actPlayCard(int $card_id, int $activePlayerId, array $args) {

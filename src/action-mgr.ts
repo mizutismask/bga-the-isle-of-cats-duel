@@ -3,23 +3,22 @@ interface CardTreasureType {
 	CARD_TREASURE_TYPE_ID_TWO_SMALL_TWO_COMMON: number
 }
 
+const ACTION_TYPE_ID_RESCUE_CARD = 0
+const ACTION_TYPE_ID_RESCUE_BASKET = 1
+const ACTION_TYPE_ID_COMMON_TREASURE = 2
+const ACTION_TYPE_ID_OSHAX = 3
+const ACTION_TYPE_ID_TREASURE_CARD = 4
+const ACTION_TYPE_ID_RARE_TREASURE = 5
+const ACTION_TYPE_ID_ANYTIME_CARD = 6
+const ACTION_TYPE_ID_BUY_CARD = 7
+const ACTION_TYPE_ID_TO_PLACE_SHAPE = 8
+const ACTION_TYPE_ID_UNBUY_CARD = 9
+const ACTION_TYPE_ID_RESCUE_FAMILY = 11
 /********************
  * ActionMgr.ts
  ********************/
 class ActionMgr {
 	/** Action type enums kept for undo/redo semantics. */
-
-	readonly ACTION_TYPE_ID_RESCUE_CARD = 0
-	readonly ACTION_TYPE_ID_RESCUE_BASKET = 1
-	readonly ACTION_TYPE_ID_COMMON_TREASURE = 2
-	readonly ACTION_TYPE_ID_OSHAX = 3
-	readonly ACTION_TYPE_ID_TREASURE_CARD = 4
-	readonly ACTION_TYPE_ID_RARE_TREASURE = 5
-	readonly ACTION_TYPE_ID_ANYTIME_CARD = 6
-	readonly ACTION_TYPE_ID_BUY_CARD = 7
-	readonly ACTION_TYPE_ID_TO_PLACE_SHAPE = 8
-	readonly ACTION_TYPE_ID_UNBUY_CARD = 9
-	readonly ACTION_TYPE_ID_RESCUE_FAMILY = 11
 
 	private game: TheIsleOfCatsDuelGame
 	private rescueCardHalfBasketFct: ((cardId: string) => void) | null = null
@@ -324,7 +323,7 @@ class ActionMgr {
 			return this.game.showMessage(_('You must place the allowed treasures first'), 'error')*/
 
 			const state: any = {
-				actionTypeId: this.ACTION_TYPE_ID_RESCUE_BASKET,
+				actionTypeId: ACTION_TYPE_ID_RESCUE_BASKET,
 				basketId: shapeId,
 				shapeId: null,
 				x: null,
@@ -377,7 +376,7 @@ class ActionMgr {
 					state.x = x
 					state.y = y
 					this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shapeId, x, y)
-debugger
+					debugger
 					cmd.add(
 						(cont) => {
 							cmd.changeTitle(_('${you} must confirm the position of the cat on your boat'))
@@ -447,87 +446,56 @@ debugger
 	}
 
 	/** Take common treasure (or small/rare through helpers). */
-	takeCommonTreasure = (shapeId: string, doFct: (() => void) | null = null, undoFct: (() => void) | null = null) => {
-		if (this.game.gamedatas.gamestate.args.remainingTreasures<1) 
+	public takeCommonTreasure(shapeId: string) {
+		if (this.game.gamedatas.gamestate.args.remainingTreasures < 1)
 			return this.game.gameui.showMessage(_('You cannot take a treasure now'), 'error')
-			this._takeTreasure(
+
+		const state: any = {
+			ACTION_TYPE_ID_COMMON_TREASURE,
 			shapeId,
-			this.ACTION_TYPE_ID_COMMON_TREASURE,
-				doFct ?? (() => { }),
-			undoFct ?? (() => {})
-		)
-	}
+			x: null,
+			y: null,
+			rotation: null,
+			flipH: null,
+			flipV: null
+		}
 
-	private _takeTreasure = (shapeId: string, actionTypeId: number, doTake: () => void, undoTake: () => void) => {
-		const cmd = this.game.commandMgr
-		if (cmd.isInCommand())
-			return this.game.gameui.showMessage(
-				_('You must finish your current action (or undo) before you can do this'),
-				'error'
-			)
+		this.game.gameui.statusBar.setTitle(_('${you} must select where to put the treasure on your boat'))
+		this.game.boatMgr.allowPlaceShape((x, y) => {
+			this.game.removeAbsolutePosition(`tioc-shape-id-${shapeId}`)
+			log('allowPlaceShape', shapeId, x, y)
+			state.x = x
+			state.y = y
+			this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shapeId, x, y)
+			this.game.gameui.statusBar.setTitle(_('${you} must confirm the position of the treasure on your boat'))
 
-		const state: any = { actionTypeId, shapeId, x: null, y: null, rotation: null, flipH: null, flipV: null }
-		cmd.startCommand(state)
-		cmd.addSimple(
-			() => doTake(),
-			() => undoTake()
-		)
-		cmd.addSimple(
-			() => {},
-			() => {
-				this.game.islandMgr.removeAllIslandClickable()
-				this.game.boatMgr.removeAllBoatClickable()
-			}
-		)
-
-		cmd.add(
-			(cont) => {
-				cmd.changeTitle(_('${you} must select where to put the treasure on your boat'))
-				this.game.boatMgr.allowPlaceShape((x, y) => {
-					log('allowPlaceShape', shapeId, x, y)
-					state.x = x
-					state.y = y
-					this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shapeId, x, y)
-					cont()
-				})
-			},
-			() => this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), state.shapeId, state.x, state.y),
-			() => {
+			const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
+				Object.assign(state, { shapeId, x, y, rotation, flipH, flipV })
 				this.game.shapeControl.detach()
-				this.game.islandMgr.moveShapeToIsland(state.shapeId)
-			}
-		)
-
-		cmd.add(
-			(cont) => {
-				cmd.changeTitle(_('${you} must confirm the position of the treasure on your boat'))
-				const canAnywhere = false
-				this.game.shapeControl.attachToShapeId(
-					state.shapeId,
-					state.x,
-					state.y,
-					canAnywhere,
-					(shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
-						Object.assign(state, { shapeId, x, y, rotation, flipH, flipV })
-						this.game.shapeControl.detach()
-						for (const g of usedGrid) this.game.boatMgr.markGridUsed(state.shapeId, g.x, g.y)
-						this.game.boatMgr.updateGridOverlay()
-						cont({ usedGrid, canPutNextShapeAnywhere: canAnywhere })
-					}
-				)
-			},
-			(info: any) => {
-				this.game.boatMgr.applyTransformToShapeId(state.shapeId, state.rotation, state.flipH, state.flipV)
-				for (const g of info.usedGrid) this.game.boatMgr.markGridUsed(state.shapeId, g.x, g.y)
+				for (const g of usedGrid) this.game.boatMgr.markGridUsed(state.shapeId, g.x, g.y)
 				this.game.boatMgr.updateGridOverlay()
-			},
-			(info: any) => {
 				this.game.boatMgr.markGridUnused(state.shapeId)
-				this.game.boatMgr.updateGridOverlay()
-			}
-		)
 
-		cmd.endCommand()
+				if (!this.game.tryShapesMgr.isInCmd) {
+					this.game.takeAction('actMoveShapeToBoat', {
+						shapeId: shapeId,
+						x: x,
+						y: y,
+						rotation: rotation,
+						flipH: flipH ? 1 : 0,
+						flipV: flipV ? 1 : 0
+					})
+				}
+			}
+
+			this.game.shapeControl.attachToShapeId(
+				state.shapeId,
+				state.x,
+				state.y,
+
+				onConfirm
+			)
+		})
 	}
 
 	/** Treasure card flows */
