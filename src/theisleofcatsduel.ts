@@ -341,7 +341,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			} else if (args.remainingTreasures > 0) {
 				this.setChooseActionGamestateDescription(
 					_('${you} can select one treasure and place it on your boat or end your turn')
+					
 				)
+				this.islandMgr.allowTakeTreasure()	
 			} else if (args.mandatoryMoveDone) {
 				this.island.enableSlots(args.possibleSlotsForDiscovery)
 				this.setChooseActionGamestateDescription(
@@ -615,7 +617,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					//this.actionMgr.rescueCat(shapeId)
 					this.boatMgr.allowPlaceShape((x, y) => {
 						log('moveShapeToBoat')
-						this.boatMgr.moveShapeToBoat(this.getPlayerId(), shapeId, x, y)
+						this.boatMgr.moveShapeToBoat(this.getPlayerId(),  shape.dataset.shapeId, x, y)
 						const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
 							if (!this.tryShapesMgr.isInCmd) {
 								this.takeAction('actMoveShapeToBoat', {

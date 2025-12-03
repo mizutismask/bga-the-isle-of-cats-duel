@@ -282,12 +282,17 @@ class BoatMgr {
 		document.querySelectorAll(`.${this.clickableCls}`).forEach((el) => el.classList.remove(this.clickableCls))
 	}
 
-	/** Move a shape node into the boat grid at x,y. */
-	moveShapeToBoat = (number: number, shapeId: string, x: number, y: number, onEndAnim?: () => void): void => {
-		const node = document.getElementById(shapeId)
+	/** Move a shape node into the boat grid at x,y. 
+	 * @param shapeId - technical id, not html element id
+	*/
+	moveShapeToBoat = (playerId: number, shapeId: string, x: number, y: number, onEndAnim?: () => void): void => {
+		debugger
+		log('moveShapeToBoat', playerId, shapeId, x, y)
+		const node = document.getElementById('tioc-shape-id-' + shapeId)
 		const target = document.querySelector<HTMLElement>(
 			`${this.boatRootSel} .tioc-grid[data-x="${x}"][data-y="${y}"]`
 		)
+		log('node', node, 'target', target)
 		if (!node || !target) return
 		target.appendChild(node)
 		if (typeof onEndAnim === 'function') onEndAnim()

@@ -448,14 +448,14 @@ debugger
 
 	/** Take common treasure (or small/rare through helpers). */
 	takeCommonTreasure = (shapeId: string, doFct: (() => void) | null = null, undoFct: (() => void) | null = null) => {
-		/*if (!this.game.phase45Mgr.canTakeCommonTreasure())
-			return this.game.gameui.showMessage(_('You cannot take a common treasure now'), 'error')*/
-		/*	this._takeTreasure(
+		if (this.game.gamedatas.gamestate.args.remainingTreasures<1) 
+			return this.game.gameui.showMessage(_('You cannot take a treasure now'), 'error')
+			this._takeTreasure(
 			shapeId,
 			this.ACTION_TYPE_ID_COMMON_TREASURE,
-			doFct ?? (() => this.game.phase45Mgr.takeCommonTreasure?.()),
-			undoFct ?? (() => this.game.phase45Mgr.undoTakeCommonTreasure?.())
-		)*/
+				doFct ?? (() => { }),
+			undoFct ?? (() => {})
+		)
 	}
 
 	private _takeTreasure = (shapeId: string, actionTypeId: number, doTake: () => void, undoTake: () => void) => {
@@ -484,6 +484,7 @@ debugger
 			(cont) => {
 				cmd.changeTitle(_('${you} must select where to put the treasure on your boat'))
 				this.game.boatMgr.allowPlaceShape((x, y) => {
+					log('allowPlaceShape', shapeId, x, y)
 					state.x = x
 					state.y = y
 					this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shapeId, x, y)

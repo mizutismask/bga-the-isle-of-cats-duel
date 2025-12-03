@@ -126,23 +126,6 @@ class IslandMgr {
 		})
 	}
 
-	/** Allow taking a common treasure; we simply enable clicks on treasure shapes. */
-	allowTakeCommonTreasure = (doFct?: () => void, _undoFct?: () => void): void => {
-		this.allowCommonCount++
-		doFct?.()
-		this._enableTreasureClicks('.shape.treasure.common')
-	}
-
-	allowTakeSmallTreasure = (): void => {
-		this.allowSmallCount++
-		this._enableTreasureClicks('.shape.treasure.small')
-	}
-
-	allowTakeRareTreasure = (): void => {
-		this.allowRareCount++
-		this._enableTreasureClicks('.shape.treasure.rare')
-	}
-
 	/** Checks for stock on the island. */
 	hasCommonTreasure = (): boolean => !!document.querySelector(`${this.rootSel} .shape.treasure.common`)
 	hasRareTreasure = (): boolean => !!document.querySelector(`${this.rootSel} .shape.treasure.rare`)
@@ -158,6 +141,19 @@ class IslandMgr {
 	/** Family mode helper to show only allowed cats. */
 	allowFamilyRescueCat = (): void => {
 		// Keep minimal; filtering handled server side and with CSS classes.
+	}
+
+	public allowTakeTreasure() {
+		const shapes = document.querySelectorAll<HTMLElement>('#tioc-common-treasure-container .tioc-shape.shape-type-2')
+		const shapeForShapeDefId = {}
+		for (const shape of Array.from(shapes)) {
+			this.game.addOnClick(shape, () => {
+				shape.classList.add('tioc-selected')
+				//this.removeAllIslandClickableClickOnly()
+				this.game.actionMgr.takeCommonTreasure(shape.dataset.shapeId)
+			})
+		}
+		//this.updateTopShapes()
 	}
 
 	unlockShapeId = (shapeId: string): void => {
