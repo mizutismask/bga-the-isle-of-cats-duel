@@ -256,10 +256,21 @@ class PlayerTurn extends GameState {
             //"player_id" => $activePlayerId,
             //"player_name" => $this->game->getPlayerNameById($activePlayerId), // remove this line if you uncomment notification decorator
         ]);
-
-
-        // at the end of the action, move to the next state
-        return NextPlayer::class;
+        $anyShapeOnIsland = $this->game->shapeMgr->findByLocation((SHAPE_LOCATION_ID_ISLAND_CAT_SLOT), null);
+        if ($anyShapeOnIsland == null && !$this->game->cardMgr->getIslandCards()) {
+              $this->notify->all('importantMessage', "", ["message" => clienttranslate('The island is empty, end of the round'), "type" => "POSITIVE", "temporary" => true]);
+            return SelectNextRoundCat::class;
+        }
+        $tookDiscovery = $this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN);
+        if ($tookDiscovery) {
+            return NextPlayer::class;
+        }
+        if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), Constants::GLBL_DISCOVERY_TAKEN)) {
+            return NextPlayer::class;
+        } else {
+            $this->notify->all('importantMessage', "", ["message" => clienttranslate('None of you took a discovery, end of the round'), "type" => "POSITIVE", "temporary" => true]);
+            return SelectNextRoundCat::class;
+        }
     }
 
     private function actionTypePlaceShape($playerId, $action, $shapeTypeId, $oshaxColorId = null) {

@@ -121,6 +121,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.tryShapesMgr = new TryShapesMgr(this)
 
 		this.tooltipScheduler = new Scheduler(() => this.updateTooltipsNow())
+		this.setupCatsCounter()
 
 		const discard = document.getElementById('tioc-island-discard')
 		/*if (discard.childElementCount != 0) {
@@ -146,6 +147,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		BgaAutofit.init()
 
 		log('Ending game setup')
+	}
+
+	private setupCatsCounter() {
+		document.querySelectorAll<HTMLElement>('#tioc-round-counter-cats .tioc-shape').forEach((shape) => {
+			shape.addEventListener("click", () => { 
+				if(this.gamedatas.gamestate.name=="SelectNextRoundCat" && this.gameui.isCurrentPlayerActive()) {
+					this.takeAction('actPutCatBack', { shapeId: shape.dataset.shapeId })
+				}
+			})
+		})
 	}
 
 	private setupTreasureZones() {}
@@ -710,6 +721,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['updateCounters', 1],
 			['resetIsland', 1],
 			['NTF_MOVE_SHAPE_TO_BOAT', 1],
+			['NTF_DISCARD_SHAPES', 1],
 			['NTF_UPDATE_BOAT_USED_GRID_COLOR', 1]
 		]
 
@@ -734,6 +746,13 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		log('notif_NTF_UPDATE_BOAT_USED_GRID_COLOR', notif)
 		this.boatMgr.updatePlayerPanelBoat(notif.args.boatUsedGridColor)
 	}
+
+	  notif_NTF_DISCARD_SHAPES(notif) {
+                for (const shape of notif.args.shapes) {
+                    this.addKnownShape(shape);
+                    this.islandMgr.discardShapeId(shape.shapeId);
+                }
+            }
 	/**
 	 * Updates a total or subtotal
 	 * @param notif

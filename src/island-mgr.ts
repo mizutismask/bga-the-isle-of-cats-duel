@@ -144,7 +144,9 @@ class IslandMgr {
 	}
 
 	public allowTakeTreasure() {
-		const shapes = document.querySelectorAll<HTMLElement>('#tioc-common-treasure-container .tioc-shape.shape-type-2')
+		const shapes = document.querySelectorAll<HTMLElement>(
+			'#tioc-common-treasure-container .tioc-shape.shape-type-2'
+		)
 		const shapeForShapeDefId = {}
 		for (const shape of Array.from(shapes)) {
 			this.game.addOnClick(shape, () => {
@@ -246,5 +248,23 @@ class IslandMgr {
 			this.game.removeClickableId(c.id)
 		}
 		//this.updateTopShapes()
+	}
+
+	discardShapeId(shapeId) {
+		const shapeElem = document.getElementById('tioc-shape-id-' + shapeId)
+		shapeElem.style.transform = ''
+		shapeElem.classList.add('tioc-moving')
+		this.game.animationManager.fadeOutAndDestroy(shapeElem)
+		/*  shapeElem.classList.add('tioc-animate-to-hidden-start');
+                    // Remove cat color
+                    shapeElem.innerHTML = '';
+                    const destinationId = 'tioc-island-discard';
+                    this.game.slide(shapeElem.id, destinationId).then(() => {
+                        //window.tiocWrap('discardShapeId_onEnd', () => {
+                            this.game.tiocFadeOutAndDestroy(shapeElem.id, 1000);
+                            this.updateTopShapes();
+                        //});
+                    });*/
+		//this.shapeSorter.schedule();
 	}
 }

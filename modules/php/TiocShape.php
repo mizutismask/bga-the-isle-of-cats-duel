@@ -12,14 +12,6 @@
 
 namespace Bga\Games\TheIsleOfCatsDuel;
 
-const SHAPE_LOCATION_ID_BAG = 0;
-const SHAPE_LOCATION_ID_TABLE = 1;
-const SHAPE_LOCATION_ID_FIELD = 2;
-const SHAPE_LOCATION_ID_BOAT = 4;
-const SHAPE_LOCATION_ID_DISCARD = 5;
-const SHAPE_LOCATION_ID_TO_PLACE = 6;
-const SHAPE_LOCATION_ID_ISLAND_CAT_SLOT = 7;
-
 class TiocShape {
     public $shapeId;
     public $shapeTypeId;
@@ -87,7 +79,7 @@ class TiocShape {
     public function isInBag() {
         return ($this->shapeLocationId == SHAPE_LOCATION_ID_BAG);
     }
-   
+
     public function isOnTable() {
         return ($this->shapeLocationId == SHAPE_LOCATION_ID_TABLE);
     }
@@ -129,12 +121,16 @@ class TiocShape {
     public function moveToField() {
         $this->shapeLocationId = SHAPE_LOCATION_ID_FIELD;
     }
+    
+    public function moveToBag() {
+        $this->shapeLocationId = SHAPE_LOCATION_ID_BAG;
+    }
 
     public function moveToIslandCatSlot($slotNumber) {
         $this->shapeLocationId = SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
         $this->islandCatSlot = $slotNumber;
     }
-   
+
     public function moveToBoat($playerId, $x, $y, $rotation, $flipH, $flipV, $playedMoveNumber) {
         $this->shapeLocationId = SHAPE_LOCATION_ID_BOAT;
         $this->playerId = $playerId;

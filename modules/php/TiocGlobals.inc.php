@@ -48,11 +48,18 @@ const FIELD_LEFT = 'FIELD_LEFT';
 const FIELD_RIGHT = 'FIELD_RIGHT';
 const FIELD_LIST = [FIELD_LEFT, FIELD_RIGHT];
 
-
 const SHAPE_TYPE_ID_CAT = 0;
 const SHAPE_TYPE_ID_OSHAX = 1;
 const SHAPE_TYPE_ID_COMMON_TREASURE = 2;
 const SHAPE_TYPE_ID_RARE_TREASURE = 3;
+
+const SHAPE_LOCATION_ID_BAG = 0;
+const SHAPE_LOCATION_ID_TABLE = 1;
+const SHAPE_LOCATION_ID_FIELD = 2;
+const SHAPE_LOCATION_ID_BOAT = 4;
+const SHAPE_LOCATION_ID_DISCARD = 5;
+const SHAPE_LOCATION_ID_TO_PLACE = 6;
+const SHAPE_LOCATION_ID_ISLAND_CAT_SLOT = 7;
 
 
 function array_from_indexes(array $array_values, array $array_indexes) {

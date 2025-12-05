@@ -212,10 +212,10 @@ class TiocShapeMgr {
         }
         return null;
     }
-    public function findByLocation($shapeLocation, $slotId) {
+    public function findByLocation($shapeLocation, int|null $slotId) {
         $this->load();
         foreach ($this->shapes as $shape) {
-            if ($shape->shapeLocationId == $shapeLocation && $shape->islandCatSlot == $slotId) {
+            if ($shape->shapeLocationId == $shapeLocation && ($slotId == null ||  $slotId && $shape->islandCatSlot == $slotId)) {
                 return $shape;
             }
         }
@@ -322,6 +322,16 @@ class TiocShapeMgr {
         return $shape;
     }
 
+    public function moveShapeToBag($shapeId) {
+        $this->load();
+        $shape = $this->findByShapeId($shapeId);
+        if ($shape === null)
+            throw new BgaVisibleSystemException("BUG! Invalid shapeId $shapeId");
+        $shape->moveToBag();
+        $this->save();
+        return $shape;
+    }
+
     public function moveToPlaceToField($field) {
         $this->load();
 
@@ -414,7 +424,7 @@ class TiocShapeMgr {
             throw new BgaVisibleSystemException("BUG! Invalid shapeId $shapeId");
         if (!$shape->isOnPlayerBoat($playerId))
             throw new BgaVisibleSystemException("BUG! shapeId $shapeId is not on player boat");
-        if (!$shape->isCommonTreasure() )
+        if (!$shape->isCommonTreasure())
             throw new BgaVisibleSystemException("BUG! shapeId $shapeId is not a treasure");
 
         $shape->moveToDiscard();

@@ -26,9 +26,10 @@ class NextPlayer extends \Bga\GameFramework\States\GameState
      *
      * The onEnteringState method of state `nextPlayer` is called everytime the current game state is set to `nextPlayer`.
      */
-    function onEnteringState(int $activePlayerId) {
+    function onEnteringState() {
 
         // Give some extra time to the active player when he completed an action
+        $activePlayerId = $this->game->activeNextPlayer();
         $this->game->giveExtraTime($activePlayerId);
         
 
@@ -40,7 +41,6 @@ class NextPlayer extends \Bga\GameFramework\States\GameState
         
         $this->game->contextMgr->reset();
 
-        $this->game->activeNextPlayer();
 
         // Go to another gamestate
         $gameEnd = false; // Here, we would detect if the game is over to make the appropriate transition
