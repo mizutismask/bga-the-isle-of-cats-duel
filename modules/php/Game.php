@@ -308,11 +308,11 @@ class Game extends \Bga\GameFramework\Table {
     }
 
     public function tiocNotifyAllPlayers($notifType, $notifLog, $notifArgs) {
-        $this->notifyAllPlayers($notifType, $notifLog, toNotifArray($notifArgs));
+        $this->notify->all($notifType, $notifLog, toNotifArray($notifArgs));
     }
 
     public function tiocNotifyPlayer($playerId, $notifType, $notifLog, $notifArgs) {
-        $this->notifyPlayer($playerId, $notifType, $notifLog, toNotifArray($notifArgs));
+        $this->notify->player($playerId, $notifType, $notifLog, toNotifArray($notifArgs));
     }
 
 
