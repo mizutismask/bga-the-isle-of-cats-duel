@@ -840,6 +840,13 @@ $scale: 10;
 	filter: drop-shadow(0 0 2px yellow);
 }
 
+#tioc-shape-controls-shape {
+	.tioc-shape {
+		filter: drop-shadow(0 0 2px rgb(200, 255, 47)) drop-shadow(0 0 2px rgb(200, 255, 47))
+			drop-shadow(0 0 2px rgb(200, 255, 47));
+	}
+}
+
 .tioc-player-boat.blue {
 	background-image: url('img/player-board-standard-1.jpg');
 }
