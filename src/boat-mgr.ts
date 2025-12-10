@@ -321,7 +321,7 @@ class BoatMgr {
 		node.style.transform = transform.join(' ')
 	}
 
-	moveAndTransformShapeToBoat(playerId:number, shape) {
+	moveAndTransformShapeToBoat(playerId: number, shape) {
 		this.game.addKnownShape(shape)
 		// Note: does not create the shape, there are no use case
 		const playerBoatElemId = 'tioc-player-boat-' + playerId
@@ -769,5 +769,14 @@ class BoatMgr {
 		}
 		//this.updatePlayerPanelShapeCount()
 		this.updateGridOverlay()
+	}
+
+	showScoreBoatPosition(playerId, scoreBoatPosition) {
+		for (const pos of scoreBoatPosition) {
+			const gridElem = document.querySelector(
+				'#tioc-player-boat-' + playerId + ' .tioc-grid.x_' + pos.x + '_y_' + pos.y
+			)
+			this.game.displayBigScore(gridElem.id, playerId, pos.score)
+		}
 	}
 }

@@ -56,6 +56,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	private scoreBoard: ScoreBoard
 	private fishCounters: Counter[] = []
 	private handCardsCounters: Counter[] = []
+	private scoreTable = {}
 
 	protected settings = [new Setting('customSounds', 'pref', 1)]
 	private displayedTooltip
@@ -151,8 +152,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 	private setupCatsCounter() {
 		document.querySelectorAll<HTMLElement>('#tioc-round-counter-cats .tioc-shape').forEach((shape) => {
-			shape.addEventListener("click", () => { 
-				if(this.gamedatas.gamestate.name=="SelectNextRoundCat" && this.gameui.isCurrentPlayerActive()) {
+			shape.addEventListener('click', () => {
+				if (this.gamedatas.gamestate.name == 'SelectNextRoundCat' && this.gameui.isCurrentPlayerActive()) {
 					this.takeAction('actPutCatBack', { shapeId: shape.dataset.shapeId })
 				}
 			})
@@ -210,7 +211,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		fishCounter.create(`fish-player-counter-${player.id}`, {
 			value: player.fish,
 			playerCounter: 'fish',
-			playerId: player.id
+			playerId: parseInt(player.id)
 		})
 		this.fishCounters[playerId] = fishCounter
 
@@ -722,7 +723,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['resetIsland', 1],
 			['NTF_MOVE_SHAPE_TO_BOAT', 1],
 			['NTF_DISCARD_SHAPES', 1],
-			['NTF_UPDATE_BOAT_USED_GRID_COLOR', 1]
+			['NTF_UPDATE_BOAT_USED_GRID_COLOR', 1],
+			['NTF_SCORE_BOAT_POSITION', ANIMATION_MS*3]
 		]
 
 		notifs.forEach((notif) => {
@@ -747,12 +749,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.boatMgr.updatePlayerPanelBoat(notif.args.boatUsedGridColor)
 	}
 
-	  notif_NTF_DISCARD_SHAPES(notif) {
-                for (const shape of notif.args.shapes) {
-                    this.addKnownShape(shape);
-                    this.islandMgr.discardShapeId(shape.shapeId);
-                }
-            }
+	notif_NTF_DISCARD_SHAPES(notif) {
+		for (const shape of notif.args.shapes) {
+			this.addKnownShape(shape)
+			this.islandMgr.discardShapeId(shape.shapeId)
+		}
+	}
+	notif_NTF_SCORE_BOAT_POSITION(notif) {
+		this.updatePlayerScore(notif.args.player_id, notif.args.totalScore, notif.args.scoreColumn, notif.args.score)
+		this.boatMgr.showScoreBoatPosition(notif.args.player_id, notif.args.scoreBoatPosition)
+	}
 	/**
 	 * Updates a total or subtotal
 	 * @param notif
@@ -808,6 +814,75 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	 */
 	notif_highlightWinnerScore(notif: Notif<NotifWinnerArgs>) {
 		this.scoreBoard?.highlightWinnerScore(notif.args.playerId)
+	}
+
+	updatePlayerScore(playerId, newScore, scoreColumn, scoreColumnScore) {
+		this.gameui.scoreCtrl[playerId].toValue(newScore)
+		this.buildScoreTable()
+		let neg = 1
+		if (scoreColumn == 'score_rats' || scoreColumn == 'score_unfilled_rooms') {
+			neg = -1
+		}
+		this.scoreTable[scoreColumn][playerId].toValue(neg * scoreColumnScore)
+		this.scoreTable['score_total'][playerId].toValue(newScore)
+	}
+	buildScoreTable() {
+		const tableElem = document.getElementById('tioc-score-table')
+		if (!tableElem.classList.contains('tioc-hidden')) {
+			return
+		}
+		tableElem.classList.remove('tioc-hidden')
+
+		// Header
+		const headElem = tableElem.querySelector('thead')
+		const firstRow = document.createElement('tr')
+		firstRow.appendChild(document.createElement('th'))
+		headElem.appendChild(firstRow)
+		//const firstRowElem = headElem.insertAdjacentHTML("afterbegin",'<tr><th></th></tr>')
+		let nbPlayers = 0
+		for (const playerId in this.gamedatas.players) {
+			++nbPlayers
+			const player = this.gamedatas.players[playerId]
+			firstRow.insertAdjacentHTML(
+				'beforeend',
+				'<td style="color: #' + player.color + ';">' + player.name + '</td>'
+			)
+		}
+
+		const bodyElem = tableElem.querySelector('tbody')
+
+		const dataArray = [
+			{ title: _('Rats'), col: 'score_rats', cssClass: '' },
+			{ title: _('Rooms') + '<sup>*</sup>', col: 'score_unfilled_rooms', cssClass: '' },
+			{ title: _('Cat Families'), col: 'score_cat_familly', cssClass: '' },
+			{ title: _('Lessons'), col: 'score_lessons', cssClass: '' },
+			{ title: _('Total'), col: 'score_total' }
+		]
+		this.scoreTable = {}
+		for (const data of dataArray) {
+			const elem = dojo.place("<tr class='" + data.cssClass + "'><th>" + data.title + '</th></tr>', bodyElem)
+			if (!(data.col in this.scoreTable)) {
+				this.scoreTable[data.col] = {}
+			}
+			for (const playerId in this.gamedatas.players) {
+				dojo.place('<td id="tioc-' + data.col + '-' + playerId + '">0</td>', elem)
+				this.scoreTable[data.col][playerId] = new ebg.counter()
+				this.scoreTable[data.col][playerId].create('tioc-' + data.col + '-' + playerId)
+				this.scoreTable[data.col][playerId].setValue(0)
+			}
+		}
+		dojo.place(
+			"<tr><th colspan='" +
+				(1 + nbPlayers) +
+				"'>" +
+				'<small>*<i>' +
+				_('There are 7 rooms: the room with no icons still counts as a room') +
+				'</i></small></th></tr>',
+			bodyElem
+		)
+	}
+	displayBigScore(parentElem: string, playerId: number, score:string|number, x: number = null, y: number = null) {
+		this.gameui.displayScoring(parentElem, this.getPlayerColor(playerId), score, 1000, x, y)
 	}
 
 	public clickConnect(element, fct) {
@@ -965,28 +1040,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			elem.classList.remove(className)
 		}
 	}
-	public tiocFadeOutAndDestroy(element: HTMLElement, duration = 500, onEnd = null) {
-		if (duration === undefined || duration === null) {
-			duration = 500
-		}
-		if (this.gameui.bgaAnimationsActive()) {
-			duration = 1
-		}
-		const anim = dojo.fadeOut({
-			node: element,
-			duration: duration,
-			delay: 0
-		})
-		dojo.connect(anim, 'onEnd', (e) => {
-			//window.tiocWrap('tiocFadeOutAndDestroy_onEnd', () => {
-			dojo.destroy(e)
-			if (onEnd !== null) {
-				onEnd(e)
-			}
-			//})
-		})
-		anim.play()
-	}
+
 	public normalizeRotation(rotation: number) {
 		while (rotation >= 360) {
 			rotation -= 360

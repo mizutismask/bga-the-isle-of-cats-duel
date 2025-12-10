@@ -268,7 +268,7 @@ class PlayerTurn extends GameState {
         if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), Constants::GLBL_DISCOVERY_TAKEN)) {
             return NextPlayer::class;
         } else {
-            $this->notify->all('importantMessage', "", ["message" => clienttranslate('None of you took a discovery, end of the round'), "type" => "POSITIVE", "temporary" => true]);
+            $this->notify->all('importantMessage', "", ["message" => clienttranslate('None of you took a discovery from the island, end of the round'), "type" => "POSITIVE", "temporary" => true]);
             return SelectNextRoundCat::class;
         }
     }

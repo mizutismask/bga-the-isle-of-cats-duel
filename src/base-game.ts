@@ -40,17 +40,12 @@ abstract class BaseGame {
 		dojo.place(
 			`
 		<div id="custom-game-area">
-			<div id="score">
-				<div id="table-wrapper">
-					<table>
-						<thead>
-							<tr id="scoretr"></tr>
-						</thead>
-						<tbody id="score-table-body">
-						</tbody>
-					</table>
-				</div>
-			</div>
+			<table id="tioc-score-table" class="tioc-hidden">
+				<thead>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
 			<div id="pieces"></div>
 			<div id="boat-choice">
 				<div class="boat tioc-player-boat OBoat temp-boat board-shadow"></div>
@@ -88,6 +83,11 @@ abstract class BaseGame {
 			}
 		}
 		return null
+	}
+
+	public getPlayerColor(playerId: number) {
+		const players = this.gamedatas.players
+		return players[playerId].color
 	}
 
 	public isUserLocaleFrench() {

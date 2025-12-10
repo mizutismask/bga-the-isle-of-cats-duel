@@ -30,6 +30,7 @@ interface TheIsleOfCatsDuelPlayer extends Player {
 	cardsCount: number
 	tickets: number
 	hand: Array<TheIsleOfCatsDuelCard>
+	fish: number
 }
 
 interface TheIsleOfCatsDuelGamedatas {
@@ -107,6 +108,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	addKnownShape(shape): void
 	updateShapeElementTooltip(shape, elementId = null): void
 	removeAbsolutePosition(elementId: string) 
+	displayBigScore(parentElem: string, playerId: number, score: string | number): void
 }
 
 interface EnteringPlayerTurnArgs {

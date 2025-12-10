@@ -5,7 +5,7 @@ class PlayerTable {
 	private handStock: LineStock<TheIsleOfCatsDuelCard>
 
 	constructor(private game: TheIsleOfCatsDuelGame, player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[]) {
-		const isMyTable = player.id === game.getPlayerId()
+		const isMyTable = player.id === game.getPlayerId().toString()
 		const ownClass = isMyTable ? 'own' : ''
 		let html = `
             <div id="player-table-${player.id}" class="player-order${player.playerNo} player-table ${ownClass}">
@@ -13,7 +13,7 @@ class PlayerTable {
         `
 		dojo.place(html, 'player-tables')
 
-		const boatHtml = (PLAYER_ID: number, PLAYER_COLOR: string, PLAYER_NAME: string) => `
+		const boatHtml = (PLAYER_ID: string, PLAYER_COLOR: string, PLAYER_NAME: string) => `
 <div id="tioc-player-board-${PLAYER_ID}" class="">
     <h3 class="tioc-player-name tioc-player-name-row" style="color: #${PLAYER_COLOR};">${PLAYER_NAME}</h3>
     <div class="tioc-basket-private-lesson-boat-wrap">

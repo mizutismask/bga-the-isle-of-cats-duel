@@ -72,6 +72,7 @@ class Game extends \Bga\GameFramework\Table {
         $this->contextMgr = new ContextMgr($this);
         $this->islandMgr = new IslandMgr($this);
 
+
         /* example of notification decorator.
         // automatically complete notification args when needed
         $this->notify->addDecorator(function(string $message, array $args) {
@@ -226,6 +227,7 @@ class Game extends \Bga\GameFramework\Table {
         $this->shapeMgr->setup(count($players));
         $this->cardMgr->setup();
 
+        $this->initStats();
 
         // Activate first player once everything has been initialized and ready.
         $this->activeNextPlayer();
@@ -234,7 +236,7 @@ class Game extends \Bga\GameFramework\Table {
     }
 
     function getGameVersion(): int {
-        return $this->tableOptions->get(300);    
+        return $this->tableOptions->get(300);
     }
 
     /**

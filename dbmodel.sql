@@ -32,6 +32,10 @@
 
 -- Example 2: add a custom field to the standard "player" table
 -- ALTER TABLE `player` ADD `player_my_custom_field` INT UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `player` ADD `score_unfilled_rooms` smallint(5) NOT NULL DEFAULT 0;
+ALTER TABLE `player` ADD `score_cat_familly` smallint(5) NOT NULL DEFAULT 0;
+ALTER TABLE `player` ADD `score_lessons` smallint(5) NOT NULL DEFAULT 0;
+ALTER TABLE `player` ADD `score_rats` smallint(5) NOT NULL DEFAULT 0;
 
 -- Shapes are all common treasures, rare treasures, oshax and cats
 CREATE TABLE IF NOT EXISTS `shape` (
@@ -97,4 +101,15 @@ CREATE TABLE IF NOT EXISTS `context_log` (
  `param3` varchar(20),
  `resolved` INT(1) UNSIGNED NOT NULL DEFAULT '0',
  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Cards end score
+CREATE TABLE IF NOT EXISTS `card_end_score` (
+  -- unique id, this is the card number
+  `card_id` smallint(5) unsigned NOT NULL,
+  -- player that has this card
+  `player_id` int(10) unsigned NOT NULL,
+  -- move where the card was played
+  `score` int(10) NOT NULL,
+  PRIMARY KEY (`card_id`, `player_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

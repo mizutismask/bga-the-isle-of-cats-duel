@@ -450,7 +450,7 @@ class TiocShapeMgr {
         $this->load();
         $colorSet = [];
         foreach ($this->shapes as $shape) {
-            if (!$shape->isCat() && !$shape->isOshax()) {
+            if (!$shape->isCat()) {
                 continue;
             }
             if (!$shape->isOnPlayerBoat($playerId)) {
@@ -1065,7 +1065,7 @@ const BOAT_MAP_PLACEMENT = [
     ],
 ];
 const BOAT_RAT_PLACEMENT = [
-    'blue' => [ //boatO
+    'OBoat' => [ 
         ['x' => 1,  'y' => 7],
         ['x' => 2,  'y' => 6],
         ['x' => 2,  'y' => 7],
@@ -1086,7 +1086,7 @@ const BOAT_RAT_PLACEMENT = [
         ['x' => 14, 'y' => 6],
         ['x' => 17, 'y' => 6],
     ],
-    'green' => [ //boatI
+    'IBoat' => [ 
         ['x' => 1, 'y' => 1],
         ['x' => 1, 'y' => 7],
         ['x' => 2, 'y' => 4],

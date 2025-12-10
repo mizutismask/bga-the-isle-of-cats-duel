@@ -58,8 +58,4 @@ trait DebugUtilTrait {
         $this->debugResetArrowsLeft();
         static::DbQuery("UPDATE `destination` set `completed` = false");
     }*/
-
-    function endGame() {
-        $this->gamestate->nextState("endGame");
-    }
 }
