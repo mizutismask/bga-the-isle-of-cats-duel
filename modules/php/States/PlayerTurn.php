@@ -102,6 +102,14 @@ class PlayerTurn extends GameState {
                 //todo
             } else if ($card->isLesson()) {
                 $this->game->cardMgr->moveLessonToHand($card->cardId, $activePlayerId);
+                $this->notify->all("materialMove", '', [
+                    'type' => Constants::MATERIAL_TYPE_CARD,
+                    'from' => Constants::MATERIAL_LOCATION_ISLAND,
+                    'to' => Constants::MATERIAL_LOCATION_HAND,
+                    'toArg' => $activePlayerId,
+                    'material' => [$card],
+                    'notifSender' => __METHOD__,
+                ]);
             }
         } else {
             $typedSlot = $this->game->getCatSlotFromGlobalSlot($slot);
@@ -258,7 +266,7 @@ class PlayerTurn extends GameState {
         ]);
         $anyShapeOnIsland = $this->game->shapeMgr->findByLocation((SHAPE_LOCATION_ID_ISLAND_CAT_SLOT), null);
         if ($anyShapeOnIsland == null && !$this->game->cardMgr->getIslandCards()) {
-              $this->notify->all('importantMessage', "", ["message" => clienttranslate('The island is empty, end of the round'), "type" => "POSITIVE", "temporary" => true]);
+            $this->notify->all('importantMessage', "", ["message" => clienttranslate('The island is empty, end of the round'), "type" => "POSITIVE", "temporary" => true]);
             return SelectNextRoundCat::class;
         }
         $tookDiscovery = $this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN);

@@ -2,7 +2,7 @@
  * Player table.
  */
 class PlayerTable {
-	private handStock: LineStock<TheIsleOfCatsDuelCard>
+	public handStock: LineStock<TheIsleOfCatsDuelCard>
 
 	constructor(private game: TheIsleOfCatsDuelGame, player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[]) {
 		const isMyTable = player.id === game.getPlayerId().toString()
@@ -44,7 +44,7 @@ class PlayerTable {
 		const handHtml = `
 			<div id="hand-${player.id}" class="cstm-player-hand"></div>
         `
-		dojo.place(handHtml, `player-table-${player.id}`, 'first')
+		dojo.place(handHtml, `player-table-${player.id}`, 'last')
 		this.initHand(player, cards)
 	}
 

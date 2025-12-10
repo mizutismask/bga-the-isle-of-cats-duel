@@ -629,8 +629,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			if (this.gamedatas.gamestate.args.remainingMoves > 0 && !this.tryShapesMgr.isInCmd) {
 				this.takeAction('actMoveOshax', { slot: slot })
 			} else if (this.gamedatas.gamestate.args.mandatoryMoveDone) {
-				//this.takeAction('actTakeDiscovery', { slot: slot })
 				if (this.island.isCardSlot(slot)) {
+					this.takeAction('actTakeDiscovery', { slot: slot })
 				} else {
 					const shape = document.querySelector<HTMLElement>(`#island-slot-${slot} .tioc-shape`)
 					const shapeId = shape.id
@@ -724,7 +724,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['NTF_MOVE_SHAPE_TO_BOAT', 1],
 			['NTF_DISCARD_SHAPES', 1],
 			['NTF_UPDATE_BOAT_USED_GRID_COLOR', 1],
-			['NTF_SCORE_BOAT_POSITION', ANIMATION_MS*3]
+			['NTF_SCORE_BOAT_POSITION', ANIMATION_MS*3],
 		]
 
 		notifs.forEach((notif) => {
@@ -759,6 +759,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.updatePlayerScore(notif.args.player_id, notif.args.totalScore, notif.args.scoreColumn, notif.args.score)
 		this.boatMgr.showScoreBoatPosition(notif.args.player_id, notif.args.scoreBoatPosition)
 	}
+
 	/**
 	 * Updates a total or subtotal
 	 * @param notif
@@ -780,34 +781,28 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 	notif_materialMove(notif: Notif<NotifMaterialMove>) {
 		log('notif_materialMove', notif)
-		/*switch (notif.args.type) {
-			case "MISSION":
-				const cards = notif.args.material as Array<MissionCard>
-				this.notif_missionMove(cards, notif)
+		switch (notif.args.type) {
+			case "CARD":
+				const cards = notif.args.material as Array<TheIsleOfCatsDuelCard>
+				this.notif_cardMove(cards, notif)
 				break
 			default:
 				console.error('Material type move not handled', notif)
 				break
-		}*/
+		}
 	}
 
-	/* notif_missionMove(cards: MissionCard[], notif: Notif<NotifMaterialMove>) {
-		const card = cards.at(0)
+	 notif_cardMove(cards: TheIsleOfCatsDuelCard[], notif: Notif<NotifMaterialMove>) {
 		switch (notif.args.to) {
-			case "DISCARD":
-				if (notif.args.fromArg == notif.args.toArg) {
-					this.festivalStocks[notif.args.toArg].flipCard(card)
-					if (notif.args?.soldOut) this.playCustomSound('clap', false)
-				} else {
-					this.festivalStocks[notif.args.toArg].addCard(card)
-				}
+			case "HAND":
+				this.playerTables[notif.args.toArg].handStock.addCards(cards)
 				break
 
 			default:
-				console.error('Festival move destination not handled', notif)
+				console.error('Card move destination not handled', notif)
 				break
 		}
-	}*/
+	}
 
 	/**
 	 * Highlight winner for end score.
