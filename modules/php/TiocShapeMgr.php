@@ -848,7 +848,7 @@ class TiocShapeMgr {
         return $shapes;
     }
 
-    public function countUncoveredMap($playerId, $boatColorName) {
+    public function countUncoveredMap($playerId, $boatShape) {
         $this->load();
         $boat = new TiocBoatGrid();
         foreach ($this->shapes as $shape) {
@@ -858,7 +858,7 @@ class TiocShapeMgr {
             $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
         $mapCount = 0;
-        foreach (BOAT_MAP_PLACEMENT[$boatColorName] as $mapColor => $pos) {
+        foreach (BOAT_MAP_PLACEMENT[$boatShape] as $mapColor => $pos) {
             if ($boat->isGridEmpty($pos['x'], $pos['y'])) {
                 ++$mapCount;
             }

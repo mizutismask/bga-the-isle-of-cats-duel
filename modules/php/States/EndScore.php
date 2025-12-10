@@ -10,11 +10,6 @@ use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 use BgaVisibleSystemException;
 
-use const Bga\Games\TheIsleOfCatsDuel\BOAT_ROOMS_ID_APPLE_MIDDLE;
-use const Bga\Games\TheIsleOfCatsDuel\BOAT_ROOMS_ID_MOON_BOTTOM;
-use const Bga\Games\TheIsleOfCatsDuel\BOAT_ROOMS_ID_MOON_TOP;
-use const Bga\Games\TheIsleOfCatsDuel\BOAT_ROOMS_ID_PARROT_BACK;
-use const Bga\Games\TheIsleOfCatsDuel\BOAT_ROOMS_ID_PARROT_FRONT;
 use const Bga\Games\TheIsleOfCatsDuel\BOAT_TILE_HEIGHT;
 use const Bga\Games\TheIsleOfCatsDuel\BOAT_TILE_WIDTH;
 use const Bga\Games\TheIsleOfCatsDuel\CAT_COLOR_ID_BLUE;
@@ -102,9 +97,9 @@ class EndScore extends \Bga\GameFramework\States\GameState {
 
     public function stEndGameScoring() {
         $this->scoreRats();
-        $nbFilledRoomsPerPlayerId = $this->scoreUnfilledRooms();
+        $this->scoreUnfilledRooms();
         $this->scoreCatFamilly();
-        $privateScoreCards = $this->scorePrivateLessons();
+        $this->scorePrivateLessons();
 
         $this->scoreTieBreaker();
 
@@ -114,11 +109,11 @@ class EndScore extends \Bga\GameFramework\States\GameState {
         foreach ($this->game->getObjectListFromDB($sql) as $values) {
             $playerId = intval($values['player_id']);
 
-            $this->game->playerStats->set(STATS_PLAYER_TOTAL_SCORE, $values['score_total']*1, $playerId);
-            $this->game->playerStats->set(STATS_PLAYER_SCORE_RATS, -1 * $values['score_rats']*1, $playerId);
+            $this->game->playerStats->set(STATS_PLAYER_TOTAL_SCORE, $values['score_total'] * 1, $playerId);
+            $this->game->playerStats->set(STATS_PLAYER_SCORE_RATS, -1 * $values['score_rats'] * 1, $playerId);
             $this->game->playerStats->set(STATS_PLAYER_SCORE_UNFILLED_ROOMS, -1 * $values['score_unfilled_rooms'], $playerId);
-            $this->game->playerStats->set(STATS_PLAYER_SCORE_CAT_FAMILLY, $values['score_cat_familly']*1, $playerId);
-            $this->game->playerStats->set(STATS_PLAYER_SCORE_PRIVATE_LESSONS, $values['score_lessons']*1, $playerId);
+            $this->game->playerStats->set(STATS_PLAYER_SCORE_CAT_FAMILLY, $values['score_cat_familly'] * 1, $playerId);
+            $this->game->playerStats->set(STATS_PLAYER_SCORE_PRIVATE_LESSONS, $values['score_lessons'] * 1, $playerId);
             $this->game->playerStats->set(STATS_PLAYER_TOTAL_END_FISH, $this->game->playerFishCounter->get($playerId), $playerId);
             $this->game->playerStats->set(STATS_PLAYER_TOTAL_END_CATS, $this->game->shapeMgr->countCat($playerId), $playerId);
             $this->game->playerStats->set(STATS_PLAYER_TOTAL_COMMON_TREASURE, $this->game->shapeMgr->countCommonTreasure($playerId), $playerId);
@@ -193,19 +188,12 @@ class EndScore extends \Bga\GameFramework\States\GameState {
     private function getPrivateLessonCardScore($playerId, $card) {
         $score = 0;
         switch ($card->cardId) {
-            case 113:
-            case 156:
+            case 11:
                 if (!$this->game->shapeMgr->hasEmptyOnEdge($playerId)) {
                     $score = 12;
                 }
                 break;
-            case 114:
-                if ($this->game->shapeMgr->countCat($playerId)) {
-                    $score = 10;
-                }
-                break;
-            case 115:
-            case 158:
+            case 12:
                 $colorCount = $this->game->shapeMgr->countPerColor($playerId);
                 if (count($colorCount) == count(array_filter($colorCount, function ($c) {
                     return $c >= 3;
@@ -213,8 +201,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                     $score = 15;
                 }
                 break;
-            case 116:
-            case 152:
+            case 13:
                 $allColors = true;
                 foreach (CAT_COLOR_IDS as $colorId) {
                     if (count($this->game->shapeMgr->getColorShapeTouchingEdges($playerId, $colorId)) == 0) {
@@ -223,116 +210,94 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                     }
                 }
                 if ($allColors) {
-                    if ($card->cardId == 116) {
-                        $score = 7;
-                    } else {
-                        $score = 9;
-                    }
+                    $score = 7;
                 }
                 break;
-            case 117:
-            case 151:
-                $colorCount = [];
-                foreach (CAT_COLOR_IDS as $colorId) {
-                    $colorCount[$colorId] = count($this->game->shapeMgr->getColorShapeTouchingEdges($playerId, $colorId));
-                }
-                $score = max($colorCount);
-                break;
-            case 120:
+            case 14:
                 $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
                 foreach ($famillies as $familly) {
                     if (count($familly) == 1) {
-                        $score += 1;
+                        $score += 2;
                     }
                 }
                 break;
-            case 121:
-            case 123:
+            case 15:
+                $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+                $largestFamilySize = 0;
+                foreach ($famillies as $familly) {
+                    if (count($familly) > $largestFamilySize) {
+                        $largestFamilySize = count($familly);
+                    }
+                }
+                $largestFamilyFound = false;
+                foreach ($this->game->loadPlayersBasicInfos() as $otherPlayerId => $otherPlayerInfo) {
+                    if ($otherPlayerId != $playerId) {
+                        $otherPlayerFamillies = $this->game->shapeMgr->getPlayerCatFamilly($otherPlayerId);
+                        foreach ($otherPlayerFamillies as $otherPlayerFamilly) {
+                            if (count($otherPlayerFamilly) >= $largestFamilySize) {
+                                $largestFamilyFound = true;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+                if ($largestFamilyFound) {
+                    $score += 7;
+                }
+                break;
+            case 16:
                 $score = $this->game->shapeMgr->countCommonTreasure($playerId);
                 break;
-            case 124:
-            case 125:
-            case 126:
-                $cardCount = $this->game->cardMgr->getLessonsCount(array_keys($this->game->loadPlayersBasicInfos()))[$playerId];
-                $score = $cardCount;
-                break;
-            case 127:
-            case 159:
+            case 17:
                 $shapes = $this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_BLUE);
                 if (count($shapes) == 5) {
                     $score = 9;
                 }
                 break;
-            case 128:
-            case 160:
+            case 18:
                 $shapes = $this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_GREEN);
                 if (count($shapes) == 5) {
                     $score = 9;
                 }
                 break;
-            case 129:
-            case 161:
+            case 19:
                 $shapes = $this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_PURPLE);
                 if (count($shapes) == 5) {
                     $score = 9;
                 }
                 break;
-            case 130:
-            case 162:
+            case 20:
                 $shapes = $this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_RED);
                 if (count($shapes) == 5) {
                     $score = 9;
                 }
                 break;
-            case 131:
-            case 163:
+            case 21:
                 $shapes = $this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_ORANGE);
                 if (count($shapes) == 5) {
                     $score = 9;
                 }
                 break;
-
-            case 134:
+            case 22:
+                $playerBoatShape = $this->game->getPlayerGlobal($playerId, "boat");
+                $positions = $this->game->shapeMgr->getPlayerVisibleRatPositions($playerId, $playerBoatShape);
+                if (count($positions) == 5) {
+                    $score = 12;
+                }
+                break;
+            case 23:
                 if ($this->game->shapeMgr->countCommonTreasure($playerId) == 5) {
                     $score = 9;
                 }
                 break;
-            case 135:
-            case 153:
+            case 24:
                 $catCount = 0;
                 foreach (CAT_COLOR_IDS as $colorId) {
                     $catCount += count($this->game->shapeMgr->getColorShapeTouchingEdges($playerId, $colorId));
                 }
                 $score = intval($catCount / 2);
                 break;
-            case 136:
-                $roomIds = $this->game->shapeMgr->getPlayerUnfilledRoomIds($playerId);
-                if (array_search(BOAT_ROOMS_ID_PARROT_BACK, $roomIds) === false && array_search(BOAT_ROOMS_ID_PARROT_FRONT, $roomIds) === false) {
-                    $score = 12;
-                }
-                break;
-            case 137:
-                $roomIds = $this->game->shapeMgr->getPlayerEmptyRoomIds($playerId);
-                if (array_search(BOAT_ROOMS_ID_MOON_TOP, $roomIds) !== false && array_search(BOAT_ROOMS_ID_MOON_BOTTOM, $roomIds) !== false) {
-                    $score = 18;
-                }
-                break;
-            case 138:
-                $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
-                foreach ($famillies as $familly) {
-                    if (count($familly) >= 4) {
-                        $score += 4;
-                    }
-                }
-                break;
-            case 140:
-                $roomIds = $this->game->shapeMgr->getPlayerEmptyRoomIds($playerId);
-                if (array_search(BOAT_ROOMS_ID_APPLE_MIDDLE, $roomIds) !== false) {
-                    $score = 15;
-                }
-                break;
-            case 141:
-            case 168:
+            case 25:
                 $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
                 if (count($famillies) >= 3) {
                     usort($famillies, function ($familly1, $familly2) {
@@ -341,22 +306,52 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                     $score = $this->getFamillySizeScore(count($famillies[2]));
                 }
                 break;
-            case 155:
-                if (!$this->game->shapeMgr->hasEmptyOnMiddleRow($playerId)) {
-                    $score = 10;
+            case 26:
+                $maxTreasureCount = 0;
+                foreach ($this->game->getPlayers() as $pId => $player) {
+                    $treasureCount = $this->game->shapeMgr->countCommonTreasure($pId);
+                    $maxTreasureCount = max($maxTreasureCount, $treasureCount);
+                }
+                if ($this->game->shapeMgr->countCommonTreasure($playerId) == $maxTreasureCount) {
+                    $score = 7;
                 }
                 break;
-            case 157:
-                if ($this->game->shapeMgr->countCat($playerId) == 20) {
-                    $score = 10;
+            case 27:
+                $playerBoatShape = $this->game->getPlayerGlobal($playerId, "boat");
+                if ($this->game->shapeMgr->countUncoveredMap($playerId, $playerBoatShape) == 2) {
+                    $score = 12;
                 }
                 break;
-            case 167:
-                $roomIds = $this->game->shapeMgr->getPlayerUnfilledRoomIds($playerId);
-                $nbFilledRooms = NB_BOAT_ROOMS_TOTAL - count($roomIds);
-                if ($nbFilledRooms > 0) {
-                    $score = 2 * $nbFilledRooms;
+            case 28:
+                if ($this->game->shapeMgr->countCat($playerId) == 18) {
+                    $score = 12;
                 }
+                break;
+            case 29:
+                // TODO test
+                $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+                $famillySizes = array_map(function ($familly) {
+                    return count($familly);
+                }, $famillies);
+                $famillySizeCounts = array_count_values($famillySizes);
+                if (isset($famillySizeCounts[2]) && $famillySizeCounts[2] == 2) {
+                    $score = 8;
+                }
+                break;
+            case 30:
+                $color1 = count($this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_RED));
+                $color2 = count($this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_BLUE));
+                $score = min($color1, $color2) * 2;
+                break;
+            case 31:
+                $color1 = count($this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_ORANGE));
+                $color2 = count($this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_GREEN));
+                $score = min($color1, $color2) * 2;
+                break;
+            case 32:
+                $color1 = count($this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_PURPLE));
+                $color2 = count($this->game->shapeMgr->getColorShape($playerId, CAT_COLOR_ID_BLUE));
+                $score = min($color1, $color2) * 2;
                 break;
             default:
                 throw new BgaVisibleSystemException("BUG! Invalid cardId {$card->cardId}");
