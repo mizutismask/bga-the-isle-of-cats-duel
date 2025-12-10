@@ -309,6 +309,10 @@ class Game extends \Bga\GameFramework\Table {
         }
     }
 
+    public function debug_jumpToScore(){
+        $this->gamestate->jumpToState(98);
+    }
+    
     public function tiocNotifyAllPlayers($notifType, $notifLog, $notifArgs) {
         $this->notify->all($notifType, $notifLog, toNotifArray($notifArgs));
     }
