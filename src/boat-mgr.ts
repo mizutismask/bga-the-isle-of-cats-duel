@@ -208,27 +208,7 @@ class BoatMgr {
 				this.playerShapeColorCounter[playerId][colorCounter].setValue(0)
 			}
 		}
-		// Build grid for all boats
-		let gridId = 0
-		for (let x = 0; x < BOAT_TILE_WIDTH; ++x) {
-			let baseY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
-			for (let y = 0; y < BOAT_TILE_HEIGHT; ++y) {
-				const isValidGrid = y >= baseY && y < baseY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
-				const jstpl_shape_grid = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
-					BOAT_TILE_BASE_LEFT + x + x * TILE_SIZE
-				}px; top: ${BOAT_TILE_BASE_TOP + y + y * TILE_SIZE}px;"></div>`
-				for (const boatElem of dojo.query('.tioc-player-boat:not(.temp-boat)')) {
-					dojo.place(jstpl_shape_grid, boatElem)
-				}
-
-				const jstpl_shape_grid_small = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
-					x + x * SMALL_TILE_SIZE
-				}px; top: ${+y + y * SMALL_TILE_SIZE}px;"></div>`
-				for (const boatElem of dojo.query('.tioc-player-panel-boat-container')) {
-					dojo.place(jstpl_shape_grid_small, boatElem)
-				}
-			}
-		}
+		
 		// Build array of used and unused boat grid for current player
 		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed)
 		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed)
@@ -238,10 +218,34 @@ class BoatMgr {
 			this.serverPlayerShapeGridUsed[playerId] = []
 		}
 
+		
+	}
+
+	setupForPlayer(playerId: string, boatShape: string, gamedatas: TheIsleOfCatsDuelGamedatas) {
+		// Build grid for one boat
+		let gridId = 0
+		for (let x = 0; x < BOAT_TILE_WIDTH; ++x) {
+			let baseY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
+			for (let y = 0; y < BOAT_TILE_HEIGHT; ++y) {
+				const isValidGrid = y >= baseY && y < baseY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+				const jstpl_shape_grid = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
+					BOAT_TILE_BASE_LEFT + x + x * TILE_SIZE
+				}px; top: ${BOAT_TILE_BASE_TOP + y + y * TILE_SIZE}px;"></div>`
+				let boatElem = document.querySelector<HTMLElement>(`#player-table-${playerId} .tioc-player-boat:not(.temp-boat)`)
+					dojo.place(jstpl_shape_grid, boatElem)
+
+				const jstpl_shape_grid_small = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
+					x + x * SMALL_TILE_SIZE
+				}px; top: ${+y + y * SMALL_TILE_SIZE}px;"></div>`
+				const miniature = document.querySelector<HTMLElement>(`#overall_player_board_${playerId} .tioc-player-panel-boat-container`)
+					dojo.place(jstpl_shape_grid_small, miniature)
+			}
+		}
+
 		// Place each shape on boat
 		for (const shape of gamedatas.shapes) {
 			this.game.addKnownShape(shape)
-			if (shape.shapeLocationId != SHAPE_LOCATION_ID_BOAT) {
+			if (shape.shapeLocationId != SHAPE_LOCATION_ID_BOAT || shape.playerId != playerId) {
 				continue
 			}
 			const gridElem = document.querySelector(

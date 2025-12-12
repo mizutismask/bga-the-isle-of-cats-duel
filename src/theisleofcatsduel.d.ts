@@ -31,7 +31,10 @@ interface TheIsleOfCatsDuelPlayer extends Player {
 	tickets: number
 	hand: Array<TheIsleOfCatsDuelCard>
 	fish: number
+	boatShape
 }
+
+type BoatShape = 'OBoat' | 'IBoat'
 
 interface TheIsleOfCatsDuelGamedatas {
 	current_player_id: string
@@ -58,6 +61,7 @@ interface TheIsleOfCatsDuelGamedatas {
 	oshaxLocation: number
 	shapes: any //todo type
 	boatUsedGridColor: any
+	boatsChosen: boolean
 }
 
 interface CounterValue {
@@ -83,7 +87,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	clickOnSlot(slot: number): any
 	gameui: GameGui
 	gamedatas: TheIsleOfCatsDuelGamedatas
-	
+
 	commandMgr: CommandMgr
 	//fishMgr: FishMgr
 	islandMgr: IslandMgr
@@ -103,11 +107,11 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	getShapeColorIdFromShapeId(shapeId)
 	applyTransformToElement(element: HTMLElement, rotation: number, flipH: boolean, flipV: boolean)
 	removeClickableId(id: string, removeSelected = true)
-	
+
 	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement
 	addKnownShape(shape): void
 	updateShapeElementTooltip(shape, elementId = null): void
-	removeAbsolutePosition(elementId: string) 
+	removeAbsolutePosition(elementId: string)
 	displayBigScore(parentElem: string, playerId: number, score: string | number): void
 }
 
@@ -143,6 +147,11 @@ interface NotifResetIslandArgs {
 	cards: TheIsleOfCatsDuelCard[]
 }
 
+interface NotifBoatChosenArgs {
+	boatShape: BoatShape
+	playerId: number
+}
+
 interface NotifOshaxMoveArgs {
 	to: number
 }
@@ -172,10 +181,10 @@ interface NotifImportantMessageArgs {
 	temporary: boolean
 }
 
-type MoveLocation = 'HAND' | 'DECK' | 'STOCK' | 'TABLE' | 'DISCARD'| 'BAG'
+type MoveLocation = 'HAND' | 'DECK' | 'STOCK' | 'TABLE' | 'DISCARD' | 'BAG'
 
 interface NotifMaterialMove {
-	type: 'CARD' | 'TOKEN' | 'FIRST_PLAYER_TOKEN'| 'SHAPE'
+	type: 'CARD' | 'TOKEN' | 'FIRST_PLAYER_TOKEN' | 'SHAPE'
 	from: MoveLocation
 	to: MoveLocation
 	fromArg: number

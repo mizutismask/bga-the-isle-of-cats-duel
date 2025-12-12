@@ -113,6 +113,14 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.setupTreasureZones()
 		this.boatMgr = new BoatMgr(this)
 		this.boatMgr.setup(gamedatas)
+
+		Object.values(this.gamedatas.playerOrderWorkingWithSpectators).forEach((p) => {
+			const player = this.gamedatas.players[p];
+			if (player.boatShape) {
+				this.playerTables[player.id].initBoat(player.boatShape, this.gamedatas)
+			}
+		})
+		
 		this.commandMgr = new CommandMgr(this)
 		this.commandMgr.setup(gamedatas)
 		this.islandMgr = new IslandMgr(this)
@@ -721,6 +729,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['counter', 1],
 			['updateCounters', 1],
 			['resetIsland', 1],
+			['boatChosen', 1],
 			['NTF_MOVE_SHAPE_TO_BOAT', 1],
 			['NTF_DISCARD_SHAPES', 1],
 			['NTF_UPDATE_BOAT_USED_GRID_COLOR', 1],
@@ -732,6 +741,15 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			//comment to prevent formating to glue these 2 lines
 			;(this.gameui as any).notifqueue.setSynchronous(notif[0], notif[1])
 		})
+	}
+
+	notif_boatChosen(notif: Notif<NotifBoatChosenArgs>) {
+		log('notif_boatChosen', notif)
+		this.gamedatas.players[notif.args.playerId].boatShape = notif.args.boatShape
+		this.playerTables[notif.args.playerId].initBoat(notif.args.boatShape, this.gamedatas)
+		if(notif.args.playerId == this.getPlayerId()) {
+			document.getElementById("boat-choice").remove()
+		}
 	}
 
 	notif_resetIsland(notif: Notif<NotifResetIslandArgs>) {

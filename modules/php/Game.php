@@ -145,11 +145,12 @@ class Game extends \Bga\GameFramework\Table {
     protected function getAllDatas(): array {
         $result = [];
 
-        $currentPlayerId = $this->getCurrentPlayerId();    // !! We must only return informations visible by this player !!
+        $currentPlayerId = intval($this->getCurrentPlayerId());    // !! We must only return informations visible by this player !!
 
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score, player_no playerNo FROM player ";
+        $result['boatsChosen'] = $this->globals->get(Constants::GLBL_BOATS_CHOSEN, false);
         $result['players'] = $this->getCollectionFromDb($sql);
         $result['playerOrderWorkingWithSpectators'] = $this->getPlayerIdsInOrder($currentPlayerId);
         $result['turnOrderClockwise'] = true;
@@ -157,7 +158,7 @@ class Game extends \Bga\GameFramework\Table {
         $result['oshaxLocation'] = $this->globals->get(Constants::GLBL_OSHAX_LOCATION);
         $result['islandCards'] = $this->cardMgr->getIslandCards();
         $result['shapes'] = $this->shapeMgr->getShapesAsArray();
-        $result['boatUsedGridColor'] = $this->shapeMgr->getBoatUsedGridColor(array_keys($this->loadPlayersBasicInfos()));
+        $result['boatUsedGridColor'] = !$this->globals->get(Constants::GLBL_BOATS_CHOSEN) ? [] : $this->shapeMgr->getBoatUsedGridColor(array_keys($this->loadPlayersBasicInfos()));
         $this->playerFishCounter->fillResult($result);
 
         foreach ($result['players'] as $playerId => &$player) {
@@ -165,6 +166,7 @@ class Game extends \Bga\GameFramework\Table {
             $player['playerNo'] = $currentPlayerOrder;
             //$player['discard'] = $this->cardManager->getCardsOfTypeArgFromLocation(TABLE_CARD, $currentPlayerOrder, MATERIAL_LOCATION_DISCARD);
             $player['hand'] = $this->cardMgr->getLessonCards($playerId);
+            $player['boatShape'] = $this->getPlayerGlobal($playerId, "boat");
 
             // $player['cardsCount'] = intval($this->actionCards->countCardInLocation("hand", $playerId));
         }
@@ -309,10 +311,10 @@ class Game extends \Bga\GameFramework\Table {
         }
     }
 
-    public function debug_jumpToScore(){
+    public function debug_jumpToScore() {
         $this->gamestate->jumpToState(98);
     }
-    
+
     public function tiocNotifyAllPlayers($notifType, $notifLog, $notifArgs) {
         $this->notify->all($notifType, $notifLog, toNotifArray($notifArgs));
     }

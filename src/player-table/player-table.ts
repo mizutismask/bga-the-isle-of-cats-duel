@@ -4,7 +4,7 @@
 class PlayerTable {
 	public handStock: LineStock<TheIsleOfCatsDuelCard>
 
-	constructor(private game: TheIsleOfCatsDuelGame, player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[]) {
+	constructor(private game: TheIsleOfCatsDuelGame, private player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[]) {
 		const isMyTable = player.id === game.getPlayerId().toString()
 		const ownClass = isMyTable ? 'own' : ''
 		let html = `
@@ -14,7 +14,7 @@ class PlayerTable {
 		dojo.place(html, 'player-tables')
 
 		const boatHtml = (PLAYER_ID: string, PLAYER_COLOR: string, PLAYER_NAME: string) => `
-<div id="tioc-player-board-${PLAYER_ID}" class="">
+<div id="tioc-player-board-${PLAYER_ID}" class="tioc-hidden">
     <h3 class="tioc-player-name tioc-player-name-row" style="color: #${PLAYER_COLOR};">${PLAYER_NAME}</h3>
     <div class="tioc-basket-private-lesson-boat-wrap">
         <div class="tioc-private-lesson-boat-wrap">
@@ -48,6 +48,11 @@ class PlayerTable {
 		this.initHand(player, cards)
 	}
 
+    public initBoat(boatShape: string, gamedatas: TheIsleOfCatsDuelGamedatas) {
+        document.querySelector(`#tioc-player-boat-${this.player.id}`).classList.add(boatShape)
+        document.querySelector(`#tioc-player-board-${this.player.id}`).classList.remove("tioc-hidden")
+        this.game.boatMgr.setupForPlayer(this.player.id, boatShape, gamedatas)
+    }
 	private initHand(player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[] = []) {
 		log('initHand', player, cards)
 		this.handStock = new BgaCards.LineStock<TheIsleOfCatsDuelCard>(

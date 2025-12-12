@@ -48,8 +48,9 @@ class BoatChoice extends GameState {
     #[PossibleAction]
     public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $activePlayerId, array $args) {
         $this->game->setPlayerGlobal($activePlayerId, 'boat', $boat);
-        $this->notify->player($activePlayerId, "dummyNotif", "", []);
+        $this->notify->all("boatChosen", "", ["playerId" => $activePlayerId, "boatShape" => $boat]);
         if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), 'boat')) {
+            $this->game->globals->set(Constants::GLBL_BOATS_CHOSEN, true);
             return NextRound::class;
         }
         return NextBoatChooser::class;

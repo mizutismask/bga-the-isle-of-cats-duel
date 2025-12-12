@@ -18,12 +18,14 @@ use BgaVisibleSystemException;
 //require_once("TiocShapeDef.class.php");
 class TiocBoatGrid {
     private $boatGridUsed;
+    private $boatShape;
 
-    public function __construct() {
+    public function __construct(string $boatShape) {
+        $this->boatShape = $boatShape;
         $this->boatGridUsed = [];
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$this->boatShape]; ++$x) {
             $this->boatGridUsed[$x] = [];
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$this->boatShape]; ++$y) {
                 $this->boatGridUsed[$x][$y] = null;
             }
         }
@@ -31,8 +33,8 @@ class TiocBoatGrid {
 
     public function getUsedGridColor() {
         $gridColors = [];
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$this->boatShape]; ++$x) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$this->boatShape]; ++$y) {
                 if ($this->boatGridUsed[$x][$y] !== null) {
                     $gridColors[] = new TiocBoatGridColor($x, $y, $this->boatGridUsed[$x][$y]->colorId, $this->boatGridUsed[$x][$y]->shapeId);
                 }
@@ -99,11 +101,11 @@ class TiocBoatGrid {
     }
 
     public function isGridValid($x, $y) {
-        if ($x < 0 || $x >= BOAT_TILE_WIDTH) {
+        if ($x < 0 || $x >= BOATS_TILE_WIDTH[$this->boatShape]) {
             return false;
         }
-        $minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[$x]) / 2;
-        $maxY = $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$x];
+        $minY = (BOATS_TILE_HEIGHT[$this->boatShape] - BOAT_TILE_HEIGHT_PER_COLUMN[$this->boatShape][$x]) / 2;
+        $maxY = $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$this->boatShape][$x];
         if ($y < $minY || $y >= $maxY) {
             return false;
         }
@@ -119,8 +121,8 @@ class TiocBoatGrid {
 
     public function getShapePositions($shapeId) {
         $positions = [];
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$this->boatShape]; ++$x) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$this->boatShape]; ++$y) {
                 if ($this->boatGridUsed[$x][$y] !== null && $this->boatGridUsed[$x][$y]->shapeId == $shapeId) {
                     $positions[] = new TiocPosition($x, $y);
                 }
@@ -130,11 +132,11 @@ class TiocBoatGrid {
     }
 
     public function isGridEmpty($x, $y) {
-        if ($x < 0 || $x >= BOAT_TILE_WIDTH) {
+        if ($x < 0 || $x >= BOATS_TILE_WIDTH[$this->boatShape]) {
             return true;
         }
-        $minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[$x]) / 2;
-        $maxY = $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$x];
+        $minY = (BOATS_TILE_HEIGHT[$this->boatShape] - BOAT_TILE_HEIGHT_PER_COLUMN[$this->boatShape][$x]) / 2;
+        $maxY = $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$this->boatShape][$x];
         if ($y < $minY || $y >= $maxY) {
             return true;
         }

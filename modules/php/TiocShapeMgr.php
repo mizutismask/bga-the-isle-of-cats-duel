@@ -332,27 +332,6 @@ class TiocShapeMgr {
         return $shape;
     }
 
-    public function moveToPlaceToField($field) {
-        $this->load();
-
-        $movedShape = null;
-        foreach ($this->shapes as $shape) {
-            if (!$shape->isToPlaceLocation()) {
-                continue;
-            }
-            $movedShape = $shape;
-            if ($field == FIELD_LEFT) {
-                $shape->moveToFieldLeft();
-            } else {
-                $shape->moveToFieldRight();
-            }
-            break;
-        }
-
-        $this->save();
-        return $movedShape;
-    }
-
     public function getShapesAsArray() {
         $this->load();
         $allShapeArray = [];
@@ -526,7 +505,8 @@ class TiocShapeMgr {
     }
 
     public function canPlaceShapeAnywhereOnBoat($playerId, $newShape) {
-        $boat = new TiocBoatGrid();
+        $boatShape = $this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
         $boatHasShape = false;
         $this->load();
         foreach ($this->shapes as $shape) {
@@ -539,8 +519,8 @@ class TiocShapeMgr {
         if (!$boatHasShape) {
             return true;
         }
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$boatShape]; ++$y) {
                 foreach (SHAPE_ROTATIONS as $rotation) {
                     foreach ([false, true] as $flipH) {
                         foreach ([false, true] as $flipV) {
@@ -559,7 +539,7 @@ class TiocShapeMgr {
         $this->load();
         $playerBoat = [];
         foreach ($playerIdArray as $playerId) {
-            $playerBoat[$playerId] = new TiocBoatGrid();
+            $playerBoat[$playerId] = new TiocBoatGrid($this->getBoatShape($playerId));
         }
         foreach ($this->shapes as $shape) {
             if ($shape->playerId === null || $shape->shapeLocationId != SHAPE_LOCATION_ID_BOAT) {
@@ -574,10 +554,14 @@ class TiocShapeMgr {
         return $playerUsedGridColor;
     }
 
+    public function getBoatShape($playerId) {
+        return $this->game->getPlayerGlobal($playerId, "boat");
+    }
+
     public function getPlayerVisibleRatPositions($playerId, $boatColorName) {
         $positions = [];
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boat = new TiocBoatGrid($this->getBoatShape($playerId));
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
@@ -594,7 +578,7 @@ class TiocShapeMgr {
 
     public function countColorShapeNotTouchingRats($playerId, $boatColorName) {
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boat = new TiocBoatGrid($this->getBoatShape($playerId));
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
@@ -631,64 +615,22 @@ class TiocShapeMgr {
         return count($colorSet);
     }
 
-    public function countCatAndOshaxNotTouchingTreasure($playerId) {
-        $this->load();
-        $boat = new TiocBoatGrid();
-        $catShapeIds = [];
-        foreach ($this->shapes as $shape) {
-            if (!$shape->isOnPlayerBoat($playerId)) {
-                continue;
-            }
-            $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
-            if ($shape->isCat() || $shape->isOshax()) {
-                $catShapeIds[$shape->shapeId] = true;
-            }
-        }
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
-                $shape = $boat->getShapeAt($x, $y);
-                if ($shape === null) {
-                    continue;
-                }
-                if (!$shape->isCommonTreasure() && !$shape->isRareTreasure()) {
-                    continue;
-                }
-                $otherShape = $boat->getShapeAt($x - 1, $y + 0);
-                if ($otherShape !== null) {
-                    unset($catShapeIds[$otherShape->shapeId]);
-                }
-                $otherShape = $boat->getShapeAt($x + 1, $y + 0);
-                if ($otherShape !== null) {
-                    unset($catShapeIds[$otherShape->shapeId]);
-                }
-                $otherShape = $boat->getShapeAt($x + 0, $y - 1);
-                if ($otherShape !== null) {
-                    unset($catShapeIds[$otherShape->shapeId]);
-                }
-                $otherShape = $boat->getShapeAt($x + 0, $y + 1);
-                if ($otherShape !== null) {
-                    unset($catShapeIds[$otherShape->shapeId]);
-                }
-            }
-        }
-        return count($catShapeIds);
-    }
-
     public function getPlayerEmptyRoomIds($playerId) {
         $emptyRooms = [];
         for ($index = 0; $index <= count(BOAT_ROOMS_RECTANGLE); ++$index) {
             $emptyRooms[$index] = true;
         }
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boatShape = $this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
             }
             $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$boatShape]; ++$y) {
                 if (!$boat->isGridValid($x, $y)) {
                     continue;
                 }
@@ -719,15 +661,16 @@ class TiocShapeMgr {
     public function getPlayerUnfilledRoomIds($playerId) {
         $unfilledRooms = [];
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boatShape = $this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
             }
             $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$boatShape]; ++$y) {
                 if (!$boat->isGridValid($x, $y)) {
                     continue;
                 }
@@ -756,9 +699,10 @@ class TiocShapeMgr {
     }
 
     public function getPlayerUnfilledRoomPositions($playerId) {
-        return array_map(function ($index) {
+        $boatShape = $this->getBoatShape($playerId);
+        return array_map(function ($index) use ($boatShape) {
             if ($index == count(BOAT_ROOMS_RECTANGLE)) {
-                return new TiocPosition(intval(BOAT_TILE_WIDTH / 2), intval(BOAT_TILE_HEIGHT / 2));
+                return new TiocPosition(intval(BOATS_TILE_WIDTH[$boatShape] / 2), intval(BOATS_TILE_HEIGHT[$boatShape] / 2));
             } else {
                 return new TiocPosition(
                     intval((BOAT_ROOMS_RECTANGLE[$index]['topX'] + BOAT_ROOMS_RECTANGLE[$index]['bottomX']) / 2),
@@ -770,7 +714,8 @@ class TiocShapeMgr {
 
     public function getColorShapeTouchingEdges($playerId, $colorId) {
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boatShape=$this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
@@ -778,9 +723,9 @@ class TiocShapeMgr {
             $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
         $shapes = [];
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            $minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[$x]) / 2;
-            foreach ([$minY, $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$x] - 1] as $y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
+            $minY = (BOATS_TILE_HEIGHT[$boatShape] - BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x]) / 2;
+            foreach ([$minY, $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x] - 1] as $y) {
                 $shape = $boat->getShapeAt($x, $y);
                 if ($shape !== null && $shape->colorId !== null && $shape->colorId == $colorId) {
                     $shapes[$shape->shapeId] = $shape;
@@ -788,7 +733,7 @@ class TiocShapeMgr {
             }
         }
         // First column has a middle row that touches the edge but not the top and the bottom
-        $shape = $boat->getShapeAt(0, intdiv(BOAT_TILE_HEIGHT, 2));
+        $shape = $boat->getShapeAt(0, intdiv(BOATS_TILE_HEIGHT[$boatShape], 2));
         if ($shape !== null && $shape->colorId !== null && $shape->colorId == $colorId) {
             $shapes[$shape->shapeId] = $shape;
         }
@@ -797,23 +742,24 @@ class TiocShapeMgr {
 
     public function hasEmptyOnEdge($playerId) {
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boatShape=$this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
             }
             $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            $minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[$x]) / 2;
-            foreach ([$minY, $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$x] - 1] as $y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
+            $minY = (BOATS_TILE_HEIGHT[$boatShape] - BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x]) / 2;
+            foreach ([$minY, $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x] - 1] as $y) {
                 if ($boat->isGridEmpty($x, $y)) {
                     return true;
                 }
             }
         }
         // First column has a middle row that touches the edge but not the top and the bottom
-        if ($boat->isGridEmpty(0, intdiv(BOAT_TILE_HEIGHT, 2))) {
+        if ($boat->isGridEmpty(0, intdiv(BOATS_TILE_HEIGHT[$boatShape], 2))) {
             return true;
         }
         return false;
@@ -821,15 +767,16 @@ class TiocShapeMgr {
 
     public function hasEmptyOnMiddleRow($playerId) {
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boatShape = $this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
             }
             $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
-        $middleY = intval(BOAT_TILE_HEIGHT / 2);
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
+        $middleY = intval(BOATS_TILE_HEIGHT[$boatShape] / 2);
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
             if ($boat->isGridEmpty($x, $middleY)) {
                 return true;
             }
@@ -850,7 +797,7 @@ class TiocShapeMgr {
 
     public function countUncoveredMap($playerId, $boatShape) {
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boat = new TiocBoatGrid($this->getBoatShape($playerId));
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
@@ -868,7 +815,8 @@ class TiocShapeMgr {
 
     public function countTreasureTouchingColor($playerId, $colorId) {
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boatShape = $this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
@@ -876,8 +824,8 @@ class TiocShapeMgr {
             $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
         $treasureTouches = [];
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$boatShape]; ++$y) {
                 $shape = $boat->getShapeAt($x, $y);
                 if ($shape === null || array_key_exists($shape->shapeId, $treasureTouches)) {
                     continue;
@@ -912,7 +860,8 @@ class TiocShapeMgr {
 
     public function getPlayerCatFamilly($playerId) {
         $this->load();
-        $boat = new TiocBoatGrid();
+        $boatShape = $this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
                 continue;
@@ -921,8 +870,8 @@ class TiocShapeMgr {
         }
         $famillies = [];
         $seenShapeId = [];
-        for ($x = 0; $x < BOAT_TILE_WIDTH; ++$x) {
-            for ($y = 0; $y < BOAT_TILE_HEIGHT; ++$y) {
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$boatShape]; ++$y) {
                 $shape = $boat->getShapeAt($x, $y);
                 if ($shape === null || $shape->colorId === null || array_key_exists($shape->shapeId, $seenShapeId)) {
                     continue;
@@ -961,9 +910,10 @@ class TiocShapeMgr {
                 $shape->moveToTable();
 
                 $playerId = $playerIdArray[array_rand($playerIdArray)];
-                $x = random_int(0, BOAT_TILE_WIDTH - 1);
-                $minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[$x]) / 2;
-                $y = $minY + random_int(0, BOAT_TILE_HEIGHT_PER_COLUMN[$x]);
+                $boatShape=$this->getBoatShape($playerId);
+                $x = random_int(0, BOATS_TILE_WIDTH[$boatShape] - 1);
+                $minY = (BOATS_TILE_HEIGHT[$boatShape] - BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x]) / 2;
+                $y = $minY + random_int(0, BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x]);
                 $rotation = SHAPE_ROTATIONS[array_rand(SHAPE_ROTATIONS)];
                 $flipH = random_int(0, 1);
                 $flipV = random_int(0, 1);
@@ -998,7 +948,8 @@ class TiocShapeMgr {
     }
 
     private function validateBoatWithNewShape($playerId, $boatShape, $newShape, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes) {
-        $boat = new TiocBoatGrid();
+        $boat = new TiocBoatGrid($this->getBoatShape($playerId));
+        $this->game->dump('*******************boat', $this->getBoatShape($playerId));
         $boatHasShape = false;
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
@@ -1020,32 +971,67 @@ class TiocShapeMgr {
     }
 }
 
-
 const BOAT_TILE_WIDTH = 22;
 const BOAT_TILE_HEIGHT = 9;
+
+const BOATS_TILE_WIDTH = [
+    "OBoat" => BOAT_TILE_WIDTH,
+    "IBoat" => BOAT_TILE_WIDTH//TODO change
+];
+const BOATS_TILE_HEIGHT = [
+    "OBoat" => BOAT_TILE_HEIGHT,
+    "IBoat" => BOAT_TILE_HEIGHT//TODO change
+];
+
+
 const BOAT_TILE_HEIGHT_PER_COLUMN = [
-    1,
-    7,
-    7,
-    9,
-    9,
-    9,
-    9,
-    9,
-    9,
-    9,
-    9,
-    9,
-    7,
-    7,
-    7,
-    7,
-    5,
-    5,
-    5,
-    3,
-    3,
-    1
+    "OBoat" => [
+        1,
+        7,
+        7,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        7,
+        7,
+        7,
+        7,
+        5,
+        5,
+        5,
+        3,
+        3,
+        1
+    ],
+    "IBoat" => [
+        7,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        7,
+        7,
+        7,
+        7,
+        5,
+        5,
+        3,
+        1,
+        1
+    ]
 ];
 const BOAT_NB_MAP = 5;
 const BOAT_MAP_PLACEMENT = [
@@ -1065,7 +1051,7 @@ const BOAT_MAP_PLACEMENT = [
     ],
 ];
 const BOAT_RAT_PLACEMENT = [
-    'OBoat' => [ 
+    'OBoat' => [
         ['x' => 1,  'y' => 7],
         ['x' => 2,  'y' => 6],
         ['x' => 2,  'y' => 7],
@@ -1086,7 +1072,7 @@ const BOAT_RAT_PLACEMENT = [
         ['x' => 14, 'y' => 6],
         ['x' => 17, 'y' => 6],
     ],
-    'IBoat' => [ 
+    'IBoat' => [
         ['x' => 1, 'y' => 1],
         ['x' => 1, 'y' => 7],
         ['x' => 2, 'y' => 4],
