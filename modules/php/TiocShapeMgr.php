@@ -971,16 +971,18 @@ class TiocShapeMgr {
     }
 }
 
-const BOAT_TILE_WIDTH = 22;
-const BOAT_TILE_HEIGHT = 9;
+const O_BOAT_TILE_WIDTH = 22;
+const O_BOAT_TILE_HEIGHT = 9;
+const I_BOAT_TILE_WIDTH = 21;
+const I_BOAT_TILE_HEIGHT = 9;
 
 const BOATS_TILE_WIDTH = [
-    "OBoat" => BOAT_TILE_WIDTH,
-    "IBoat" => BOAT_TILE_WIDTH//TODO change
+    "OBoat" => O_BOAT_TILE_WIDTH,
+    "IBoat" => I_BOAT_TILE_WIDTH
 ];
 const BOATS_TILE_HEIGHT = [
-    "OBoat" => BOAT_TILE_HEIGHT,
-    "IBoat" => BOAT_TILE_HEIGHT//TODO change
+    "OBoat" => O_BOAT_TILE_HEIGHT,
+    "IBoat" => I_BOAT_TILE_HEIGHT
 ];
 
 

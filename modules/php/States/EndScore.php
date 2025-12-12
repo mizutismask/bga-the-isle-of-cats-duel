@@ -10,8 +10,8 @@ use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 use BgaVisibleSystemException;
 
-use const Bga\Games\TheIsleOfCatsDuel\BOAT_TILE_HEIGHT;
-use const Bga\Games\TheIsleOfCatsDuel\BOAT_TILE_WIDTH;
+use const Bga\Games\TheIsleOfCatsDuel\O_BOAT_TILE_HEIGHT;
+use const Bga\Games\TheIsleOfCatsDuel\O_BOAT_TILE_WIDTH;
 use const Bga\Games\TheIsleOfCatsDuel\CAT_COLOR_ID_BLUE;
 use const Bga\Games\TheIsleOfCatsDuel\CAT_COLOR_ID_GREEN;
 use const Bga\Games\TheIsleOfCatsDuel\CAT_COLOR_ID_ORANGE;
@@ -432,11 +432,11 @@ class EndScore extends \Bga\GameFramework\States\GameState {
         }
         $x /= count($shapes);
         $y /= count($shapes);
-        if ($x >= BOAT_TILE_WIDTH) {
-            $x = BOAT_TILE_WIDTH - 1;
+        if ($x >= O_BOAT_TILE_WIDTH) {
+            $x = O_BOAT_TILE_WIDTH - 1;
         }
-        if ($y >= BOAT_TILE_HEIGHT) {
-            $y = BOAT_TILE_HEIGHT - 1;
+        if ($y >= O_BOAT_TILE_HEIGHT) {
+            $y = O_BOAT_TILE_HEIGHT - 1;
         }
         return new TiocScoreBoatPosition(intval($x), intval($y), $score);
     }
