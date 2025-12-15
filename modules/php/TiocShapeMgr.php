@@ -714,7 +714,7 @@ class TiocShapeMgr {
 
     public function getColorShapeTouchingEdges($playerId, $colorId) {
         $this->load();
-        $boatShape=$this->getBoatShape($playerId);
+        $boatShape = $this->getBoatShape($playerId);
         $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
@@ -742,7 +742,7 @@ class TiocShapeMgr {
 
     public function hasEmptyOnEdge($playerId) {
         $this->load();
-        $boatShape=$this->getBoatShape($playerId);
+        $boatShape = $this->getBoatShape($playerId);
         $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
@@ -760,6 +760,7 @@ class TiocShapeMgr {
         }
         // First column has a middle row that touches the edge but not the top and the bottom
         if ($boat->isGridEmpty(0, intdiv(BOATS_TILE_HEIGHT[$boatShape], 2))) {
+            //todo handle holes
             return true;
         }
         return false;
@@ -910,7 +911,7 @@ class TiocShapeMgr {
                 $shape->moveToTable();
 
                 $playerId = $playerIdArray[array_rand($playerIdArray)];
-                $boatShape=$this->getBoatShape($playerId);
+                $boatShape = $this->getBoatShape($playerId);
                 $x = random_int(0, BOATS_TILE_WIDTH[$boatShape] - 1);
                 $minY = (BOATS_TILE_HEIGHT[$boatShape] - BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x]) / 2;
                 $y = $minY + random_int(0, BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x]);
@@ -1035,6 +1036,21 @@ const BOAT_TILE_HEIGHT_PER_COLUMN = [
         1
     ]
 ];
+
+const BOAT_HOLES = [
+    'OBoat' => [
+        ['x' => 1, 'y' => 2],
+        ['x' => 1, 'y' => 6],
+    ],
+    'IBoat' => [
+        ['x' => 0, 'y' => 3],
+        ['x' => 0, 'y' => 4],
+        ['x' => 0, 'y' => 5],
+        ['x' => 1, 'y' => 3],
+        ['x' => 1, 'y' => 5],
+    ],
+];
+
 const BOAT_NB_MAP = 5;
 const BOAT_MAP_PLACEMENT = [
     'OBoat' => [
@@ -1045,7 +1061,7 @@ const BOAT_MAP_PLACEMENT = [
         'orange' => ['x' => 0, 'y' => 4],
     ],
     'IBoat' => [
-        'blue' => ['x' => 1, 'y' => 3],//TODO check
+        'blue' => ['x' => 1, 'y' => 3], //TODO check
         'green' => ['x' => 14, 'y' => 1],
         'red' => ['x' => 19, 'y' => 5],
         'purple' => ['x' => 7, 'y' => 0],

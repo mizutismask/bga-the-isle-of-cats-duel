@@ -109,7 +109,23 @@ class TiocBoatGrid {
         if ($y < $minY || $y >= $maxY) {
             return false;
         }
+        if ($this->isBoatHole($x, $y, $this->boatShape)) {
+            return false;
+        }
         return true;
+    }
+
+    /**
+     * Check if coordinates match a boat hole
+     */
+    private function isBoatHole(int $x, int $y, string $boatShape): bool {
+        foreach (BOAT_HOLES[$boatShape] as $hole) {
+            if ($hole['x'] === $x && $hole['y'] === $y) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getShapeAt($x, $y) {
