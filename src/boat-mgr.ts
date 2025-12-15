@@ -313,7 +313,7 @@ class BoatMgr {
 			)
 		}
 
-		this.updatePlayerPanelBoat(gamedatas.boatUsedGridColor)
+		this.updatePlayerPanelBoat(gamedatas.boatUsedGridColor, playerId)
 	}
 
 	/** Enable click on all available boat grid squares and call back with x,y. */
@@ -790,7 +790,8 @@ class BoatMgr {
 			this.markGridUsed(shapeId, grid.x, grid.y)
 		}
 	}
-	public updatePlayerPanelBoat(boatUsedGridColor: Record<string, BoatCell[]>) {
+	public updatePlayerPanelBoat(boatUsedGridColor: Record<string, BoatCell[]>, playerId?: string) {
+		debugger
 		const panelBoatGridElems = document.querySelectorAll('.tioc-player-panel-boat-container .tioc-grid')
 		for (const gridElem of Array.from(panelBoatGridElems)) {
 			gridElem.classList.remove('colorless')
@@ -800,34 +801,35 @@ class BoatMgr {
 		}
 		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed)
 		this.clientPlayerShapeGridUsed = []
-		for (const playerId in this.serverBoatGridUsed) {
-			this.clearBoatGridUsed(this.serverBoatGridUsed[playerId])
-			this.serverPlayerShapeGridUsed[playerId] = []
+		for (const pId in this.serverBoatGridUsed) {
+			this.clearBoatGridUsed(this.serverBoatGridUsed[pId])
+			this.serverPlayerShapeGridUsed[pId] = []
 		}
 		const boatGridElems = document.querySelectorAll('.tioc-player-boat .tioc-grid')
 		for (const gridElem of Array.from(boatGridElems)) {
 			this.game.gameui.removeTooltip(gridElem.id)
 		}
-		for (const playerId in boatUsedGridColor) {
-			for (const gridColor of boatUsedGridColor[playerId]) {
+		for (const pId in boatUsedGridColor) {
+			if(pId == null || pId == playerId) {
+			for (const gridColor of boatUsedGridColor[pId]) {
 				const x = gridColor.x
 				const y = gridColor.y
-				this.serverBoatGridUsed[playerId][x][y] = true
-				if (!(gridColor.shapeId in this.serverPlayerShapeGridUsed[playerId])) {
-					this.serverPlayerShapeGridUsed[playerId][gridColor.shapeId] = []
+				this.serverBoatGridUsed[pId][x][y] = true
+				if (!(gridColor.shapeId in this.serverPlayerShapeGridUsed[pId])) {
+					this.serverPlayerShapeGridUsed[pId][gridColor.shapeId] = []
 				}
-				this.serverPlayerShapeGridUsed[playerId][gridColor.shapeId].push({ x: x, y: y })
+				this.serverPlayerShapeGridUsed[pId][gridColor.shapeId].push({ x: x, y: y })
 				const colorId = gridColor.colorId
 				const gridElem = document.querySelector(
-					'#tioc-player-panel-boat-container-' + playerId + ' .tioc-grid.x_' + x + '_y_' + y
+					'#tioc-player-panel-boat-container-' + pId + ' .tioc-grid.x_' + x + '_y_' + y
 				)
 				const shape = document.getElementById('tioc-shape-id-' + gridColor.shapeId)
 				const boatGridElem = document.querySelector(
-					'#tioc-player-boat-' + playerId + ' .tioc-grid.x_' + x + '_y_' + y
+					'#tioc-player-boat-' + pId + ' .tioc-grid.x_' + x + '_y_' + y
 				)
 				log(
 					'updatePlayerPanelBoat',
-					'#tioc-player-boat-' + playerId + ' .tioc-grid.x_' + x + '_y_' + y,
+					'#tioc-player-boat-' + pId + ' .tioc-grid.x_' + x + '_y_' + y,
 					boatGridElem
 				)
 				
@@ -837,7 +839,7 @@ class BoatMgr {
 				} else {
 					gridElem.classList.add(CAT_COLOR_NAMES[colorId])
 				}
-			}
+			}}
 		}
 		//this.updatePlayerPanelShapeCount()
 		this.updateGridOverlay()
