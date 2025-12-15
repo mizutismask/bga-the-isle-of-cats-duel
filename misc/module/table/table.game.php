@@ -1,5 +1,9 @@
 <?php
 
+/***
+ * Copy of _ide_helper.php for unit tests.
+ * exit call removed
+ */
 /** @noinspection PhpDocRedundantThrowsInspection */
 /** @noinspection PhpInconsistentReturnPointsInspection */
 /** @noinspection PhpUnreachableStatementInspection */
@@ -2760,7 +2764,7 @@ namespace Bga\GameFramework\GameResult {
 }
 
 namespace {
-    exit("This file should not be included, only analyzed by your IDE");
+    
 
     /**
      * Dummy value, for autocomplete.

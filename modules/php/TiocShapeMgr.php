@@ -32,9 +32,12 @@ class TiocShapeMgr {
     private $shapes = null;
     private $shapeDefMgr = null;
 
-    public function __construct($game) {
+    public function __construct($game, $shapesForDebuggingPurpose = null) {
         $this->game = $game;
         $this->shapeDefMgr = new TiocShapeDefMgr();
+        if($shapesForDebuggingPurpose !== null){
+            $this->shapes = $shapesForDebuggingPurpose;
+        }
     }
 
     public function setup($nbOfPlayers) {
@@ -617,11 +620,11 @@ class TiocShapeMgr {
 
     public function getPlayerEmptyRoomIds($playerId) {
         $emptyRooms = [];
-        for ($index = 0; $index <= count(BOAT_ROOMS_RECTANGLE); ++$index) {
+        $boatShape = $this->getBoatShape($playerId);
+        for ($index = 0; $index <= count(BOAT_ROOMS_RECTANGLE[$boatShape]); ++$index) {
             $emptyRooms[$index] = true;
         }
         $this->load();
-        $boatShape = $this->getBoatShape($playerId);
         $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
@@ -639,7 +642,7 @@ class TiocShapeMgr {
                 }
                 // Check each room to mark it as not empty
                 $foundRoom = false;
-                foreach (BOAT_ROOMS_RECTANGLE as $index => $rect) {
+                foreach (BOAT_ROOMS_RECTANGLE[$boatShape] as $index => $rect) {
                     if (
                         $x >= $rect['topX'] && $x <= $rect['bottomX']
                         && $y >= $rect['topY'] && $y <= $rect['bottomY']
@@ -651,17 +654,16 @@ class TiocShapeMgr {
                 }
                 // If we did not find any room, it's in the remaning irregular room
                 if (!$foundRoom) {
-                    unset($emptyRooms[count(BOAT_ROOMS_RECTANGLE)]);
+                    unset($emptyRooms[count(BOAT_ROOMS_RECTANGLE[$boatShape])]);
                 }
             }
         }
         return array_keys($emptyRooms);
     }
 
-    public function getPlayerUnfilledRoomIds($playerId) {
+    public function getPlayerUnfilledRoomIds($playerId, $boatShape) {
         $unfilledRooms = [];
         $this->load();
-        $boatShape = $this->getBoatShape($playerId);
         $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
@@ -679,7 +681,7 @@ class TiocShapeMgr {
                 }
                 // Check each room to mark it as not filled
                 $foundRoom = false;
-                foreach (BOAT_ROOMS_RECTANGLE as $index => $rect) {
+                foreach (BOAT_ROOMS_RECTANGLE[$boatShape] as $index => $rect) {
                     if (
                         $x >= $rect['topX'] && $x <= $rect['bottomX']
                         && $y >= $rect['topY'] && $y <= $rect['bottomY']
@@ -691,25 +693,26 @@ class TiocShapeMgr {
                 }
                 // If we did not find any room, it's in the remaning irregular room
                 if (!$foundRoom) {
-                    $unfilledRooms[count(BOAT_ROOMS_RECTANGLE)] = true;
+                    $unfilledRooms[count(BOAT_ROOMS_RECTANGLE[$boatShape])] = true;
                 }
             }
         }
-        return array_keys($unfilledRooms);
+        $rooms = array_keys($unfilledRooms);
+        sort($rooms);
+        return $rooms;
     }
 
-    public function getPlayerUnfilledRoomPositions($playerId) {
-        $boatShape = $this->getBoatShape($playerId);
+    public function getPlayerUnfilledRoomPositions($playerId, $boatShape) {
         return array_map(function ($index) use ($boatShape) {
-            if ($index == count(BOAT_ROOMS_RECTANGLE)) {
+            if ($index == count(BOAT_ROOMS_RECTANGLE[$boatShape])) {
                 return new TiocPosition(intval(BOATS_TILE_WIDTH[$boatShape] / 2), intval(BOATS_TILE_HEIGHT[$boatShape] / 2));
             } else {
                 return new TiocPosition(
-                    intval((BOAT_ROOMS_RECTANGLE[$index]['topX'] + BOAT_ROOMS_RECTANGLE[$index]['bottomX']) / 2),
-                    intval((BOAT_ROOMS_RECTANGLE[$index]['topY'] + BOAT_ROOMS_RECTANGLE[$index]['bottomY']) / 2)
+                    intval((BOAT_ROOMS_RECTANGLE[$boatShape][$index]['topX'] + BOAT_ROOMS_RECTANGLE[$boatShape][$index]['bottomX']) / 2),
+                    intval((BOAT_ROOMS_RECTANGLE[$boatShape][$index]['topY'] + BOAT_ROOMS_RECTANGLE[$boatShape][$index]['bottomY']) / 2)
                 );
             }
-        }, $this->getPlayerUnfilledRoomIds($playerId));
+        }, $this->getPlayerUnfilledRoomIds($playerId, $boatShape));
     }
 
     public function getColorShapeTouchingEdges($playerId, $colorId) {
@@ -1118,19 +1121,61 @@ const BOAT_ROOMS_ID_APPLE_MIDDLE = 3;
 const BOAT_ROOMS_ID_CORN_FRONT = 4;
 const BOAT_ROOMS_ID_PARROT_FRONT = 5;
 const BOAT_ROOMS_RECTANGLE = [
-    // Back - Parrot
-    ['topX' => 0, 'topY' => 1, 'bottomX' => 2, 'bottomY' => 7],
-    // Top - Moon
-    ['topX' => 3, 'topY' => 0, 'bottomX' => 9, 'bottomY' => 1],
-    // Bottom - Moon
-    ['topX' => 3, 'topY' => 7, 'bottomX' => 9, 'bottomY' => 8],
-    // Middle - Apple
-    ['topX' => 5, 'topY' => 3, 'bottomX' => 11, 'bottomY' => 5],
-    // Front (large) - Corn
-    ['topX' => 16, 'topY' => 1, 'bottomX' => 19, 'bottomY' => 6],
-    // Front (small) - Parrot
-    ['topX' => 20, 'topY' => 3, 'bottomX' => 21, 'bottomY' => 5],
-    // The rest: no icon (and not listed here)
+    'OBoat' => [
+        // Back - Parrot
+        ['topX' => 0, 'topY' => 1, 'bottomX' => 2, 'bottomY' => 7],
+        // Top - Moon
+        ['topX' => 3, 'topY' => 0, 'bottomX' => 9, 'bottomY' => 1],
+        // Bottom - Moon
+        ['topX' => 3, 'topY' => 7, 'bottomX' => 9, 'bottomY' => 8],
+        // Middle - Apple
+        ['topX' => 5, 'topY' => 3, 'bottomX' => 11, 'bottomY' => 5],
+        // Front (large) - Corn
+        ['topX' => 16, 'topY' => 2, 'bottomX' => 19, 'bottomY' => 6],
+        // Front (small) - Parrot
+        ['topX' => 20, 'topY' => 3, 'bottomX' => 21, 'bottomY' => 5],
+        // The rest: no icon (and not listed here)
+    ],
+    'IBoat' => [
+        // Back - Parrot
+        ['topX' => 1, 'topY' => 3, 'bottomX' => 4, 'bottomY' => 5],
+        // Top - Moon
+        ['topX' => 0, 'topY' => 0, 'bottomX' => 4, 'bottomY' => 2],
+        // Bottom - Moon
+        ['topX' => 0, 'topY' => 6, 'bottomX' => 4, 'bottomY' => 8],
+        // Middle - Apple
+        ['topX' => 6, 'topY' => 1, 'bottomX' => 10, 'bottomY' => 7],
+        // Front (large) - Corn
+        ['topX' => 14, 'topY' => 1, 'bottomX' => 16, 'bottomY' => 7],
+        // Front (small) - Parrot
+        ['topX' => 17, 'topY' => 2, 'bottomX' => 20, 'bottomY' => 6],
+        // The rest: no icon (and not listed here)
+    ]
+];
+
+const BOAT_ROOMS_HOLES = [
+    'OBoat' => [
+        BOAT_ROOMS_ID_MOON_TOP => [['x' => 3, 'y' => 1]],
+        BOAT_ROOMS_ID_MOON_BOTTOM => [['x' => 3, 'y' => 7]],
+    ],
+    'IBoat' => [
+        BOAT_ROOMS_ID_MOON_TOP => [['x' => 2, 'y' => 2], ['x' => 3, 'y' => 2], ['x' => 4, 'y' => 2]],
+        BOAT_ROOMS_ID_MOON_BOTTOM => [['x' => 2, 'y' => 6], ['x' => 3, 'y' => 6], ['x' => 4, 'y' => 6]],
+        BOAT_ROOMS_ID_APPLE_MIDDLE => [
+            ['x' => 6, 'y' => 3],
+            ['x' => 6, 'y' => 4],
+            ['x' => 6, 'y' => 5],
+            ['x' => 7, 'y' => 3],
+            ['x' => 7, 'y' => 4],
+            ['x' => 7, 'y' => 5],
+            ['x' => 9, 'y' => 3],
+            ['x' => 9, 'y' => 4],
+            ['x' => 9, 'y' => 5],
+            ['x' => 10, 'y' => 3],
+            ['x' => 10, 'y' => 4],
+            ['x' => 10, 'y' => 5]
+        ],
+    ]
 ];
 
 const SHAPES_WITH_FISH = [408, 410, 412, 414, 416];

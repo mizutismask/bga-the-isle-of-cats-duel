@@ -380,7 +380,8 @@ class EndScore extends \Bga\GameFramework\States\GameState {
     private function scoreUnfilledRooms() {
         $nbFilledRoomsPerPlayerId = [];
         foreach ($this->game->loadPlayersBasicInfos() as $playerId => $playerInfo) {
-            $roomsPositions = $this->game->shapeMgr->getPlayerUnfilledRoomPositions($playerId);
+            $boatShape = $this->game->getPlayerGlobal($playerId, "boat");
+            $roomsPositions = $this->game->shapeMgr->getPlayerUnfilledRoomPositions($playerId, $boatShape);
             $score = count($roomsPositions) * SCORE_LOSE_PER_UNFILLED_ROOMS;
             $nbFilledRoomsPerPlayerId[$playerId] = NB_BOAT_ROOMS_TOTAL - count($roomsPositions);
             $totalScore = $this->substractFromPlayerScore($playerId, 'score_unfilled_rooms', $score);

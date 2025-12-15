@@ -31,7 +31,7 @@ const BOAT_MAP_PLACEMENT: Readonly<Record<BoatShape, Readonly<Record<Color, XY>>
 	IBoat: {
 		blue: { x: 1, y: 6 },
 		green: { x: 17, y: 4 },
-		red: { x: 8, y: 7},
+		red: { x: 8, y: 7 },
 		purple: { x: 3, y: 0 },
 		orange: { x: 11, y: 1 }
 	}
@@ -104,14 +104,76 @@ const BOAT_ROOMS_ID_CORN_FRONT = 4 as const
 const BOAT_ROOMS_ID_PARROT_FRONT = 5 as const
 
 /** Room rectangles (inclusive coordinates) */
-const BOAT_ROOMS_RECTANGLE: readonly Rect[] = [
-	/* Back - Parrot  */ { topX: 0, topY: 1, bottomX: 2, bottomY: 7 },
-	/* Top - Moon     */ { topX: 3, topY: 0, bottomX: 9, bottomY: 1 },
-	/* Bottom - Moon  */ { topX: 3, topY: 7, bottomX: 9, bottomY: 8 },
-	/* Middle - Apple */ { topX: 5, topY: 3, bottomX: 11, bottomY: 5 },
-	/* Front - Corn   */ { topX: 16, topY: 1, bottomX: 19, bottomY: 6 },
-	/* Front - Parrot */ { topX: 20, topY: 3, bottomX: 21, bottomY: 5 }
-] as const
+const BOAT_ROOMS_RECTANGLE: Readonly<Record<BoatShape, Rect[]>> = {
+    OBoat: [
+        // Back - Parrot
+        { topX: 0, topY: 1, bottomX: 2, bottomY: 7 },
+        // Top - Moon
+        { topX: 3, topY: 0, bottomX: 9, bottomY: 1 },
+        // Bottom - Moon
+        { topX: 3, topY: 7, bottomX: 9, bottomY: 8 },
+        // Middle - Apple
+        { topX: 5, topY: 3, bottomX: 11, bottomY: 5 },
+        // Front (large) - Corn
+        { topX: 16, topY: 2, bottomX: 19, bottomY: 6 },
+        // Front (small) - Parrot
+        { topX: 20, topY: 3, bottomX: 21, bottomY: 5 },
+    ],
+    IBoat: [
+        // Back - Parrot
+        { topX: 1, topY: 3, bottomX: 4, bottomY: 5 },
+        // Top - Moon
+        { topX: 0, topY: 0, bottomX: 4, bottomY: 2 },
+        // Bottom - Moon
+        { topX: 0, topY: 6, bottomX: 4, bottomY: 8 },
+        // Middle - Apple
+        { topX: 6, topY: 1, bottomX: 10, bottomY: 7 },
+        // Front (large) - Corn
+        { topX: 14, topY: 1, bottomX: 16, bottomY: 7 },
+        // Front (small) - Parrot
+        { topX: 17, topY: 2, bottomX: 20, bottomY: 6 },
+    ],
+};
+
+const BOAT_ROOMS_HOLES: Readonly<Record<BoatShape, Record<number, XY[]>>> = {
+	OBoat: {
+		[BOAT_ROOMS_ID_MOON_TOP]: [{ x: 3, y: 1 }],
+		[BOAT_ROOMS_ID_MOON_BOTTOM]: [{ x: 3, y: 7 }],
+		[BOAT_ROOMS_ID_PARROT_BACK]: [],
+		[BOAT_ROOMS_ID_CORN_FRONT]: [],
+		[BOAT_ROOMS_ID_PARROT_FRONT]: [],
+		[BOAT_ROOMS_ID_APPLE_MIDDLE]: []
+	},
+	IBoat: {
+		[BOAT_ROOMS_ID_MOON_TOP]: [
+			{ x: 2, y: 2 },
+			{ x: 3, y: 2 },
+			{ x: 4, y: 2 }
+		],
+		[BOAT_ROOMS_ID_MOON_BOTTOM]: [
+			{ x: 2, y: 6 },
+			{ x: 3, y: 6 },
+			{ x: 4, y: 6 }
+		],
+		[BOAT_ROOMS_ID_APPLE_MIDDLE]: [
+			{ x: 6, y: 3 },
+			{ x: 6, y: 4 },
+			{ x: 6, y: 5 },
+			{ x: 7, y: 3 },
+			{ x: 7, y: 4 },
+			{ x: 7, y: 5 },
+			{ x: 9, y: 3 },
+			{ x: 9, y: 4 },
+			{ x: 9, y: 5 },
+			{ x: 10, y: 3 },
+			{ x: 10, y: 4 },
+			{ x: 10, y: 5 }
+		],
+		[BOAT_ROOMS_ID_PARROT_BACK]: [],
+		[BOAT_ROOMS_ID_CORN_FRONT]: [],
+		[BOAT_ROOMS_ID_PARROT_FRONT]: []
+	}
+}
 
 const SHAPE_COLOR_COUNTERS = ['blue', 'green', 'orange', 'purple', 'red', 'common']
 
@@ -267,7 +329,7 @@ class BoatMgr {
 	}
 
 	private isBoatHole(x: number, y: number, boatShape: string) {
-		return BOAT_HOLES[boatShape].some(hole => hole.x === x && hole.y === y)
+		return BOAT_HOLES[boatShape].some((hole) => hole.x === x && hole.y === y)
 	}
 
 	setupForPlayer(playerId: string, boatShape: string, gamedatas: TheIsleOfCatsDuelGamedatas) {
@@ -276,7 +338,10 @@ class BoatMgr {
 		for (let x = 0; x < BOAT_TILE_WIDTH; ++x) {
 			let baseY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]) / 2
 			for (let y = 0; y < BOAT_TILE_HEIGHT; ++y) {
-				const isValidGrid = y >= baseY && y < baseY + BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x] && !this.isBoatHole(x, y, boatShape)
+				const isValidGrid =
+					y >= baseY &&
+					y < baseY + BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x] &&
+					!this.isBoatHole(x, y, boatShape)
 				const jstpl_shape_grid = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
 					BOATS_TILE_BASE_LEFT[boatShape] + x + x * TILE_SIZE
 				}px; top: ${BOAT_TILE_BASE_TOP + y + y * TILE_SIZE}px;"></div>`
@@ -666,17 +731,21 @@ class BoatMgr {
 							break
 						}
 					}
-					// ...or a room icon if inside any room rect
+					// ...or a room icon if inside any room rect and not in a hole
 					if (!hasMap && overlay) {
-						for (let roomIndex = 0; roomIndex < BOAT_ROOMS_RECTANGLE.length; roomIndex++) {
-							const rect = BOAT_ROOMS_RECTANGLE[roomIndex]
-							if (x >= rect.topX && x <= rect.bottomX && y >= rect.topY && y <= rect.bottomY) {
+						for (let roomIndex = 0; roomIndex < BOAT_ROOMS_RECTANGLE[boatShape].length; roomIndex++) {
+							const rect = BOAT_ROOMS_RECTANGLE[boatShape][roomIndex]
+							const inZoneHole = BOAT_ROOMS_HOLES[boatShape][roomIndex].some(
+								(h) => h.x === x && h.y === y
+							)
+							if (x >= rect.topX && x <= rect.bottomX && y >= rect.topY && y <= rect.bottomY && !inZoneHole) {
 								switch (roomIndex) {
 									case BOAT_ROOMS_ID_PARROT_BACK:
 										overlay.insertAdjacentHTML(
 											'beforeend',
 											`<div class="room-icon parrot-back"></div>`
 										)
+
 										break
 									case BOAT_ROOMS_ID_MOON_TOP:
 										overlay.insertAdjacentHTML(
@@ -809,36 +878,37 @@ class BoatMgr {
 			this.game.gameui.removeTooltip(gridElem.id)
 		}
 		for (const pId in boatUsedGridColor) {
-			if(pId == null || pId == playerId) {
-			for (const gridColor of boatUsedGridColor[pId]) {
-				const x = gridColor.x
-				const y = gridColor.y
-				this.serverBoatGridUsed[pId][x][y] = true
-				if (!(gridColor.shapeId in this.serverPlayerShapeGridUsed[pId])) {
-					this.serverPlayerShapeGridUsed[pId][gridColor.shapeId] = []
+			if (pId == null || pId == playerId) {
+				for (const gridColor of boatUsedGridColor[pId]) {
+					const x = gridColor.x
+					const y = gridColor.y
+					this.serverBoatGridUsed[pId][x][y] = true
+					if (!(gridColor.shapeId in this.serverPlayerShapeGridUsed[pId])) {
+						this.serverPlayerShapeGridUsed[pId][gridColor.shapeId] = []
+					}
+					this.serverPlayerShapeGridUsed[pId][gridColor.shapeId].push({ x: x, y: y })
+					const colorId = gridColor.colorId
+					const gridElem = document.querySelector(
+						'#tioc-player-panel-boat-container-' + pId + ' .tioc-grid.x_' + x + '_y_' + y
+					)
+					const shape = document.getElementById('tioc-shape-id-' + gridColor.shapeId)
+					const boatGridElem = document.querySelector(
+						'#tioc-player-boat-' + pId + ' .tioc-grid.x_' + x + '_y_' + y
+					)
+					log(
+						'updatePlayerPanelBoat',
+						'#tioc-player-boat-' + pId + ' .tioc-grid.x_' + x + '_y_' + y,
+						boatGridElem
+					)
+
+					this.game.updateShapeElementTooltip(shape, boatGridElem.id)
+					if (colorId === null) {
+						gridElem.classList.add('colorless')
+					} else {
+						gridElem.classList.add(CAT_COLOR_NAMES[colorId])
+					}
 				}
-				this.serverPlayerShapeGridUsed[pId][gridColor.shapeId].push({ x: x, y: y })
-				const colorId = gridColor.colorId
-				const gridElem = document.querySelector(
-					'#tioc-player-panel-boat-container-' + pId + ' .tioc-grid.x_' + x + '_y_' + y
-				)
-				const shape = document.getElementById('tioc-shape-id-' + gridColor.shapeId)
-				const boatGridElem = document.querySelector(
-					'#tioc-player-boat-' + pId + ' .tioc-grid.x_' + x + '_y_' + y
-				)
-				log(
-					'updatePlayerPanelBoat',
-					'#tioc-player-boat-' + pId + ' .tioc-grid.x_' + x + '_y_' + y,
-					boatGridElem
-				)
-				
-				this.game.updateShapeElementTooltip(shape, boatGridElem.id)
-				if (colorId === null) {
-					gridElem.classList.add('colorless')
-				} else {
-					gridElem.classList.add(CAT_COLOR_NAMES[colorId])
-				}
-			}}
+			}
 		}
 		//this.updatePlayerPanelShapeCount()
 		this.updateGridOverlay()
