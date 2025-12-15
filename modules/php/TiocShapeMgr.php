@@ -1045,7 +1045,7 @@ const BOAT_MAP_PLACEMENT = [
         'orange' => ['x' => 0, 'y' => 4],
     ],
     'IBoat' => [
-        'blue' => ['x' => 1, 'y' => 3],
+        'blue' => ['x' => 1, 'y' => 3],//TODO check
         'green' => ['x' => 14, 'y' => 1],
         'red' => ['x' => 19, 'y' => 5],
         'purple' => ['x' => 7, 'y' => 0],

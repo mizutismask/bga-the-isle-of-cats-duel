@@ -4,48 +4,83 @@ type XY = { x: number; y: number }
 type Rect = { topX: number; topY: number; bottomX: number; bottomY: number }
 
 /** Boat grid sizing */
-const BOAT_TILE_BASE_LEFT = 32 as const
 const BOAT_TILE_BASE_TOP = 55 as const
 const BOAT_TILE_WIDTH = 22 as const
 const BOAT_TILE_HEIGHT = 9 as const
 
-const BOAT_TILE_HEIGHT_PER_COLUMN: readonly number[] = [
-	1, 7, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 1
-] as const
+const BOATS_TILE_BASE_LEFT: Record<BoatShape, number> = {
+	OBoat: 32,
+	IBoat: 48
+}
+const BOAT_TILE_HEIGHT_PER_COLUMN: Record<BoatShape, readonly number[]> = {
+	OBoat: [1, 7, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 5, 3, 3, 1],
+	IBoat: [7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7, 7, 7, 7, 5, 5, 3, 1, 1]
+}
 
 const BOAT_NB_MAP = 5 as const
 
 /** Placement of the 5 colored icons on each boat color */
-const BOAT_MAP_PLACEMENT: Readonly<Record<Color, XY>> = {
-	blue: { x: 9, y: 7 },
-	green: { x: 12, y: 2 },
-	red: { x: 17, y: 5 },
-	purple: { x: 3, y: 0 },
-	orange: { x: 0, y: 4 }
-} as const
+const BOAT_MAP_PLACEMENT: Readonly<Record<BoatShape, Readonly<Record<Color, XY>>>> = {
+	OBoat: {
+		blue: { x: 9, y: 7 },
+		green: { x: 12, y: 2 },
+		red: { x: 17, y: 5 },
+		purple: { x: 3, y: 0 },
+		orange: { x: 0, y: 4 }
+	},
+	IBoat: {
+		blue: { x: 1, y: 3 },
+		green: { x: 14, y: 1 },
+		red: { x: 19, y: 5 },
+		purple: { x: 7, y: 0 },
+		orange: { x: 9, y: 7 }
+	}
+}
 
 /** Rat coordinates per boat color */
-const BOAT_RAT_PLACEMENT: XY[] = [
-	{ x: 1, y: 7 },
-	{ x: 2, y: 6 },
-	{ x: 2, y: 7 },
-	{ x: 5, y: 2 },
-	{ x: 5, y: 6 },
-	{ x: 9, y: 2 },
-	{ x: 6, y: 1 },
-	{ x: 6, y: 2 },
-	{ x: 6, y: 6 },
-	{ x: 9, y: 8 },
-	{ x: 11, y: 3 },
-	{ x: 11, y: 4 },
-	{ x: 12, y: 3 },
-	{ x: 13, y: 2 },
-	{ x: 13, y: 3 },
-	{ x: 13, y: 6 },
-	{ x: 13, y: 7 },
-	{ x: 14, y: 6 },
-	{ x: 17, y: 6 }
-]
+/*const BOAT_RAT_PLACEMENT: Record<BoatShape, XY[]> = {
+	OBoat: [
+		{ x: 1, y: 7 },
+		{ x: 2, y: 6 },
+		{ x: 2, y: 7 },
+		{ x: 5, y: 2 },
+		{ x: 5, y: 6 },
+		{ x: 9, y: 2 },
+		{ x: 6, y: 1 },
+		{ x: 6, y: 2 },
+		{ x: 6, y: 6 },
+		{ x: 9, y: 8 },
+		{ x: 11, y: 3 },
+		{ x: 11, y: 4 },
+		{ x: 12, y: 3 },
+		{ x: 13, y: 2 },
+		{ x: 13, y: 3 },
+		{ x: 13, y: 6 },
+		{ x: 13, y: 7 },
+		{ x: 14, y: 6 },
+		{ x: 17, y: 6 }
+	],
+	IBoat: [
+		{ x: 1, y: 7 },
+		{ x: 2, y: 6 },
+		{ x: 2, y: 7 },
+		{ x: 5, y: 2 },
+		{ x: 5, y: 6 },
+		{ x: 9, y: 2 },
+		{ x: 6, y: 1 },
+		{ x: 6, y: 2 },
+		{ x: 6, y: 6 },
+		{ x: 9, y: 8 },
+		{ x: 11, y: 3 },
+		{ x: 11, y: 4 },
+		{ x: 12, y: 3 },
+		{ x: 13, y: 2 },
+		{ x: 13, y: 3 },
+		{ x: 13, y: 6 },
+		{ x: 13, y: 7 },
+		{ x: 14, y: 6 }
+	]
+}*/
 
 /** Room IDs (kept as constants for drop-in compatibility) */
 const BOAT_ROOMS_ID_PARROT_BACK = 0 as const
@@ -208,7 +243,7 @@ class BoatMgr {
 				this.playerShapeColorCounter[playerId][colorCounter].setValue(0)
 			}
 		}
-		
+
 		// Build array of used and unused boat grid for current player
 		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed)
 		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed)
@@ -217,28 +252,30 @@ class BoatMgr {
 			this.clearBoatGridUsed(this.serverBoatGridUsed[playerId])
 			this.serverPlayerShapeGridUsed[playerId] = []
 		}
-
-		
 	}
 
 	setupForPlayer(playerId: string, boatShape: string, gamedatas: TheIsleOfCatsDuelGamedatas) {
 		// Build grid for one boat
 		let gridId = 0
 		for (let x = 0; x < BOAT_TILE_WIDTH; ++x) {
-			let baseY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
+			let baseY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]) / 2
 			for (let y = 0; y < BOAT_TILE_HEIGHT; ++y) {
-				const isValidGrid = y >= baseY && y < baseY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+				const isValidGrid = y >= baseY && y < baseY + BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]
 				const jstpl_shape_grid = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
-					BOAT_TILE_BASE_LEFT + x + x * TILE_SIZE
+					BOATS_TILE_BASE_LEFT[boatShape] + x + x * TILE_SIZE
 				}px; top: ${BOAT_TILE_BASE_TOP + y + y * TILE_SIZE}px;"></div>`
-				let boatElem = document.querySelector<HTMLElement>(`#player-table-${playerId} .tioc-player-boat:not(.temp-boat)`)
-					dojo.place(jstpl_shape_grid, boatElem)
+				let boatElem = document.querySelector<HTMLElement>(
+					`#player-table-${playerId} .tioc-player-boat:not(.temp-boat)`
+				)
+				dojo.place(jstpl_shape_grid, boatElem)
 
 				const jstpl_shape_grid_small = `<div class="tioc-grid x_${x}_y_${y}" id="tioc-grid-id-${gridId++}" data-x="${x}" data-y="${y}" data-valid-grid="${isValidGrid}" style="left: ${
 					x + x * SMALL_TILE_SIZE
 				}px; top: ${+y + y * SMALL_TILE_SIZE}px;"></div>`
-				const miniature = document.querySelector<HTMLElement>(`#overall_player_board_${playerId} .tioc-player-panel-boat-container`)
-					dojo.place(jstpl_shape_grid_small, miniature)
+				const miniature = document.querySelector<HTMLElement>(
+					`#overall_player_board_${playerId} .tioc-player-panel-boat-container`
+				)
+				dojo.place(jstpl_shape_grid_small, miniature)
 			}
 		}
 
@@ -383,12 +420,12 @@ class BoatMgr {
 		return usedGrid
 	}
 
-	isGridValidAndEmpty(x, y) {
+	isGridValidAndEmpty(x, y, boatShape) {
 		if (x < 0 || x >= BOAT_TILE_WIDTH) {
 			return false
 		}
-		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
-		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]) / 2
+		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]
 		if (y < minY || y >= maxY) {
 			return false
 		}
@@ -427,12 +464,12 @@ class BoatMgr {
 		node.classList.add(`oshax-${colorId}`)
 	}
 
-	isGridEmpty(x, y) {
+	isGridEmpty(x, y, boatShape) {
 		if (x < 0 || x >= BOAT_TILE_WIDTH) {
 			return true
 		}
-		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
-		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]) / 2
+		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]
 		if (y < minY || y >= maxY) {
 			return true
 		}
@@ -450,13 +487,14 @@ class BoatMgr {
 
 	isPlayerGridEmpty(playerId, x, y) {
 		if (playerId == this.game.getPlayerId()) {
-			return this.isGridEmpty(x, y)
+			return this.isGridEmpty(x, y, this.getPlayerBoatShape(playerId))
 		}
 		if (x < 0 || x >= BOAT_TILE_WIDTH) {
 			return true
 		}
-		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[x]) / 2
-		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[x]
+		const boatShape = this.getPlayerBoatShape(playerId)
+		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]) / 2
+		const maxY = minY + BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]
 		if (y < minY || y >= maxY) {
 			return true
 		}
@@ -540,10 +578,11 @@ class BoatMgr {
 		for (const pid in this.playersIds) {
 			const scale = String(pid) === String(this.game.getPlayerId()) ? scalePlayerBoat : scaleOtherBoats
 			const grids = document.querySelectorAll<HTMLElement>(`#tioc-player-boat-${pid} .tioc-grid`)
+			const boatShape = this.getPlayerBoatShape(pid)
 			grids.forEach((grid) => {
 				const x = parseInt(grid.dataset.x ?? '0', 10)
 				const y = parseInt(grid.dataset.y ?? '0', 10)
-				const x_px = ((BOAT_TILE_BASE_LEFT + x + x * TILE_SIZE) * scale) / 100
+				const x_px = ((BOATS_TILE_BASE_LEFT[boatShape] + x + x * TILE_SIZE) * scale) / 100
 				const y_px = ((BOAT_TILE_BASE_TOP + y + y * TILE_SIZE) * scale) / 100
 				grid.style.left = `${x_px}px`
 				grid.style.top = `${y_px}px`
@@ -572,6 +611,9 @@ class BoatMgr {
 		this.clientTryShapeShapeGridUsed = []
 	}
 
+	private getPlayerBoatShape(playerId: number | string): BoatShape {
+		return this.game.gamedatas.players[playerId].boatShape
+	}
 	/** Build / refresh per-cell overlays on all boats. */
 	updateGridOverlay = (): void => {
 		for (const pid of this.playersIds) {
@@ -595,7 +637,8 @@ class BoatMgr {
 					// Either place a map icon...
 					let hasMap = false
 					//const boatColor = this.playerBoatColorName[pid]
-					const placement = BOAT_MAP_PLACEMENT
+					const boatShape = this.getPlayerBoatShape(pid)
+					const placement = BOAT_MAP_PLACEMENT[boatShape]
 					for (const colorName in placement) {
 						const p = placement[colorName as Color]
 						if (p.x === x && p.y === y) {
@@ -728,7 +771,7 @@ class BoatMgr {
 			this.markGridUsed(shapeId, grid.x, grid.y)
 		}
 	}
-	public updatePlayerPanelBoat(boatUsedGridColor) {
+	public updatePlayerPanelBoat(boatUsedGridColor:Record<string, BoatCell[]>) {
 		const panelBoatGridElems = document.querySelectorAll('.tioc-player-panel-boat-container .tioc-grid')
 		for (const gridElem of Array.from(panelBoatGridElems)) {
 			gridElem.classList.remove('colorless')
@@ -763,6 +806,7 @@ class BoatMgr {
 				const boatGridElem = document.querySelector(
 					'#tioc-player-boat-' + playerId + ' .tioc-grid.x_' + x + '_y_' + y
 				)
+				log('updatePlayerPanelBoat', '#tioc-player-boat-' + playerId + ' .tioc-grid.x_' + x + '_y_' + y, boatGridElem)
 				this.game.updateShapeElementTooltip(shape, boatGridElem.id)
 				if (colorId === null) {
 					gridElem.classList.add('colorless')

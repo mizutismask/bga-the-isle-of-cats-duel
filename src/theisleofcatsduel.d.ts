@@ -64,6 +64,13 @@ interface TheIsleOfCatsDuelGamedatas {
 	boatsChosen: boolean
 }
 
+interface BoatCell {
+  x: number;
+  y: number;
+  colorId: number | null;
+  shapeId: number;
+};
+
 interface CounterValue {
 	counter_name: string
 	counter_value: number

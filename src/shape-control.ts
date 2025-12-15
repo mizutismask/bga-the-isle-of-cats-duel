@@ -290,17 +290,18 @@ class ShapeControl {
 		const boatEmpty = this.game.boatMgr.isBoatEmpty()
 		let positionValid = true
 		let touchesOtherShapes = false
+		const boatShape = this.game.gamedatas.players[this.game.getPlayerId()].boatShape
 		this._forEachShapeGrid((x, y) => {
-			if (!this.game.boatMgr.isGridValidAndEmpty(x, y)) {
+			if (!this.game.boatMgr.isGridValidAndEmpty(x, y, boatShape)) {
 				positionValid = false
 				return false
 			}
 			if (
 				!boatEmpty &&
-				(!this.game.boatMgr.isGridEmpty(x - 1, y) ||
-					!this.game.boatMgr.isGridEmpty(x + 1, y) ||
-					!this.game.boatMgr.isGridEmpty(x, y - 1) ||
-					!this.game.boatMgr.isGridEmpty(x, y + 1))
+				(!this.game.boatMgr.isGridEmpty(x - 1, y, boatShape) ||
+					!this.game.boatMgr.isGridEmpty(x + 1, y, boatShape) ||
+					!this.game.boatMgr.isGridEmpty(x, y - 1, boatShape) ||
+					!this.game.boatMgr.isGridEmpty(x, y + 1, boatShape))
 			) {
 				touchesOtherShapes = true
 			}
