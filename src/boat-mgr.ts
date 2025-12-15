@@ -29,11 +29,11 @@ const BOAT_MAP_PLACEMENT: Readonly<Record<BoatShape, Readonly<Record<Color, XY>>
 		orange: { x: 0, y: 4 }
 	},
 	IBoat: {
-		blue: { x: 1, y: 3 },
-		green: { x: 14, y: 1 },
-		red: { x: 19, y: 5 },
-		purple: { x: 7, y: 0 },
-		orange: { x: 9, y: 7 }
+		blue: { x: 1, y: 6 },
+		green: { x: 17, y: 4 },
+		red: { x: 8, y: 7},
+		purple: { x: 3, y: 0 },
+		orange: { x: 11, y: 1 }
 	}
 }
 const BOAT_HOLES: Readonly<Record<BoatShape, XY[]>> = {
@@ -791,7 +791,6 @@ class BoatMgr {
 		}
 	}
 	public updatePlayerPanelBoat(boatUsedGridColor: Record<string, BoatCell[]>, playerId?: string) {
-		debugger
 		const panelBoatGridElems = document.querySelectorAll('.tioc-player-panel-boat-container .tioc-grid')
 		for (const gridElem of Array.from(panelBoatGridElems)) {
 			gridElem.classList.remove('colorless')
