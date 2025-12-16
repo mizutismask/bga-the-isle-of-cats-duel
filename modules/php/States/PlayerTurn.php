@@ -164,6 +164,8 @@ class PlayerTurn extends GameState {
             case 'J':
                 $this->globals->inc(Constants::GLBL_REMAINING_OSHAX_MOVES, 1);
                 break;
+            case 'T':
+                $this->globals->inc(Constants::GLBL_REMAINING_TREASURES, 1);
         }
         if ($additionalAction != "M") {
             $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, $additionalAction);
