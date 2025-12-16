@@ -13,6 +13,7 @@ require_once('../modules/php/UtilTrait.php');
 require_once('../modules/php/TiocShapeMgr.php');
 require_once('../modules/php/TiocShapeDefMgr.php');
 require_once('../modules/php/TiocShapeDef.php');
+require_once('../modules/php/TiocShape.php');
 require_once('../modules/php/TiocBoatGrid.php');
 require_once('../modules/php/Game.php');
 
@@ -29,7 +30,7 @@ abstract class GameTestBase extends Game {
      * To redefine if players count is not 3
      */
     function getPlayersIds() {
-        return [1, 2];
+        return [2333092, 2333093];
     }
 
     function getBoatShape($playerId) {

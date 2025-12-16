@@ -68,6 +68,29 @@ class TiocShape {
         $this->islandCatSlot = $islandCatSlot;
     }
 
+    /**
+     * Create a TiocShape from decoded JSON data
+     */
+    public static function fromArray(array $data): self {
+        return new self(
+            new TiocShapeDefMgr(),
+            $data['shapeId'],
+            $data['shapeTypeId'],
+            $data['colorId'],
+            $data['shapeDefId'],
+            $data['shapeLocationId'],
+            $data['bagOrder'],
+            $data['playerId'],
+            $data['boatTopX'],
+            $data['boatTopY'],
+            $data['boatRotation'],
+            $data['boatHorizontalFlip'],
+            $data['boatVerticalFlip'],
+            $data['playedMoveNumber'],
+            $data['islandCatSlot'],
+        );
+    }
+
     public function isCommonTreasure() {
         return ($this->shapeTypeId == SHAPE_TYPE_ID_COMMON_TREASURE);
     }

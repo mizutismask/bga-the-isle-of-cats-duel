@@ -35,7 +35,7 @@ class TiocShapeMgr {
     public function __construct($game, $shapesForDebuggingPurpose = null) {
         $this->game = $game;
         $this->shapeDefMgr = new TiocShapeDefMgr();
-        if($shapesForDebuggingPurpose !== null){
+        if ($shapesForDebuggingPurpose !== null) {
             $this->shapes = $shapesForDebuggingPurpose;
         }
     }
@@ -116,7 +116,7 @@ class TiocShapeMgr {
 
     public function load() {
         if ($this->shapes !== null) {
-            return;
+            return $this->shapes;
         }
         $this->shapes = [];
         $valueArray = $this->game->getObjectListFromDB("SELECT "
@@ -160,6 +160,7 @@ class TiocShapeMgr {
             if ($bag != 0) return $bag;
             return $s1->shapeId <=> $s2->shapeId;
         });
+        return $this->shapes;
     }
 
     public function save() {
@@ -479,20 +480,11 @@ class TiocShapeMgr {
     public function validateAndPlaceOnBoat($playerId, $boatShape, $shapeTypeId, $shapeId, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes, $oshaxColorId = null) {
         if ($x < 0 || $y < 0 || array_search($rotation, SHAPE_ROTATIONS) === false || ($flipH != 0 && $flipH != 1) || ($flipV != 0 && $flipV != 1))
             throw new BgaVisibleSystemException("BUG! Invalid transform for shapeId $shapeId");
-        if ($oshaxColorId !== null) {
-            if ($shapeTypeId != SHAPE_TYPE_ID_OSHAX)
-                throw new BgaVisibleSystemException("BUG! shapeId $shapeId is not an oshax and cannot have a colorId");
-            if (array_search($oshaxColorId, CAT_COLOR_IDS) === false)
-                throw new BgaVisibleSystemException("BUG! oshaxColorId $oshaxColorId is not a valid colorId");
-        }
 
         $this->load();
         $shape = $this->findByShapeId($shapeId);
-        if ($shape === null || $shape->shapeTypeId != $shapeTypeId || !$shape->isVisible() || $shape->playerId !== null)
+        if ($shape === null || $shape->shapeTypeId != $shapeTypeId  || $shape->playerId !== null) //|| !$shape->isVisible()
             throw new BgaVisibleSystemException("BUG! Invalid shapeId $shapeId");
-        if ($oshaxColorId !== null) {
-            $shape->colorId = $oshaxColorId;
-        }
 
         $previousShapeLocationId = $shape->shapeLocationId;
 
@@ -505,6 +497,30 @@ class TiocShapeMgr {
             $previousShapeLocationId,
             $matchesMapColor
         );
+    }
+
+    public function emptyBoat($playerId) {
+        $this->load();
+        foreach ($this->shapes as $shape) {
+            if ($shape->isOnPlayerBoat($playerId)) {
+                $shape->moveToDiscard();
+            }
+        }
+        $this->save();
+    }
+
+    public function loadBoat($playerId, $newShapes) {
+        if ($this->shapes === null) {
+            $this->shapes = $newShapes;
+        } else {
+            foreach ($this->shapes as $shape) {
+                $persistentShape = array_find($newShapes, function ($s) use ($shape) {
+                    return $s->shapeId === $shape->shapeId;
+                });
+                $persistentShape->moveToBoat($playerId, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip, $this->game->getMoveNumber());
+            }
+        }
+        $this->save();
     }
 
     public function canPlaceShapeAnywhereOnBoat($playerId, $newShape) {
@@ -682,10 +698,9 @@ class TiocShapeMgr {
                 // Check each room to mark it as not filled
                 $foundRoom = false;
                 foreach (BOAT_ROOMS_RECTANGLE[$boatShape] as $index => $rect) {
-                    if (
-                        $x >= $rect['topX'] && $x <= $rect['bottomX']
-                        && $y >= $rect['topY'] && $y <= $rect['bottomY']
-                    ) {
+                    $insideRectangle = $x >= $rect['topX'] && $x <= $rect['bottomX'] && $y >= $rect['topY'] && $y <= $rect['bottomY'];
+                    $hasRoomHoles = isset(BOAT_ROOMS_HOLES[$boatShape][$index]);
+                    if ($insideRectangle && (!$hasRoomHoles || !$this->isRoomHole($x, $y, BOAT_ROOMS_HOLES[$boatShape][$index]))) {
                         $foundRoom = true;
                         $unfilledRooms[$index] = true;
                         break;
@@ -700,6 +715,15 @@ class TiocShapeMgr {
         $rooms = array_keys($unfilledRooms);
         sort($rooms);
         return $rooms;
+    }
+
+    private function isRoomHole($x, $y, $holes) {
+        foreach ($holes as $hole) {
+            if ($x == $hole['x'] && $y == $hole['y']) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function getPlayerUnfilledRoomPositions($playerId, $boatShape) {
