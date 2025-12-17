@@ -39,6 +39,24 @@ const CARD_NEEDS_BUY_COLOR = [
     149 => true,
 ];
 
+/*const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_OSHAX = 0;
+const CARD_ANYTIME_TYPE_ID_NEXT_SHAPE_ANYWHERE = 1;
+const CARD_ANYTIME_TYPE_ID_DRAW_CARDS_2 = 2;
+const CARD_ANYTIME_TYPE_ID_DRAW_CARDS_3 = 3;*/
+const CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE = 4;
+//const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_BASKET = 5;
+//const CARD_ANYTIME_TYPE_ID_MOVE_CATS_FROM_FIELDS = 6;
+const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_UNIQUE_CATS = 7;
+//const CARD_ANYTIME_TYPE_ID_RESCUE_MORE_CATS = 8;
+//const CARD_ANYTIME_TYPE_ID_DRAW_AND_FIELD_SHAPE = 9;
+//const CARD_ANYTIME_TYPE_ID_GAIN_BASKET = 10;
+//const CARD_ANYTIME_TYPE_ID_GAIN_BASKET_FOR_LESSON = 11;
+//const CARD_ANYTIME_TYPE_ID_GAIN_BASKET_FOR_TREASURE = 12;
+const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_MAX_COLOR = 13;
+//const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_RARE_TREASURE = 14;
+const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_COMMON_TREASURE = 15;
+//const CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_CAT_OF_COLOR = 16;
+
 class TiocCardMgr {
     private $game = null;
     /**@var TiocCard[] */
@@ -437,6 +455,29 @@ class TiocCardMgr {
 
         $this->save();
         return $playedCard;
+    }
+
+    public function validatePlayAnytimeCard($cardId, $playerId) {
+        $this->load();
+        $card = $this->findByCardId($cardId);
+        if ($card === null)
+            throw new BgaVisibleSystemException("BUG! Invalid cardId $cardId");
+
+        if (!$card->isOnIsland($playerId))
+            throw new BgaVisibleSystemException("BUG! cardId $cardId is not on the island");
+
+        $card->moveToDiscardPlayed($this->game->getMoveNumber());
+
+        $this->save();
+        $this->game->notify->all("materialMove", '', [
+            'type' => Constants::MATERIAL_TYPE_CARD,
+            'from' => Constants::MATERIAL_LOCATION_ISLAND,
+            'to' => Constants::MATERIAL_LOCATION_DISCARD,
+            'material' => [$card],
+            'notifSender' => __METHOD__,
+        ]);
+
+        return $card;
     }
 
     public function discardUnbuyCards($playerId) {

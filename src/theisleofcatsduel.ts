@@ -115,12 +115,12 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.boatMgr.setup(gamedatas)
 
 		Object.values(this.gamedatas.playerOrderWorkingWithSpectators).forEach((p) => {
-			const player = this.gamedatas.players[p];
+			const player = this.gamedatas.players[p]
 			if (player.boatShape) {
 				this.playerTables[player.id].initBoat(player.boatShape, this.gamedatas)
 			}
 		})
-		
+
 		this.commandMgr = new CommandMgr(this)
 		this.commandMgr.setup(gamedatas)
 		this.islandMgr = new IslandMgr(this)
@@ -368,6 +368,11 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					_('${you} can select one treasure and place it on your boat or end your turn')
 				)
 				this.islandMgr.allowTakeTreasure()
+			} else if (args.shapeToPlace) {
+				this.setChooseActionGamestateDescription(
+					_('${you} must select the drawn shape and place it on your boat')
+				)
+				this.islandMgr.allowTakeToPlaceShape()
 			} else if (args.mandatoryMoveDone) {
 				if (args.possibleSlotsForDiscovery.length > 0) {
 					this.island.enableSlots(args.possibleSlotsForDiscovery)
@@ -586,48 +591,52 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			window.clearInterval(this.actionTimerId)
 		}
 
-		if (chooseActionArgs.canTradeFishForMove) {
-			this.statusBar.addActionButton(_('Get one more move'), () => {
-				this.takeAction('actTradeFishForAction', { additionalAction: 'M' })
-			})
-		}
-		if (chooseActionArgs.canTradeFishForJump) {
-			this.statusBar.addActionButton(_('Jump'), () => {
-				this.takeAction('actTradeFishForAction', { additionalAction: 'J' })
-			})
-		}
-		if (chooseActionArgs.canTradeFishForTreasure) {
-			this.statusBar.addActionButton(_('Take treasure'), () => {
-				this.takeAction('actTradeFishForAction', { additionalAction: 'T' })
-			})
-		}
-		if (chooseActionArgs.canTradeFishForDiscovery) {
-			this.statusBar.addActionButton(_('Take discovery'), () => {
-				this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
-			})
-		}
-		this.addImageActionButton(
-			'useTicket_button',
-			createDiv('expTicket', 'expTicket-button'),
-			'primary',
-			_('Use a ticket to place another arrow, remove the last one of any expedition or exchange a card'),
-			() => {
-				// this.useTicket();
+		if (chooseActionArgs.shapeToPlace) {
+			//nothing else possible, the player have to place the shape
+		} else {
+			if (chooseActionArgs.canTradeFishForMove) {
+				this.statusBar.addActionButton(_('Get one more move'), () => {
+					this.takeAction('actTradeFishForAction', { additionalAction: 'M' })
+				})
 			}
-		)
-		$('expTicket-button').parentElement.style.padding = '0'
-		//{autoclick: true}
+			if (chooseActionArgs.canTradeFishForJump) {
+				this.statusBar.addActionButton(_('Jump'), () => {
+					this.takeAction('actTradeFishForAction', { additionalAction: 'J' })
+				})
+			}
+			if (chooseActionArgs.canTradeFishForTreasure) {
+				this.statusBar.addActionButton(_('Take treasure'), () => {
+					this.takeAction('actTradeFishForAction', { additionalAction: 'T' })
+				})
+			}
+			if (chooseActionArgs.canTradeFishForDiscovery) {
+				this.statusBar.addActionButton(_('Take discovery'), () => {
+					this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
+				})
+			}
+			this.addImageActionButton(
+				'useTicket_button',
+				createDiv('expTicket', 'expTicket-button'),
+				'primary',
+				_('Use a ticket to place another arrow, remove the last one of any expedition or exchange a card'),
+				() => {
+					// this.useTicket();
+				}
+			)
+			$('expTicket-button').parentElement.style.padding = '0'
+			//{autoclick: true}
 
-		//dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
-		if (chooseActionArgs.canPass) {
-			this.statusBar.addActionButton(_('End my turn'), () => this.pass(), { color: 'alert' })
-		}
+			//dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
+			if (chooseActionArgs.canPass) {
+				this.statusBar.addActionButton(_('End my turn'), () => this.pass(), { color: 'alert' })
+			}
 
-		if (chooseActionArgs.canResetTurn) {
-			this.statusBar.addActionButton(_('Reset my turn'), () => this.takeAction('actResetPlayerTurn'), {
-				color: 'alert',
-				title: _('Reset your entire round')
-			})
+			if (chooseActionArgs.canResetTurn) {
+				this.statusBar.addActionButton(_('Reset my turn'), () => this.takeAction('actResetPlayerTurn'), {
+					color: 'alert',
+					title: _('Reset your entire round')
+				})
+			}
 		}
 	}
 
@@ -732,8 +741,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['boatChosen', 1],
 			['NTF_MOVE_SHAPE_TO_BOAT', 1],
 			['NTF_DISCARD_SHAPES', 1],
+			['NTF_UPDATE_FILL_FIELDS', 1],
 			['NTF_UPDATE_BOAT_USED_GRID_COLOR', 1],
-			['NTF_SCORE_BOAT_POSITION', ANIMATION_MS*3],
+			['NTF_SCORE_BOAT_POSITION', ANIMATION_MS * 3]
 		]
 
 		notifs.forEach((notif) => {
@@ -743,12 +753,18 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		})
 	}
 
+	notif_NTF_UPDATE_FILL_FIELDS(notif) {
+		for (const shape of notif.args.shapes) {
+			this.islandMgr.createAndPlaceShape(shape)
+		}
+	}
+
 	notif_boatChosen(notif: Notif<NotifBoatChosenArgs>) {
 		log('notif_boatChosen', notif)
 		this.gamedatas.players[notif.args.playerId].boatShape = notif.args.boatShape
 		this.playerTables[notif.args.playerId].initBoat(notif.args.boatShape, this.gamedatas)
-		if(notif.args.playerId == this.getPlayerId()) {
-			document.getElementById("boat-choice").remove()
+		if (notif.args.playerId == this.getPlayerId()) {
+			document.getElementById('boat-choice').remove()
 		}
 	}
 
@@ -800,7 +816,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	notif_materialMove(notif: Notif<NotifMaterialMove>) {
 		log('notif_materialMove', notif)
 		switch (notif.args.type) {
-			case "CARD":
+			case 'CARD':
 				const cards = notif.args.material as Array<TheIsleOfCatsDuelCard>
 				this.notif_cardMove(cards, notif)
 				break
@@ -810,10 +826,15 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		}
 	}
 
-	 notif_cardMove(cards: TheIsleOfCatsDuelCard[], notif: Notif<NotifMaterialMove>) {
+	notif_cardMove(cards: TheIsleOfCatsDuelCard[], notif: Notif<NotifMaterialMove>) {
 		switch (notif.args.to) {
-			case "HAND":
+			case 'HAND':
 				this.playerTables[notif.args.toArg].handStock.addCards(cards)
+				break
+			case 'DISCARD':
+				cards.forEach((card) => {
+					this.cardsManager.getCardStock(card)?.removeCard(card)
+				})
 				break
 
 			default:
@@ -894,7 +915,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			bodyElem
 		)
 	}
-	displayBigScore(parentElem: string, playerId: number, score:string|number, x: number = null, y: number = null) {
+	displayBigScore(parentElem: string, playerId: number, score: string | number, x: number = null, y: number = null) {
 		this.gameui.displayScoring(parentElem, this.getPlayerColor(playerId), score, 1000, x, y)
 	}
 

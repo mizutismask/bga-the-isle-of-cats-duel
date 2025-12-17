@@ -12,6 +12,7 @@ class TiocCard {
     public $needsBuyColor;
     public $playedMoveNumber;
     public $islandCardSlot;
+    public $cardAnytimeTypeId;
 
     public function __construct(int $cardId, int $cardLocationId, int $deckOrder = 1, ?int $playerId = null,  $playerPrivate = false, ?int $islandCardSlot=null, ?int $playedMoveNumber = null) {
         $this->cardId = $cardId;
@@ -28,6 +29,22 @@ class TiocCard {
             $this->cardTypeId = CARD_TYPE_ID_TREASURE;
         } else if ($this->cardId >= 11 && $this->cardId <= 32) {
             $this->cardTypeId = CARD_TYPE_ID_LESSON;
+        }
+
+         $this->cardAnytimeTypeId = null;
+        switch ($this->cardId) {
+            case 7:
+                $this->cardAnytimeTypeId = CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE;
+                break;
+            case 8:
+                $this->cardAnytimeTypeId = CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_UNIQUE_CATS;
+                break;
+            case 9:
+                $this->cardAnytimeTypeId = CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_COMMON_TREASURE;
+                break;
+            case 10:
+                $this->cardAnytimeTypeId = CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_MAX_COLOR;
+                break;
         }
     }
 

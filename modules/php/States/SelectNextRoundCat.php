@@ -35,7 +35,7 @@ class SelectNextRoundCat extends GameState {
             id: 14,
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must select which cat to put back in the game'),
-            descriptionMyTurn: clienttranslate('You must select which cat from under the island to put back in the game) '),
+            descriptionMyTurn: clienttranslate('You must select which cat from under the island to put back in the game'),
         );
     }
 

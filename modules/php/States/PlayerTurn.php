@@ -11,10 +11,18 @@ use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\UserException;
 use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
+use Bga\Games\TheIsleOfCatsDuel\TiocCard;
 
+use const Bga\Games\TheIsleOfCatsDuel\CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE;
+use const Bga\Games\TheIsleOfCatsDuel\CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_COMMON_TREASURE;
+use const Bga\Games\TheIsleOfCatsDuel\CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_MAX_COLOR;
+use const Bga\Games\TheIsleOfCatsDuel\CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_UNIQUE_CATS;
 use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CARD_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CAT_SLOT;
+use const Bga\Games\TheIsleOfCatsDuel\NTF_DISCARD_SHAPES;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_MOVE_SHAPE_TO_BOAT;
+use const Bga\Games\TheIsleOfCatsDuel\NTF_PLAY_AND_DISCARD_CARDS;
+use const Bga\Games\TheIsleOfCatsDuel\NTF_UPDATE_FILL_FIELDS;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_TO_PLACE;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_TYPE_ID_COMMON_TREASURE;
@@ -67,6 +75,7 @@ class PlayerTurn extends GameState {
             "canTradeFishForJump" => FISH_ACTION_COST["J"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForTreasure" => FISH_ACTION_COST["T"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForDiscovery" => FISH_ACTION_COST["D"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
+            'shapeToPlace' => $this->game->shapeMgr->getToPlaceShape($this->game->getMostlyActivePlayerId())
         ];
     }
 
@@ -99,7 +108,8 @@ class PlayerTurn extends GameState {
             $typedSlot = $this->game->getCardSlotFromGlobalSlot($slot);
             $card = $this->game->cardMgr->findByCardLocation(CARD_LOCATION_ID_ISLAND_CARD_SLOT, $typedSlot);
             if ($card->isTreasure()) {
-                //todo
+                $this->game->cardMgr->validateAndUseTreasureCard($activePlayerId, $card->cardId);
+                $this->globals->inc(Constants::GLBL_REMAINING_TREASURES, 2);
             } else if ($card->isLesson()) {
                 $this->game->cardMgr->moveLessonToHand($card->cardId, $activePlayerId);
                 $this->notify->all("materialMove", '', [
@@ -110,6 +120,8 @@ class PlayerTurn extends GameState {
                     'material' => [$card],
                     'notifSender' => __METHOD__,
                 ]);
+            } else {
+                $this->playInstantCard($activePlayerId, $card);
             }
         } else {
             $typedSlot = $this->game->getCatSlotFromGlobalSlot($slot);
@@ -120,6 +132,71 @@ class PlayerTurn extends GameState {
 
         return PlayerTurn::class;
     }
+
+    private function playInstantCard(int $playerId, TiocCard $card) {
+        $this->game->cardMgr->validatePlayAnytimeCard($card->cardId, $playerId);
+
+        switch ($card->cardAnytimeTypeId) {
+            case CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_COMMON_TREASURE:
+                $this->actionAnytimeCardGainFish($card, $playerId, $this->game->shapeMgr->countCommonTreasure($playerId));
+                break;
+            case CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_MAX_COLOR:
+                $this->actionAnytimeCardGainFish($card, $playerId, $this->game->shapeMgr->countMostCommonColor($playerId));
+                break;
+            case CARD_ANYTIME_TYPE_ID_GAIN_FISH_FOR_UNIQUE_CATS:
+                $this->actionAnytimeCardGainFish($card, $playerId, $this->game->shapeMgr->countUniqueColorNoOshax($playerId));
+                break;
+            case CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE:
+                $drawnShape = $this->game->shapeMgr->drawToToPlaceLocation();
+                $this->game->tiocNotifyAllPlayers(
+                    NTF_UPDATE_FILL_FIELDS,
+                    clienttranslate('${player_name} plays an "Instant" card and draws a new shape ${shapes_img}'),
+                    [
+                        'player_id' => $playerId,
+                        'player_name' => $this->game->loadPlayersBasicInfos()[$playerId]['player_name'],
+                        'shapes' => [$drawnShape],
+                        'shapes_img' => [$drawnShape],
+                    ]
+                );
+
+                if (!$this->game->shapeMgr->canPlaceShapeAnywhereOnBoat($playerId, $drawnShape)) {
+                    $this->game->shapeMgr->discardShapeId($drawnShape->shapeId);
+                    $this->game->tiocNotifyAllPlayers(
+                        NTF_DISCARD_SHAPES,
+                        clienttranslate('The drawn shape cannot fit on the player boat and is discarded ${shapes_img}'),
+                        [
+                            'shapes' => [$drawnShape],
+                            'shapes_img' => [$drawnShape],
+                        ]
+                    );
+                }
+                break;
+        }
+    }
+
+    private function actionAnytimeCardGainFish($card, $playerId, $gainFish) {
+        $allowedAmount = min($gainFish, 3);
+        $totalFish = $this->game->playerFishCounter->inc($playerId, $allowedAmount);
+        $this->game->tiocNotifyAllPlayers(
+            "message",
+            clienttranslate('${player_name} plays an Instant card and gains ${fishCount} ${fish_img} fish'),
+            [
+                'player_id' => $playerId,
+                'player_name' => $this->game->loadPlayersBasicInfos()[$playerId]['player_name'],
+                'fishCount' => $allowedAmount,
+                'fishCountTotal' => $totalFish,
+                'fish_img' => '',
+            ]
+        );
+      /*  $this->notify->all("materialMove", '', [
+            'type' => Constants::MATERIAL_TYPE_CARD,
+            'from' => Constants::MATERIAL_LOCATION_ISLAND,
+            'to' => Constants::MATERIAL_LOCATION_DISCARD,
+            'material' => [$card],
+            'notifSender' => __METHOD__,
+        ]);*/
+    }
+
 
     #[PossibleAction]
     public function actMoveOshax(int $slot, int $activePlayerId, array $args) {

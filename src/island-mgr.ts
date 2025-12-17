@@ -158,6 +158,38 @@ class IslandMgr {
 		//this.updateTopShapes()
 	}
 
+	public allowTakeToPlaceShape() {
+		const shapes = document.querySelectorAll<HTMLElement>(
+			'.island-wrapper #tioc-island-discard .tioc-shape'
+		)
+		for (const shape of Array.from(shapes)) {
+			this.game.addOnClick(shape, () => {
+				shape.classList.add('tioc-selected')
+				//this.removeAllIslandClickableClickOnly()
+				//this.game.anytimeActionMgr.takeToPlaceShape(shape.dataset.shapeId)
+
+				this.game.boatMgr.allowPlaceShape((x, y) => {
+					log('moveShapeToBoat')
+					this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shape.dataset.shapeId, x, y)
+					const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
+						if (!this.game.tryShapesMgr.isInCmd) {
+							this.game.takeAction('actMoveShapeToBoat', {
+								shapeId: shapeId,
+								x: x,
+								y: y,
+								rotation: rotation,
+								flipH: flipH ? 1 : 0,
+								flipV: flipV ? 1 : 0
+							})
+						}
+					}
+					this.game.shapeControl.attachToShapeId(shape.dataset.shapeId, x, y, onConfirm)
+				})
+			})
+		}
+		//this.updateTopShapes()
+	}
+
 	unlockShapeId = (shapeId: string): void => {
 		const node = document.getElementById(shapeId)
 		node?.classList.remove('locked')
@@ -218,7 +250,7 @@ class IslandMgr {
 				)
 			})
 		}
-		const shapes = document.querySelectorAll<HTMLElement>('#tioc-island-and-field-container .tioc-shape')
+		const shapes = document.querySelectorAll<HTMLElement>('.island-wrapper .tioc-shape')
 		const shapeForShapeDefId = {}
 		for (const shape of Array.from(shapes)) {
 			if (shape.classList.contains('tioc-try-shapes-hidden')) {
@@ -239,11 +271,11 @@ class IslandMgr {
 		//this.updateTopShapes()
 	}
 	removeAllIslandClickable() {
-		const clickable = document.querySelectorAll('#tioc-island-and-field-container .tioc-clickable')
+		const clickable = document.querySelectorAll('.island-wrapper .tioc-clickable')
 		for (const c of Array.from(clickable)) {
 			this.game.removeClickableId(c.id)
 		}
-		const selected = document.querySelectorAll('#tioc-island-and-field-container .tioc-selected')
+		const selected = document.querySelectorAll('.island-wrapper .tioc-selected')
 		for (const c of Array.from(selected)) {
 			this.game.removeClickableId(c.id)
 		}

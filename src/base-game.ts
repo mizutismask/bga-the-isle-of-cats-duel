@@ -55,6 +55,7 @@ abstract class BaseGame {
 				<div id="island" class="board-shadow"></div>
 				<div class="around-island-wrapper">
 					<div  class="around-island">
+						<div id="tioc-island-discard"></div>
 						<div id="tioc-round-counter-cats"></div>
 						<div id="tioc-common-treasure-container">
 							<div id="tioc-common-treasure-zone-100"></div>

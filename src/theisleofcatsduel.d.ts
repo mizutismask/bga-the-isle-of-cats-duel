@@ -134,6 +134,7 @@ interface EnteringPlayerTurnArgs {
 	remainingMoves: number
 	remainingTreasures: number
 	mandatoryMoveDone: boolean
+	shapeToPlace: Shape
 }
 
 interface NotifPointsArgs {
