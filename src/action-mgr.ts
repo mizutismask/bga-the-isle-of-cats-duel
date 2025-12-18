@@ -306,7 +306,7 @@ class ActionMgr {
 		this._rescueCatEndCommand(cmd, state)
 	}*/
 
-	public rescueCat(shapeId: string) {
+	/*public rescueCat(shapeId: string) {
 		{
 			const cmd = this.game.commandMgr
 			/*if (cmd.isInCommand())
@@ -315,12 +315,12 @@ class ActionMgr {
 				'error'
 			)*
 		
-	/*	if (
-			this.game.phase45Mgr.canTakeCommonTreasure() ||
-			this.game.phase45Mgr.canTakeRareTreasure() ||
-			this.game.phase45Mgr.canTakeSmallTreasure()
-		)
-			return this.game.showMessage(_('You must place the allowed treasures first'), 'error')*/
+	//	if (
+		//	this.game.phase45Mgr.canTakeCommonTreasure() ||
+		//	this.game.phase45Mgr.canTakeRareTreasure() ||
+		//	this.game.phase45Mgr.canTakeSmallTreasure()
+		//)
+		//	return this.game.showMessage(_('You must place the allowed treasures first'), 'error')
 
 			const state: any = {
 				actionTypeId: ACTION_TYPE_ID_RESCUE_BASKET,
@@ -342,7 +342,7 @@ class ActionMgr {
 			)
 			this._rescueCatEndCommand(cmd, state, shapeId)
 		}
-	}
+	}*/
 
 	/*public allowRescueCat() {
 		const cmd = this.game.commandMgr
@@ -367,7 +367,7 @@ class ActionMgr {
 				})
 	}*/
 	/** Final portion shared by rescue flows. */
-	public _rescueCatEndCommand = (cmd: CommandMgr, state: any, shapeId) => {
+	/*public _rescueCatEndCommand = (cmd: CommandMgr, state: any, shapeId) => {
 		cmd.add(
 			(cont) => {
 				cmd.changeTitle(_('${you} must select where to put the cat on your boat'))
@@ -399,12 +399,12 @@ class ActionMgr {
 											canTakeCommonTreasure = true
 									}
 									this.game.boatMgr.updateGridOverlay()
-									/*this.game.phase45Mgr.catRescued()
-						if (canTakeCommonTreasure) this.game.phase45Mgr.allowTakeCommonTreasure()
-						if (canAnywhere) this.game.phase45Mgr.takeNextShapeAnywhere()*/
-									cont({ usedGrid, canTakeCommonTreasure, canPutNextShapeAnywhere: canAnywhere })
-								}
-							)
+									//this.game.phase45Mgr.catRescued()
+						//if (canTakeCommonTreasure) this.game.phase45Mgr.allowTakeCommonTreasure()
+						//if (canAnywhere) this.game.phase45Mgr.takeNextShapeAnywhere()
+						//			cont({ usedGrid, canTakeCommonTreasure, canPutNextShapeAnywhere: canAnywhere })
+						//		}
+						//	)
 						},
 						(info: any) => {
 							this.game.boatMgr.applyTransformToShapeId(
@@ -415,16 +415,16 @@ class ActionMgr {
 							)
 							for (const g of info.usedGrid) this.game.boatMgr.markGridUsed(state.shapeId, g.x, g.y)
 							this.game.boatMgr.updateGridOverlay()
-							/*this.game.phase45Mgr.catRescued()
-				if (info.canTakeCommonTreasure) this.game.phase45Mgr.allowTakeCommonTreasure()
-				if (info.canPutNextShapeAnywhere) this.game.phase45Mgr.takeNextShapeAnywhere()*/
-						},
+							//this.game.phase45Mgr.catRescued()
+				//if (info.canTakeCommonTreasure) this.game.phase45Mgr.allowTakeCommonTreasure()
+				//if (info.canPutNextShapeAnywhere) this.game.phase45Mgr.takeNextShapeAnywhere()
+				//		},
 						(info: any) => {
 							this.game.boatMgr.markGridUnused(state.shapeId)
 							this.game.boatMgr.updateGridOverlay()
-							/*this.game.phase45Mgr.undoCatRescued()
-				if (info.canTakeCommonTreasure) this.game.phase45Mgr.undoAllowTakeCommonTreasure()
-				if (info.canPutNextShapeAnywhere) this.game.phase45Mgr.undoTakeNextShapeAnywhere()*/
+							//this.game.phase45Mgr.undoCatRescued()
+				//if (info.canTakeCommonTreasure) this.game.phase45Mgr.undoAllowTakeCommonTreasure()
+				//if (info.canPutNextShapeAnywhere) this.game.phase45Mgr.undoTakeNextShapeAnywhere()
 						}
 					)
 				})
@@ -443,7 +443,7 @@ class ActionMgr {
 			() => {}
 		)
 		cmd.endCommand()
-	}
+	}*/
 
 	/** Take common treasure (or small/rare through helpers). */
 	public takeCommonTreasure(shapeId: string) {
@@ -467,6 +467,7 @@ class ActionMgr {
 			state.x = x
 			state.y = y
 			this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shapeId, x, y)
+			//this.game.shapeControl._applyTransform()
 			this.game.gameui.statusBar.setTitle(_('${you} must confirm the position of the treasure on your boat'))
 
 			const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
@@ -488,6 +489,7 @@ class ActionMgr {
 				}
 			}
 
+			//debugger
 			this.game.shapeControl.attachToShapeId(
 				state.shapeId,
 				state.x,

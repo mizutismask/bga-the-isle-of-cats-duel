@@ -5,7 +5,14 @@ type Rect = { topX: number; topY: number; bottomX: number; bottomY: number }
 
 /** Boat grid sizing */
 const BOAT_TILE_BASE_TOP = 55 as const
-const BOAT_TILE_WIDTH = 22 as const
+const O_BOAT_TILE_WIDTH = 22
+const I_BOAT_TILE_WIDTH = 21
+//const BOAT_TILE_WIDTH = 22 as const
+const BOATS_TILE_WIDTH: Record<string, number> = {
+	OBoat: O_BOAT_TILE_WIDTH,
+	IBoat: I_BOAT_TILE_WIDTH
+}
+
 const BOAT_TILE_HEIGHT = 9 as const
 
 const BOATS_TILE_BASE_LEFT: Record<BoatShape, number> = {
@@ -105,35 +112,35 @@ const BOAT_ROOMS_ID_PARROT_FRONT = 5 as const
 
 /** Room rectangles (inclusive coordinates) */
 const BOAT_ROOMS_RECTANGLE: Readonly<Record<BoatShape, Rect[]>> = {
-    OBoat: [
-        // Back - Parrot
-        { topX: 0, topY: 1, bottomX: 2, bottomY: 7 },
-        // Top - Moon
-        { topX: 3, topY: 0, bottomX: 9, bottomY: 1 },
-        // Bottom - Moon
-        { topX: 3, topY: 7, bottomX: 9, bottomY: 8 },
-        // Middle - Apple
-        { topX: 5, topY: 3, bottomX: 11, bottomY: 5 },
-        // Front (large) - Corn
-        { topX: 16, topY: 2, bottomX: 19, bottomY: 6 },
-        // Front (small) - Parrot
-        { topX: 20, topY: 3, bottomX: 21, bottomY: 5 },
-    ],
-    IBoat: [
-        // Back - Parrot
-        { topX: 1, topY: 3, bottomX: 4, bottomY: 5 },
-        // Top - Moon
-        { topX: 0, topY: 0, bottomX: 4, bottomY: 2 },
-        // Bottom - Moon
-        { topX: 0, topY: 6, bottomX: 4, bottomY: 8 },
-        // Middle - Apple
-        { topX: 6, topY: 1, bottomX: 10, bottomY: 7 },
-        // Front (large) - Corn
-        { topX: 14, topY: 1, bottomX: 16, bottomY: 7 },
-        // Front (small) - Parrot
-        { topX: 17, topY: 2, bottomX: 20, bottomY: 6 },
-    ],
-};
+	OBoat: [
+		// Back - Parrot
+		{ topX: 0, topY: 1, bottomX: 2, bottomY: 7 },
+		// Top - Moon
+		{ topX: 3, topY: 0, bottomX: 9, bottomY: 1 },
+		// Bottom - Moon
+		{ topX: 3, topY: 7, bottomX: 9, bottomY: 8 },
+		// Middle - Apple
+		{ topX: 5, topY: 3, bottomX: 11, bottomY: 5 },
+		// Front (large) - Corn
+		{ topX: 16, topY: 2, bottomX: 19, bottomY: 6 },
+		// Front (small) - Parrot
+		{ topX: 20, topY: 3, bottomX: 21, bottomY: 5 }
+	],
+	IBoat: [
+		// Back - Parrot
+		{ topX: 1, topY: 3, bottomX: 4, bottomY: 5 },
+		// Top - Moon
+		{ topX: 0, topY: 0, bottomX: 4, bottomY: 2 },
+		// Bottom - Moon
+		{ topX: 0, topY: 6, bottomX: 4, bottomY: 8 },
+		// Middle - Apple
+		{ topX: 6, topY: 1, bottomX: 10, bottomY: 7 },
+		// Front (large) - Corn
+		{ topX: 14, topY: 1, bottomX: 16, bottomY: 7 },
+		// Front (small) - Parrot
+		{ topX: 17, topY: 2, bottomX: 20, bottomY: 6 }
+	]
+}
 
 const BOAT_ROOMS_HOLES: Readonly<Record<BoatShape, Record<number, XY[]>>> = {
 	OBoat: {
@@ -319,11 +326,13 @@ class BoatMgr {
 		}
 
 		// Build array of used and unused boat grid for current player
-		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed)
-		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed)
+		const boatShape = this.getPlayerBoatShape(this.game.getPlayerId())
+		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, boatShape)
+		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed, boatShape)
 		for (const playerId in gamedatas.players) {
+			const pBoatShape = this.getPlayerBoatShape(playerId)
 			this.serverBoatGridUsed[playerId] = []
-			this.clearBoatGridUsed(this.serverBoatGridUsed[playerId])
+			this.clearBoatGridUsed(this.serverBoatGridUsed[playerId], pBoatShape)
 			this.serverPlayerShapeGridUsed[playerId] = []
 		}
 	}
@@ -335,7 +344,7 @@ class BoatMgr {
 	setupForPlayer(playerId: string, boatShape: string, gamedatas: TheIsleOfCatsDuelGamedatas) {
 		// Build grid for one boat
 		let gridId = 0
-		for (let x = 0; x < BOAT_TILE_WIDTH; ++x) {
+		for (let x = 0; x < BOATS_TILE_WIDTH[boatShape]; ++x) {
 			let baseY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]) / 2
 			for (let y = 0; y < BOAT_TILE_HEIGHT; ++y) {
 				const isValidGrid =
@@ -502,7 +511,7 @@ class BoatMgr {
 	}
 
 	isGridValidAndEmpty(x, y, boatShape) {
-		if (x < 0 || x >= BOAT_TILE_WIDTH) {
+		if (x < 0 || x >= BOATS_TILE_WIDTH[boatShape]) {
 			return false
 		}
 		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]) / 2
@@ -549,7 +558,7 @@ class BoatMgr {
 	}
 
 	isGridEmpty(x, y, boatShape) {
-		if (x < 0 || x >= BOAT_TILE_WIDTH) {
+		if (x < 0 || x >= BOATS_TILE_WIDTH[boatShape]) {
 			return true
 		}
 		const minY = (BOAT_TILE_HEIGHT - BOAT_TILE_HEIGHT_PER_COLUMN[boatShape][x]) / 2
@@ -573,7 +582,7 @@ class BoatMgr {
 		if (playerId == this.game.getPlayerId()) {
 			return this.isGridEmpty(x, y, this.getPlayerBoatShape(playerId))
 		}
-		if (x < 0 || x >= BOAT_TILE_WIDTH) {
+		if (x < 0 || x >= BOATS_TILE_WIDTH[this.getPlayerBoatShape(playerId)]) {
 			return true
 		}
 		const boatShape = this.getPlayerBoatShape(playerId)
@@ -680,9 +689,9 @@ class BoatMgr {
 	}
 
 	/** Reset a boolean occupancy grid to “unused”. */
-	clearBoatGridUsed = (boatGridUsed: boolean[][]): void => {
-		boatGridUsed.length = BOAT_TILE_WIDTH
-		for (let x = 0; x < BOAT_TILE_WIDTH; x++) {
+	clearBoatGridUsed = (boatGridUsed: boolean[][], boatShape: BoatShape): void => {
+		boatGridUsed.length = BOATS_TILE_WIDTH[boatShape]
+		for (let x = 0; x < BOATS_TILE_WIDTH[boatShape]; x++) {
 			boatGridUsed[x] = []
 			boatGridUsed[x].length = BOAT_TILE_HEIGHT
 			for (let y = 0; y < BOAT_TILE_HEIGHT; y++) boatGridUsed[x][y] = false
@@ -690,8 +699,8 @@ class BoatMgr {
 	}
 
 	/** Clear client-side try-shape markers. */
-	clearTryShapes = (): void => {
-		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed)
+	clearTryShapes = (boatShape: BoatShape): void => {
+		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed, boatShape)
 		this.clientTryShapeShapeGridUsed = []
 	}
 
@@ -738,7 +747,13 @@ class BoatMgr {
 							const inZoneHole = BOAT_ROOMS_HOLES[boatShape][roomIndex].some(
 								(h) => h.x === x && h.y === y
 							)
-							if (x >= rect.topX && x <= rect.bottomX && y >= rect.topY && y <= rect.bottomY && !inZoneHole) {
+							if (
+								x >= rect.topX &&
+								x <= rect.bottomX &&
+								y >= rect.topY &&
+								y <= rect.bottomY &&
+								!inZoneHole
+							) {
 								switch (roomIndex) {
 									case BOAT_ROOMS_ID_PARROT_BACK:
 										overlay.insertAdjacentHTML(
@@ -867,12 +882,10 @@ class BoatMgr {
 				gridElem.classList.remove(colorName)
 			}
 		}
-		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed)
+		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, this.getPlayerBoatShape(playerId))
 		this.clientPlayerShapeGridUsed = []
-		for (const pId in this.serverBoatGridUsed) {
-			this.clearBoatGridUsed(this.serverBoatGridUsed[pId])
-			this.serverPlayerShapeGridUsed[pId] = []
-		}
+		this.clearBoatGridUsed(this.serverBoatGridUsed[playerId], this.getPlayerBoatShape(playerId))
+		this.serverPlayerShapeGridUsed[playerId] = []
 		const boatGridElems = document.querySelectorAll('.tioc-player-boat .tioc-grid')
 		for (const gridElem of Array.from(boatGridElems)) {
 			this.game.gameui.removeTooltip(gridElem.id)
@@ -883,6 +896,7 @@ class BoatMgr {
 					const x = gridColor.x
 					const y = gridColor.y
 					this.serverBoatGridUsed[pId][x][y] = true
+					log('serverBoatGridUsed', pId, x, y, ' true')
 					if (!(gridColor.shapeId in this.serverPlayerShapeGridUsed[pId])) {
 						this.serverPlayerShapeGridUsed[pId][gridColor.shapeId] = []
 					}
@@ -908,6 +922,7 @@ class BoatMgr {
 						gridElem.classList.add(CAT_COLOR_NAMES[colorId])
 					}
 				}
+				//debugger
 			}
 		}
 		//this.updatePlayerPanelShapeCount()

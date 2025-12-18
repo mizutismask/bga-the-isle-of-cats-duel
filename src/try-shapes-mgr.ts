@@ -89,7 +89,7 @@ class TryShapesMgr {
 			this.isInCmd = false
 			this.updateButton()
 			cmd.undo()
-			this.game.boatMgr.clearTryShapes()
+			this.game.boatMgr.clearTryShapes(this.game.getCurrentPlayer().boatShape)
 			return
 		}
 		if (cmd.isInCommand()) {
