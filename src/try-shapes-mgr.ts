@@ -111,7 +111,7 @@ class TryShapesMgr {
 					'#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-grid.x_' + shapeInfo.x + '_y_' + shapeInfo.y
 				)
 				this.game.createShapeElement(
-					gridElem.id,
+					gridElem,
 					shapeInfo.shapeId + '-try-shapes',
 					this.game.getShapeTypeIdFromShapeId(shapeInfo.shapeId),
 					this.game.getShapeDefIdFromShapeId(shapeInfo.shapeId),

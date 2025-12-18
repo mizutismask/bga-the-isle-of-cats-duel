@@ -1219,7 +1219,19 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		var jstpl_shape = `<div class="tioc-shape shape-type-${shapeTypeId} ${color_name} shape-def-${shapeDefId}" id="tioc-shape-id-${shapeId}" data-shape-id="${shapeId}"></div>`
 		return jstpl_shape
 	}
-	public createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement {
+
+	
+/**
+ * Create a shape element and place it according to its location.
+ * Be careful to pass an element as the location if this is a boat cell since they have the same id on both boats
+ * @param {string|HTMLElement} location - the location to place the shape element
+ * @param {number} shapeId - the id of the shape to create
+ * @param {number} shapeTypeId - the type id of the shape to create
+ * @param {number} shapeDefId - the definition id of the shape to create
+ * @param {number} [colorId = null] - the color id of the shape to create
+ * @returns {HTMLElement} the created shape element
+ */
+	public createShapeElement(location:string|HTMLElement, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement {
 		dojo.place(this.formatShapeElement(shapeId, shapeTypeId, shapeDefId, colorId), location)
 		this.updateTooltips()
 		return document.getElementById(`tioc-shape-id-${shapeId}`)

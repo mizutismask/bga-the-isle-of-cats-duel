@@ -369,7 +369,7 @@ class BoatMgr {
 			const gridElem = document.querySelector(
 				'#tioc-player-boat-' + shape.playerId + ' .tioc-grid.x_' + shape.boatTopX + '_y_' + shape.boatTopY
 			)
-			this.game.createShapeElement(gridElem.id, shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
+			this.game.createShapeElement(gridElem, shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
 			this.applyTransformToShapeId(
 				shape.shapeId,
 				shape.boatRotation,
