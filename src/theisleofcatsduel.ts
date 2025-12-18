@@ -595,25 +595,51 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			//nothing else possible, the player have to place the shape
 		} else {
 			if (chooseActionArgs.canTradeFishForMove) {
-				this.statusBar.addActionButton(_('Get one more move'), () => {
-					this.takeAction('actTradeFishForAction', { additionalAction: 'M' })
-				})
+				this.statusBar.addActionButton(
+					_('+1 move'),
+					() => {
+						this.takeAction('actTradeFishForAction', { additionalAction: 'M' })
+					},
+					{ classes: 'button-trade-fish', id: 'button-move', color: 'secondary' }
+				)
+				document.getElementById('button-move').insertAdjacentElement('afterbegin', this.createFishSpan())
 			}
 			if (chooseActionArgs.canTradeFishForJump) {
-				this.statusBar.addActionButton(_('Jump'), () => {
-					this.takeAction('actTradeFishForAction', { additionalAction: 'J' })
-				})
+				this.statusBar.addActionButton(
+					_('Jump'),
+					() => {
+						this.takeAction('actTradeFishForAction', { additionalAction: 'J' })
+					},
+					{ classes: 'button-trade-fish', id: 'button-jump', color: 'secondary' }
+				)
+				document.getElementById('button-jump').insertAdjacentElement('afterbegin', this.createFishSpan())
+				document.getElementById('button-jump').insertAdjacentElement('afterbegin', this.createFishSpan())
 			}
 			if (chooseActionArgs.canTradeFishForTreasure) {
-				this.statusBar.addActionButton(_('Take treasure'), () => {
-					this.takeAction('actTradeFishForAction', { additionalAction: 'T' })
-				})
+				this.statusBar.addActionButton(
+					_('Take treasure'),
+					() => {
+						this.takeAction('actTradeFishForAction', { additionalAction: 'T' })
+					},
+					{ classes: 'button-trade-fish', id: 'button-treasure', color: 'secondary' }
+				)
+				document.getElementById('button-treasure').insertAdjacentElement('afterbegin', this.createFishSpan())
+				document.getElementById('button-treasure').insertAdjacentElement('afterbegin', this.createFishSpan())
 			}
 			if (chooseActionArgs.canTradeFishForDiscovery) {
-				this.statusBar.addActionButton(_('Take discovery'), () => {
-					this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
-				})
+				this.statusBar.addActionButton(
+					_('Take discovery'),
+					() => {
+						this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
+					},
+					{ classes: 'button-trade-fish', id: 'button-discovery', color: 'secondary' }
+				)
+				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
+				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
+				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
 			}
+
+
 			this.addImageActionButton(
 				'useTicket_button',
 				createDiv('expTicket', 'expTicket-button'),
@@ -638,6 +664,12 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				})
 			}
 		}
+	}
+
+	private createFishSpan() {
+		const span = document.createElement('span')
+		span.classList.add('tioc-player-panel-fish')
+		return span
 	}
 
 	public clickOnSlot(slot: number) {

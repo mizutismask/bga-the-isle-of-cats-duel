@@ -1144,6 +1144,24 @@ $scale: 10;
 	$scale: $scale + 10;
 }
 
+#page-title .action-button {
+	&.button-trade-fish {
+		display: inline-flex;
+		align-items: center;
+		gap: 3px;
+		padding-top: 3px;
+		padding-bottom: 3px;
+	}
+}
+
+.button-trade-fish {
+	span {
+		width: 23px;
+		height: 23px;
+		background-size: 26px 293px;
+	}
+}
+
 #tioc-island-and-field-container .tioc-shape::after {
 	content: attr(data-solo-order);
 	font-weight: bold;
