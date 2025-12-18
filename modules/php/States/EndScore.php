@@ -189,7 +189,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
         $score = 0;
         switch ($card->cardId) {
             case 11:
-                if (!$this->game->shapeMgr->hasEmptyOnEdge($playerId)) {
+                if (!$this->game->shapeMgr->hasEmptyOnEdge($playerId, $this->game->getPlayerGlobal($playerId, "boat"))) {
                     $score = 12;
                 }
                 break;

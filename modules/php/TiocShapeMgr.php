@@ -595,88 +595,6 @@ class TiocShapeMgr {
         return $positions;
     }
 
-    public function countColorShapeNotTouchingRats($playerId, $boatColorName) {
-        $this->load();
-        $boat = new TiocBoatGrid($this->getBoatShape($playerId));
-        foreach ($this->shapes as $shape) {
-            if (!$shape->isOnPlayerBoat($playerId)) {
-                continue;
-            }
-            $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
-        }
-        $colorSet = [];
-        foreach (CAT_COLOR_IDS as $colorId) {
-            $colorSet[$colorId] = true;
-        }
-        foreach (BOAT_RAT_PLACEMENT[$boatColorName] as $pos) {
-            $x = $pos['x'];
-            $y = $pos['y'];
-            if (!$boat->isGridEmpty($x, $y)) {
-                continue;
-            }
-            $otherShape = $boat->getShapeAt($x - 1, $y + 0);
-            if ($otherShape !== null) {
-                unset($colorSet[$otherShape->colorId]);
-            }
-            $otherShape = $boat->getShapeAt($x + 1, $y + 0);
-            if ($otherShape !== null) {
-                unset($colorSet[$otherShape->colorId]);
-            }
-            $otherShape = $boat->getShapeAt($x + 0, $y - 1);
-            if ($otherShape !== null) {
-                unset($colorSet[$otherShape->colorId]);
-            }
-            $otherShape = $boat->getShapeAt($x + 0, $y + 1);
-            if ($otherShape !== null) {
-                unset($colorSet[$otherShape->colorId]);
-            }
-        }
-        return count($colorSet);
-    }
-
-    public function getPlayerEmptyRoomIds($playerId) {
-        $emptyRooms = [];
-        $boatShape = $this->getBoatShape($playerId);
-        for ($index = 0; $index <= count(BOAT_ROOMS_RECTANGLE[$boatShape]); ++$index) {
-            $emptyRooms[$index] = true;
-        }
-        $this->load();
-        $boat = new TiocBoatGrid($boatShape);
-        foreach ($this->shapes as $shape) {
-            if (!$shape->isOnPlayerBoat($playerId)) {
-                continue;
-            }
-            $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
-        }
-        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
-            for ($y = 0; $y < BOATS_TILE_HEIGHT[$boatShape]; ++$y) {
-                if (!$boat->isGridValid($x, $y)) {
-                    continue;
-                }
-                if ($boat->isGridEmpty($x, $y)) {
-                    continue;
-                }
-                // Check each room to mark it as not empty
-                $foundRoom = false;
-                foreach (BOAT_ROOMS_RECTANGLE[$boatShape] as $index => $rect) {
-                    if (
-                        $x >= $rect['topX'] && $x <= $rect['bottomX']
-                        && $y >= $rect['topY'] && $y <= $rect['bottomY']
-                    ) {
-                        $foundRoom = true;
-                        unset($emptyRooms[$index]);
-                        break;
-                    }
-                }
-                // If we did not find any room, it's in the remaning irregular room
-                if (!$foundRoom) {
-                    unset($emptyRooms[count(BOAT_ROOMS_RECTANGLE[$boatShape])]);
-                }
-            }
-        }
-        return array_keys($emptyRooms);
-    }
-
     public function getPlayerUnfilledRoomIds($playerId, $boatShape) {
         $unfilledRooms = [];
         $this->load();
@@ -759,17 +677,31 @@ class TiocShapeMgr {
                 }
             }
         }
-        // First column has a middle row that touches the edge but not the top and the bottom
-        $shape = $boat->getShapeAt(0, intdiv(BOATS_TILE_HEIGHT[$boatShape], 2));
-        if ($shape !== null && $shape->colorId !== null && $shape->colorId == $colorId) {
-            $shapes[$shape->shapeId] = $shape;
+
+        // add edges of the holes
+        foreach (BOAT_HOLES[$boatShape] as $hole) {
+            $neighbors = [
+                [$hole['x'] - 1, $hole['y']],
+                [$hole['x'] + 1, $hole['y']],
+                [$hole['x'], $hole['y'] - 1],
+                [$hole['x'], $hole['y'] + 1],
+            ];
+            foreach ($neighbors as [$x, $y]) {
+                if ($boat->isGridValid($x, $y)) {
+                    $shape = $boat->getShapeAt($x, $y);
+                    if ($shape !== null && $shape->colorId !== null && $shape->colorId == $colorId) {
+                        $shapes[$shape->shapeId] = $shape;
+                    }
+                }
+            }
         }
+
+        // First column has a middle row that touches the edge but not the top and the bottom
         return array_values($shapes);
     }
 
-    public function hasEmptyOnEdge($playerId) {
+    public function hasEmptyOnEdge($playerId, $boatShape) {
         $this->load();
-        $boatShape = $this->getBoatShape($playerId);
         $boat = new TiocBoatGrid($boatShape);
         foreach ($this->shapes as $shape) {
             if (!$shape->isOnPlayerBoat($playerId)) {
@@ -781,34 +713,28 @@ class TiocShapeMgr {
             $minY = (BOATS_TILE_HEIGHT[$boatShape] - BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x]) / 2;
             foreach ([$minY, $minY + BOAT_TILE_HEIGHT_PER_COLUMN[$boatShape][$x] - 1] as $y) {
                 if ($boat->isGridEmpty($x, $y)) {
+                    //$this->game->dump('*******************empty edge at', $x, $y);
                     return true;
                 }
             }
         }
-        // First column has a middle row that touches the edge but not the top and the bottom
-        if ($boat->isGridEmpty(0, intdiv(BOATS_TILE_HEIGHT[$boatShape], 2))) {
-            //todo handle holes
-            return true;
-        }
-        return false;
-    }
 
-    public function hasEmptyOnMiddleRow($playerId) {
-        $this->load();
-        $boatShape = $this->getBoatShape($playerId);
-        $boat = new TiocBoatGrid($boatShape);
-        foreach ($this->shapes as $shape) {
-            if (!$shape->isOnPlayerBoat($playerId)) {
-                continue;
+        foreach (BOAT_HOLES[$boatShape] as $hole) {
+            $neighbors = [
+                [$hole['x'] - 1, $hole['y']],
+                [$hole['x'] + 1, $hole['y']],
+                [$hole['x'], $hole['y'] - 1],
+                [$hole['x'], $hole['y'] + 1],
+            ];
+
+            foreach ($neighbors as [$x, $y]) {
+                if ($boat->isGridValid($x, $y) && $boat->isGridEmpty($x, $y)) {
+                    //$this->game->dump('*******************empty edge (hole) at', $x, $y);
+                    return true;
+                }
             }
-            $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
-        $middleY = intval(BOATS_TILE_HEIGHT[$boatShape] / 2);
-        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
-            if ($boat->isGridEmpty($x, $middleY)) {
-                return true;
-            }
-        }
+
         return false;
     }
 

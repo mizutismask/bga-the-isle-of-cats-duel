@@ -32,13 +32,8 @@ trait DebugUtilTrait {
         $shapes = array_filter($shapes, function ($shape) use ($playerId) {
             return $shape->isOnPlayerBoat($playerId);
         });
-        $log = "[";
-        foreach ($shapes as $shape) {
-            if ($shape->isOnPlayerBoat($this->getCurrentPlayerId())) {
-                $log .= json_encode($shape);
-            }
-        }
-        $log .= "]";
+       
+        $this->dump('*******************', json_encode($shapes));
     }
 
     function debug_loadBoat(string $jsonBoatContent) {
