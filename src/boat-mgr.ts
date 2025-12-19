@@ -330,7 +330,7 @@ class BoatMgr {
 		return BOAT_HOLES[boatShape].some((hole) => hole.x === x && hole.y === y)
 	}
 
-	setupForPlayer(playerId: string, boatShape: BoatShape, gamedatas: TheIsleOfCatsDuelGamedatas) {
+	public setupForPlayer(playerId: string, boatShape: BoatShape, gamedatas: TheIsleOfCatsDuelGamedatas) {
 		// Build grid for one boat
 		let gridId = 0
 		for (let x = 0; x < BOATS_TILE_WIDTH[boatShape]; ++x) {
@@ -567,7 +567,7 @@ class BoatMgr {
 		}
 		if (this.clientTryShapeBoatGridUsed[x][y]) {
 			return false
-		}
+        }
 		if (this.clientPlayerBoatGridUsed[x][y]) {
 			return false
 		}
@@ -889,8 +889,10 @@ class BoatMgr {
 				gridElem.classList.remove(colorName)
 			}
 		}
-		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, this.getPlayerBoatShape(playerId))
-		this.clientPlayerShapeGridUsed = []
+		if (playerId == this.game.getPlayerId().toString()) {
+			this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, this.getPlayerBoatShape(playerId))
+			this.clientPlayerShapeGridUsed = []
+		}
 		this.clearBoatGridUsed(this.serverBoatGridUsed[playerId], this.getPlayerBoatShape(playerId))
 		this.serverPlayerShapeGridUsed[playerId] = []
 		const boatGridElems = document.querySelectorAll('.tioc-player-boat .tioc-grid')
