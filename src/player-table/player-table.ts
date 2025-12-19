@@ -48,7 +48,7 @@ class PlayerTable {
 		this.initHand(player, cards)
 	}
 
-    public initBoat(boatShape: string, gamedatas: TheIsleOfCatsDuelGamedatas) {
+    public initBoat(boatShape: BoatShape, gamedatas: TheIsleOfCatsDuelGamedatas) {
         document.querySelector(`#tioc-player-boat-${this.player.id}`).classList.add(boatShape)
         document.querySelector(`#tioc-player-board-${this.player.id}`).classList.remove("tioc-hidden")
         this.game.boatMgr.setupForPlayer(this.player.id, boatShape, gamedatas)

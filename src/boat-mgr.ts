@@ -8,7 +8,7 @@ const BOAT_TILE_BASE_TOP = 55 as const
 const O_BOAT_TILE_WIDTH = 22
 const I_BOAT_TILE_WIDTH = 21
 //const BOAT_TILE_WIDTH = 22 as const
-const BOATS_TILE_WIDTH: Record<string, number> = {
+const BOATS_TILE_WIDTH: Record<BoatShape, number> = {
 	OBoat: O_BOAT_TILE_WIDTH,
 	IBoat: I_BOAT_TILE_WIDTH
 }
@@ -324,24 +324,13 @@ class BoatMgr {
 				this.playerShapeColorCounter[playerId][colorCounter].setValue(0)
 			}
 		}
-
-		// Build array of used and unused boat grid for current player
-		const boatShape = this.getPlayerBoatShape(this.game.getPlayerId())
-		this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, boatShape)
-		this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed, boatShape)
-		for (const playerId in gamedatas.players) {
-			const pBoatShape = this.getPlayerBoatShape(playerId)
-			this.serverBoatGridUsed[playerId] = []
-			this.clearBoatGridUsed(this.serverBoatGridUsed[playerId], pBoatShape)
-			this.serverPlayerShapeGridUsed[playerId] = []
-		}
 	}
 
 	private isBoatHole(x: number, y: number, boatShape: string) {
 		return BOAT_HOLES[boatShape].some((hole) => hole.x === x && hole.y === y)
 	}
 
-	setupForPlayer(playerId: string, boatShape: string, gamedatas: TheIsleOfCatsDuelGamedatas) {
+	setupForPlayer(playerId: string, boatShape: BoatShape, gamedatas: TheIsleOfCatsDuelGamedatas) {
 		// Build grid for one boat
 		let gridId = 0
 		for (let x = 0; x < BOATS_TILE_WIDTH[boatShape]; ++x) {
@@ -368,6 +357,16 @@ class BoatMgr {
 				dojo.place(jstpl_shape_grid_small, miniature)
 			}
 		}
+
+		// Build array of used and unused boat grid for current player
+		if (playerId == this.game.getPlayerId().toString()) {
+			this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, boatShape)
+			this.clearBoatGridUsed(this.clientTryShapeBoatGridUsed, boatShape)
+		}
+
+		this.serverBoatGridUsed[playerId] = []
+		this.clearBoatGridUsed(this.serverBoatGridUsed[playerId], boatShape)
+		this.serverPlayerShapeGridUsed[playerId] = []
 
 		// Place each shape on boat
 		for (const shape of gamedatas.shapes) {
@@ -708,117 +707,125 @@ class BoatMgr {
 		return this.game.gamedatas.players[playerId].boatShape
 	}
 	/** Build / refresh per-cell overlays on all boats. */
-	updateGridOverlay = (): void => {
+	updateGridOverlay = (playerId?: string): void => {
 		for (const pid of this.playersIds) {
-			const grids = document.querySelectorAll<HTMLElement>(
-				`#tioc-player-boat-${pid} .tioc-grid[data-valid-grid="true"]`
-			)
-			grids.forEach((grid) => {
-				const x = parseInt(grid.dataset.x ?? '0', 10)
-				const y = parseInt(grid.dataset.y ?? '0', 10)
-				let overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`) as HTMLElement | null
+			if (playerId == null || pid == playerId) {
+				const grids = document.querySelectorAll<HTMLElement>(
+					`#tioc-player-boat-${pid} .tioc-grid[data-valid-grid="true"]`
+				)
+				grids.forEach((grid) => {
+					const x = parseInt(grid.dataset.x ?? '0', 10)
+					const y = parseInt(grid.dataset.y ?? '0', 10)
+					let overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`) as HTMLElement | null
 
-				if (!overlay) {
-					var jstpl_grid_overlay = `<div class="tioc-grid-overlay" id="tioc-grid-overlay-${pid}-${x}-${y}" data-x="${x}" data-y="${y}" style="left: ${grid.offsetLeft}px; top: ${grid.offsetTop}px;"></div>`
+					if (!overlay) {
+						var jstpl_grid_overlay = `<div class="tioc-grid-overlay" id="tioc-grid-overlay-${pid}-${x}-${y}" data-x="${x}" data-y="${y}" style="left: ${grid.offsetLeft}px; top: ${grid.offsetTop}px;"></div>`
 
-					// Create overlay from template and insert into the player's boat root
-					document
-						.getElementById(`tioc-player-boat-${pid}`)
-						.insertAdjacentHTML('beforeend', jstpl_grid_overlay)
-					overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`)
+						// Create overlay from template and insert into the player's boat root
+						document
+							.getElementById(`tioc-player-boat-${pid}`)
+							.insertAdjacentHTML('beforeend', jstpl_grid_overlay)
+						overlay = document.getElementById(`tioc-grid-overlay-${pid}-${x}-${y}`)
 
-					// Either place a map icon...
-					let hasMap = false
-					//const boatColor = this.playerBoatColorName[pid]
-					const boatShape = this.getPlayerBoatShape(pid)
-					const placement = BOAT_MAP_PLACEMENT[boatShape]
-					for (const colorName in placement) {
-						const p = placement[colorName as Color]
-						if (p.x === x && p.y === y) {
-							overlay?.insertAdjacentHTML('beforeend', `<div class="map-icon ${colorName}"></div>`)
-							hasMap = true
-							break
-						}
-					}
-					// ...or a room icon if inside any room rect and not in a hole
-					if (!hasMap && overlay) {
-						for (let roomIndex = 0; roomIndex < BOAT_ROOMS_RECTANGLE[boatShape].length; roomIndex++) {
-							const rect = BOAT_ROOMS_RECTANGLE[boatShape][roomIndex]
-							const inZoneHole = BOAT_ROOMS_HOLES[boatShape][roomIndex].some(
-								(h) => h.x === x && h.y === y
-							)
-							if (
-								x >= rect.topX &&
-								x <= rect.bottomX &&
-								y >= rect.topY &&
-								y <= rect.bottomY &&
-								!inZoneHole
-							) {
-								switch (roomIndex) {
-									case BOAT_ROOMS_ID_PARROT_BACK:
-										overlay.insertAdjacentHTML(
-											'beforeend',
-											`<div class="room-icon parrot-back"></div>`
-										)
-
-										break
-									case BOAT_ROOMS_ID_MOON_TOP:
-										overlay.insertAdjacentHTML(
-											'beforeend',
-											`<div class="room-icon moon-top"></div>`
-										)
-										break
-									case BOAT_ROOMS_ID_MOON_BOTTOM:
-										overlay.insertAdjacentHTML(
-											'beforeend',
-											`<div class="room-icon moon-bottom"></div>`
-										)
-										break
-									case BOAT_ROOMS_ID_APPLE_MIDDLE:
-										overlay.insertAdjacentHTML('beforeend', `<div class="room-icon apple"></div>`)
-										break
-									case BOAT_ROOMS_ID_CORN_FRONT:
-										overlay.insertAdjacentHTML('beforeend', `<div class="room-icon corn"></div>`)
-										break
-									case BOAT_ROOMS_ID_PARROT_FRONT:
-										overlay.insertAdjacentHTML(
-											'beforeend',
-											`<div class="room-icon parrot-front"></div>`
-										)
-										break
-								}
+						// Either place a map icon...
+						let hasMap = false
+						//const boatColor = this.playerBoatColorName[pid]
+						const boatShape = this.getPlayerBoatShape(pid)
+						const placement = BOAT_MAP_PLACEMENT[boatShape]
+						for (const colorName in placement) {
+							const p = placement[colorName as Color]
+							if (p.x === x && p.y === y) {
+								overlay?.insertAdjacentHTML('beforeend', `<div class="map-icon ${colorName}"></div>`)
+								hasMap = true
 								break
 							}
 						}
+						// ...or a room icon if inside any room rect and not in a hole
+						if (!hasMap && overlay) {
+							for (let roomIndex = 0; roomIndex < BOAT_ROOMS_RECTANGLE[boatShape].length; roomIndex++) {
+								const rect = BOAT_ROOMS_RECTANGLE[boatShape][roomIndex]
+								const inZoneHole = BOAT_ROOMS_HOLES[boatShape][roomIndex].some(
+									(h) => h.x === x && h.y === y
+								)
+								if (
+									x >= rect.topX &&
+									x <= rect.bottomX &&
+									y >= rect.topY &&
+									y <= rect.bottomY &&
+									!inZoneHole
+								) {
+									switch (roomIndex) {
+										case BOAT_ROOMS_ID_PARROT_BACK:
+											overlay.insertAdjacentHTML(
+												'beforeend',
+												`<div class="room-icon parrot-back"></div>`
+											)
+
+											break
+										case BOAT_ROOMS_ID_MOON_TOP:
+											overlay.insertAdjacentHTML(
+												'beforeend',
+												`<div class="room-icon moon-top"></div>`
+											)
+											break
+										case BOAT_ROOMS_ID_MOON_BOTTOM:
+											overlay.insertAdjacentHTML(
+												'beforeend',
+												`<div class="room-icon moon-bottom"></div>`
+											)
+											break
+										case BOAT_ROOMS_ID_APPLE_MIDDLE:
+											overlay.insertAdjacentHTML(
+												'beforeend',
+												`<div class="room-icon apple"></div>`
+											)
+											break
+										case BOAT_ROOMS_ID_CORN_FRONT:
+											overlay.insertAdjacentHTML(
+												'beforeend',
+												`<div class="room-icon corn"></div>`
+											)
+											break
+										case BOAT_ROOMS_ID_PARROT_FRONT:
+											overlay.insertAdjacentHTML(
+												'beforeend',
+												`<div class="room-icon parrot-front"></div>`
+											)
+											break
+									}
+									break
+								}
+							}
+						}
 					}
-				}
 
-				if (!overlay) return
+					if (!overlay) return
 
-				// Show/hide global overlay toggle
-				if (this.overlayButtonPressedPerPlayerId[pid]) overlay.classList.remove('tioc-hidden')
-				else overlay.classList.add('tioc-hidden')
+					// Show/hide global overlay toggle
+					if (this.overlayButtonPressedPerPlayerId[pid]) overlay.classList.remove('tioc-hidden')
+					else overlay.classList.add('tioc-hidden')
 
-				// Border classes depending on adjacency & hidden shapes
-				if (this.isPlayerGridEmpty(pid, x, y) || this.shapesHiddenPerPlayerId[pid]) {
-					overlay.classList.add('empty')
-					overlay.classList.remove('top', 'bottom', 'left', 'right')
-				} else {
-					overlay.classList.remove('empty')
-					this.isPlayerGridEmpty(pid, x, y - 1)
-						? overlay.classList.add('top')
-						: overlay.classList.remove('top')
-					this.isPlayerGridEmpty(pid, x, y + 1)
-						? overlay.classList.add('bottom')
-						: overlay.classList.remove('bottom')
-					this.isPlayerGridEmpty(pid, x - 1, y)
-						? overlay.classList.add('left')
-						: overlay.classList.remove('left')
-					this.isPlayerGridEmpty(pid, x + 1, y)
-						? overlay.classList.add('right')
-						: overlay.classList.remove('right')
-				}
-			})
+					// Border classes depending on adjacency & hidden shapes
+					if (this.isPlayerGridEmpty(pid, x, y) || this.shapesHiddenPerPlayerId[pid]) {
+						overlay.classList.add('empty')
+						overlay.classList.remove('top', 'bottom', 'left', 'right')
+					} else {
+						overlay.classList.remove('empty')
+						this.isPlayerGridEmpty(pid, x, y - 1)
+							? overlay.classList.add('top')
+							: overlay.classList.remove('top')
+						this.isPlayerGridEmpty(pid, x, y + 1)
+							? overlay.classList.add('bottom')
+							: overlay.classList.remove('bottom')
+						this.isPlayerGridEmpty(pid, x - 1, y)
+							? overlay.classList.add('left')
+							: overlay.classList.remove('left')
+						this.isPlayerGridEmpty(pid, x + 1, y)
+							? overlay.classList.add('right')
+							: overlay.classList.remove('right')
+					}
+				})
+			}
 		}
 	}
 
@@ -926,7 +933,7 @@ class BoatMgr {
 			}
 		}
 		//this.updatePlayerPanelShapeCount()
-		this.updateGridOverlay()
+		this.updateGridOverlay(playerId)
 	}
 
 	showScoreBoatPosition(playerId, scoreBoatPosition) {
