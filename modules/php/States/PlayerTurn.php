@@ -126,9 +126,9 @@ class PlayerTurn extends GameState {
                 $this->playInstantCard($activePlayerId, $card);
             }
         } else {
-            $typedSlot = $this->game->getCatSlotFromGlobalSlot($slot);
+            /*$typedSlot = $this->game->getCatSlotFromGlobalSlot($slot);
             $shape = $this->game->shapeMgr->findByLocation(CARD_LOCATION_ID_ISLAND_CAT_SLOT, $typedSlot);
-            $this->game->shapeMgr->moveToToPlaceLocation($shape->shapeId);
+            $this->game->shapeMgr->moveToToPlaceLocation($shape->shapeId);*/
         }
         $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN, true);
 
@@ -286,7 +286,8 @@ class PlayerTurn extends GameState {
             if (!$slot || !$this->game->islandMgr->isValidSlot($slot)) {
                 throw new UserException('This slot is not valid');
             }
-            $validSlots = array_map(fn($s) => $this->game->getCatSlotFromGlobalSlot($s), $args['possibleSlotsForDiscovery']);
+            $possibleCatSlots = array_filter($args['possibleSlotsForDiscovery'], fn($s) => !$this->game->isCardSlot($s));
+            $validSlots = array_map(fn($s) => $this->game->getCatSlotFromGlobalSlot($s), $possibleCatSlots);
             if (!in_array($slot, $validSlots)) {
                 throw new UserException('You did not move the Oshax over this location');
             }
