@@ -229,10 +229,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.handCardsCounters[playerId] = cardsCounter
 
 		const jstpl_player_panel = `
-			<div class="tioc-player-panel-row">
-				<div class="tioc-player-panel-pill-counter big" id="tioc-player-panel-order-${player.id}">0</div>
-			</div>
-
+			
 			<div class="tioc-family-hidden tioc-player-panel-row tioc-break">
 				<div class="tioc-player-panel-pill">
 				<div class="tioc-player-panel-fish"></div>
