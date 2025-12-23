@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bga\Games\TheIsleOfCatsDuel\States;
 
+use Bga\GameFramework\Actions\CheckAction;
 use Bga\GameFramework\Actions\Types\StringParam;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
@@ -429,6 +430,17 @@ class PlayerTurn extends GameState {
         );
     }
 
+   /* #[CheckAction(false)]
+    function actResetPlayerTurn() {
+        $possible = $this->getGlobalVariable(CAN_RESET_TURN);
+        if (!$possible) {
+            throw new UserException(self::_("Undo is not available"));
+        }
+        $this->game->undoRestorePoint();
+        //$this->toggleResetTurn(false);
+        $this->gamestate->reloadState();
+    }
+**/
     /**
      * This method is called each time it is the turn of a player who has quit the game (= "zombie" player).
      * You can do whatever you want in order to make sure the turn of this player ends appropriately

@@ -633,12 +633,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				this.statusBar.addActionButton(_('End my turn'), () => this.pass(), { color: 'alert' })
 			}
 
-			if (chooseActionArgs.canResetTurn) {
-				this.statusBar.addActionButton(_('Reset my turn'), () => this.takeAction('actResetPlayerTurn'), {
-					color: 'alert',
-					title: _('Reset your entire round')
-				})
-			}
+			/*if (chooseActionArgs.canResetTurn) {
+				this.statusBar.addActionButton(
+					_('Reset my turn'),
+					() => this.takeAction('actResetPlayerTurn', null, { lock: true, checkAction: false }),
+					{
+						color: 'alert',
+						title: _('Reset your entire round')
+					}
+				)
+			}*/
 		}
 	}
 
