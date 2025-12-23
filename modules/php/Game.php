@@ -39,6 +39,7 @@ class Game extends \Bga\GameFramework\Table {
     public TiocShapeMgr $shapeMgr;
     public TiocCardMgr $cardMgr;
     public PlayerCounter $playerFishCounter;
+    public PlayerCounter $playerLessonCounter;
     public ContextMgr $contextMgr;
     public IslandMgr $islandMgr;
 
@@ -56,6 +57,7 @@ class Game extends \Bga\GameFramework\Table {
         $this->initGameStateLabels([]); // mandatory, even if the array is empty
 
         $this->playerFishCounter = $this->counterFactory->createPlayerCounter('fish');
+        $this->playerLessonCounter = $this->counterFactory->createPlayerCounter('lesson');
 
         self::$CARD_TYPES = [
             1 => [
@@ -160,6 +162,7 @@ class Game extends \Bga\GameFramework\Table {
         $result['shapes'] = $this->shapeMgr->getShapesAsArray();
         $result['boatUsedGridColor'] = !$this->globals->get(Constants::GLBL_BOATS_CHOSEN) ? [] : $this->shapeMgr->getBoatUsedGridColor(array_keys($this->loadPlayersBasicInfos()));
         $this->playerFishCounter->fillResult($result);
+        $this->playerLessonCounter->fillResult($result);
 
         foreach ($result['players'] as $playerId => &$player) {
             $currentPlayerOrder = intval($player['playerNo']);
@@ -222,6 +225,7 @@ class Game extends \Bga\GameFramework\Table {
 
         // TODO: Setup the initial game situation here.
         $this->playerFishCounter->initDb(array_keys($players), 3);
+        $this->playerLessonCounter->initDb(array_keys($players), 0);
 
         $this->globals->set("round", 0);
         $this->globals->set(Constants::GLBL_OSHAX_LOCATION, 1);

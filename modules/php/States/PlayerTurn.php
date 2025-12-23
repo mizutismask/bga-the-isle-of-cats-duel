@@ -112,6 +112,7 @@ class PlayerTurn extends GameState {
                 $this->globals->inc(Constants::GLBL_REMAINING_TREASURES, 2);
             } else if ($card->isLesson()) {
                 $this->game->cardMgr->moveLessonToHand($card->cardId, $activePlayerId);
+                $this->game->playerLessonCounter->inc($activePlayerId, 1);
                 $this->notify->all("materialMove", '', [
                     'type' => Constants::MATERIAL_TYPE_CARD,
                     'from' => Constants::MATERIAL_LOCATION_ISLAND,

@@ -190,26 +190,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 	private setupMiniPlayerBoard(player: TheIsleOfCatsDuelPlayer) {
 		const playerId = Number(player.id)
-		this.gameui.getPlayerPanelElement(playerId).insertAdjacentHTML(
-			'afterbegin',
-			`<div id="counters-${player.id}" class="counters">
-				<div id="hand-cards-counter-${player.id}-wrapper" class="counter hand-cards-counter counter-left-part">
-					<div class="fa fa-hand-paper-o"></div> 
-					<span id="hand-cards-counter-${player.id}"></span>
-				</div>
-			</div>
-			<div id="additional-info-${player.id}" class="counters additional-info">
-				<div id="additional-icons-${player.id}" class="additional-icons"></div> 
-			</div>
-			`
-		)
-
-		/* const revealedTokensBackCounter = new ebg.counter();
-            revealedTokensBackCounter.create(`revealed-tokens-back-counter-${player.id}`);
-            revealedTokensBackCounter.setValue(player.revealedTokensBackCount);
-            this.revealedTokensBackCounters[playerId] = revealedTokensBackCounter;
-*/
-
 		const jstpl_player_panel = `
 			
 			<div class="tioc-family-hidden tioc-player-panel-row tioc-break">
@@ -253,10 +233,12 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.fishCounters[playerId] = fishCounter
 
 		const cardsCounter = new ebg.counter()
-		cardsCounter.create(`hand-cards-counter-${player.id}`)
-		cardsCounter.setValue(player.cardsCount)
+		cardsCounter.create(`tioc-player-panel-private-lesson-counter-${player.id}`, {
+			value: player.lessonsCount,
+			playerCounter: 'lesson',
+			playerId: parseInt(player.id)
+		})
 		this.handCardsCounters[playerId] = cardsCounter
-
 	}
 
 	private setupHelpPopin() {
@@ -621,20 +603,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			}
 			if (chooseActionArgs.canTradeFishForDiscovery) {
 				//if (chooseActionArgs.possibleSlotsForDiscovery.some((s) => this.island.hasSlotSomethingToTake(s))){
-					this.statusBar.addActionButton(
-						_('Take discovery'),
-						() => {
-							this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
-						},
-						{ classes: 'button-trade-fish', id: 'button-discovery', color: 'secondary' }
-					)
-					document
-						.getElementById('button-discovery')
-						.insertAdjacentElement('afterbegin', this.createFishSpan())
-					document
-						.getElementById('button-discovery')
-						.insertAdjacentElement('afterbegin', this.createFishSpan())
-					document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
+				this.statusBar.addActionButton(
+					_('Take discovery'),
+					() => {
+						this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
+					},
+					{ classes: 'button-trade-fish', id: 'button-discovery', color: 'secondary' }
+				)
+				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
+				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
+				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
 				//}
 			}
 

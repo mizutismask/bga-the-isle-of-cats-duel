@@ -27,7 +27,7 @@ interface Shape {
 
 interface TheIsleOfCatsDuelPlayer extends Player {
 	playerNo: number
-	cardsCount: number
+	lessonsCount: number
 	tickets: number
 	hand: Array<TheIsleOfCatsDuelCard>
 	fish: number
