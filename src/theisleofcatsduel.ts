@@ -363,6 +363,22 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 			//const actions = this.getPossibleActions(args)
 			//this.setChooseActionGamestateDescription(actions.join(_(' or ')))
+		} else {
+			if (args.remainingTreasures > 0) {
+				this.setChooseActionGamestateDescription(
+					_('${actplayer} can select one treasure and place it on his boat')
+				)
+			} else if (args.shapeToPlace) {
+				this.setChooseActionGamestateDescription(
+					_('${actplayer} must select place the drawn shape on his boat')
+				)
+			} else if (args.mandatoryMoveDone) {
+				if (args.possibleSlotsForDiscovery.length > 0) {
+					this.setChooseActionGamestateDescription(_('${actplayer} can select one discovery and/or use fish'))
+				} else {
+					this.setChooseActionGamestateDescription(_('${actplayer} can use fish or end his turn'))
+				}
+			}
 		}
 		//this.missions.addCards(args._private.missions).then(()=>this.missions.setSelectableCards(args._private.choosableMissions))
 	}
