@@ -193,11 +193,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.gameui.getPlayerPanelElement(playerId).insertAdjacentHTML(
 			'afterbegin',
 			`<div id="counters-${player.id}" class="counters">
-				<div id="fish-player-counter-${player.id}-wrapper" class="counter fish-counter">
-					<div class="icon fish"></div> 
-					<span id="fish-player-counter-${player.id}"></span>
-				</div>
-			
 				<div id="hand-cards-counter-${player.id}-wrapper" class="counter hand-cards-counter counter-left-part">
 					<div class="fa fa-hand-paper-o"></div> 
 					<span id="hand-cards-counter-${player.id}"></span>
@@ -214,19 +209,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
             revealedTokensBackCounter.setValue(player.revealedTokensBackCount);
             this.revealedTokensBackCounters[playerId] = revealedTokensBackCounter;
 */
-
-		const fishCounter = new ebg.counter()
-		fishCounter.create(`fish-player-counter-${player.id}`, {
-			value: player.fish,
-			playerCounter: 'fish',
-			playerId: parseInt(player.id)
-		})
-		this.fishCounters[playerId] = fishCounter
-
-		const cardsCounter = new ebg.counter()
-		cardsCounter.create(`hand-cards-counter-${player.id}`)
-		cardsCounter.setValue(player.cardsCount)
-		this.handCardsCounters[playerId] = cardsCounter
 
 		const jstpl_player_panel = `
 			
@@ -261,6 +243,20 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			`
 
 		this.gameui.getPlayerPanelElement(playerId).insertAdjacentHTML('beforeend', jstpl_player_panel)
+
+		const fishCounter = new ebg.counter()
+		fishCounter.create(`tioc-player-panel-fish-counter-${player.id}`, {
+			value: player.fish,
+			playerCounter: 'fish',
+			playerId: parseInt(player.id)
+		})
+		this.fishCounters[playerId] = fishCounter
+
+		const cardsCounter = new ebg.counter()
+		cardsCounter.create(`hand-cards-counter-${player.id}`)
+		cardsCounter.setValue(player.cardsCount)
+		this.handCardsCounters[playerId] = cardsCounter
+
 	}
 
 	private setupHelpPopin() {
