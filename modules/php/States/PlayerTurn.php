@@ -188,7 +188,7 @@ class PlayerTurn extends GameState {
                 'fish_img' => '',
             ]
         );
-      /*  $this->notify->all("materialMove", '', [
+        /*  $this->notify->all("materialMove", '', [
             'type' => Constants::MATERIAL_TYPE_CARD,
             'from' => Constants::MATERIAL_LOCATION_ISLAND,
             'to' => Constants::MATERIAL_LOCATION_DISCARD,
@@ -236,6 +236,10 @@ class PlayerTurn extends GameState {
             throw new UserException('You don’t have enough fish');
         }
 
+        if ($this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION) != null) {
+            throw new UserException('You must finish your additional move before using another fish');
+        }
+
         switch ($additionalAction) {
             case 'M':
             case 'J':
@@ -248,12 +252,49 @@ class PlayerTurn extends GameState {
             $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, $additionalAction);
         }
         $this->game->playerFishCounter->inc($activePlayerId, FISH_ACTION_COST[$additionalAction] * -1);
+        $this->notify->all("message", clienttranslate('${player_name} trades ${fishCount} ${fish_img} for an additional action: ${action}'), [
+            'player_id' => $activePlayerId,
+            'player_name' => $this->game->getPlayerName($activePlayerId),
+            'action' => $this->getTranslatedAction($additionalAction),
+            'fishCount' => FISH_ACTION_COST[$additionalAction],
+            'fish_img' => '',
+        ]);
 
         return PlayerTurn::class;
     }
 
+    private function getTranslatedAction(string $fishAction) {
+        return match ($fishAction) {
+            "M" => clienttranslate("Move"),
+            "J" => clienttranslate("Jump"),
+            "T" => clienttranslate("Take a treasure"),
+            "D" => clienttranslate("Take a discovery"),
+            default => "Unknown fish action"
+        };
+    }
+
     #[PossibleAction]
     public function actMoveShapeToBoat(string $shapeId, int $x, int $y, int $rotation, int $flipH, int $flipV, int $activePlayerId, array $args) {
+
+        $shape = $this->game->shapeMgr->findByShapeId($shapeId);
+        $slot = $shape->islandCatSlot;
+        $fromIsland = $shape->shapeLocationId == SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
+        if ($fromIsland) {
+            $this->game->dump('*******************slot', $shape);
+            if (!$slot || !$this->game->islandMgr->isValidSlot($slot)) {
+                throw new UserException('This slot is not valid');
+            }
+            $validSlots = array_map(fn($s) => $this->game->getCatSlotFromGlobalSlot($s), $args['possibleSlotsForDiscovery']);
+            if (!in_array($slot, $validSlots)) {
+                throw new UserException('You did not move the Oshax over this location');
+            }
+        }
+
+        $fishAction = $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
+        if ($fishAction && ["M", "J"] == $fishAction) {
+            throw new UserException('You have to finish your additional move before choosing a discovery');
+        }
+
         $shapeTypeId = $this->game->shapeMgr->getShapeTypeIdFromShapeId($shapeId);
         $isTreasure = $shapeTypeId == SHAPE_TYPE_ID_COMMON_TREASURE;
         $shapePlacement = $this->actionTypePlaceShape($activePlayerId, ["shapeId" => $shapeId, "x" => $x, "y" => $y, "rotation" => $rotation, "flipH" => $flipH, "flipV" => $flipV], $shapeTypeId);

@@ -627,18 +627,23 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				document.getElementById('button-treasure').insertAdjacentElement('afterbegin', this.createFishSpan())
 			}
 			if (chooseActionArgs.canTradeFishForDiscovery) {
-				this.statusBar.addActionButton(
-					_('Take discovery'),
-					() => {
-						this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
-					},
-					{ classes: 'button-trade-fish', id: 'button-discovery', color: 'secondary' }
-				)
-				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
-				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
-				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
+				//if (chooseActionArgs.possibleSlotsForDiscovery.some((s) => this.island.hasSlotSomethingToTake(s))){
+					this.statusBar.addActionButton(
+						_('Take discovery'),
+						() => {
+							this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
+						},
+						{ classes: 'button-trade-fish', id: 'button-discovery', color: 'secondary' }
+					)
+					document
+						.getElementById('button-discovery')
+						.insertAdjacentElement('afterbegin', this.createFishSpan())
+					document
+						.getElementById('button-discovery')
+						.insertAdjacentElement('afterbegin', this.createFishSpan())
+					document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
+				//}
 			}
-
 
 			this.addImageActionButton(
 				'useTicket_button',
@@ -1220,18 +1225,23 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		return jstpl_shape
 	}
 
-	
-/**
- * Create a shape element and place it according to its location.
- * Be careful to pass an element as the location if this is a boat cell since they have the same id on both boats
- * @param {string|HTMLElement} location - the location to place the shape element
- * @param {number} shapeId - the id of the shape to create
- * @param {number} shapeTypeId - the type id of the shape to create
- * @param {number} shapeDefId - the definition id of the shape to create
- * @param {number} [colorId = null] - the color id of the shape to create
- * @returns {HTMLElement} the created shape element
- */
-	public createShapeElement(location:string|HTMLElement, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement {
+	/**
+	 * Create a shape element and place it according to its location.
+	 * Be careful to pass an element as the location if this is a boat cell since they have the same id on both boats
+	 * @param {string|HTMLElement} location - the location to place the shape element
+	 * @param {number} shapeId - the id of the shape to create
+	 * @param {number} shapeTypeId - the type id of the shape to create
+	 * @param {number} shapeDefId - the definition id of the shape to create
+	 * @param {number} [colorId = null] - the color id of the shape to create
+	 * @returns {HTMLElement} the created shape element
+	 */
+	public createShapeElement(
+		location: string | HTMLElement,
+		shapeId,
+		shapeTypeId,
+		shapeDefId,
+		colorId = null
+	): HTMLElement {
 		dojo.place(this.formatShapeElement(shapeId, shapeTypeId, shapeDefId, colorId), location)
 		this.updateTooltips()
 		return document.getElementById(`tioc-shape-id-${shapeId}`)

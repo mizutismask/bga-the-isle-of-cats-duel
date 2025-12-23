@@ -254,7 +254,7 @@ class Game extends \Bga\GameFramework\Table {
         $this->cardMgr->drawCardsForIsland(5);
     }
 
-    public  function resetIsland() {
+    public function resetIsland() {
         $this->shapeMgr->emptyIsland();
         $this->shapeMgr->drawFromBag(10);
         $this->cardMgr->emptyIsland();

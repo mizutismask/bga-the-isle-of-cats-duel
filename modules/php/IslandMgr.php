@@ -74,9 +74,9 @@ class IslandMgr {
         if ($this->game->globals->get(Constants::GLBL_MANDATORY_MOVE_DONE)) {
             $previousMoves = $this->game->contextMgr->getAllContextLogs(Constants::CONTEXT_ACTION_OSHAX_MOVE);
             $slotsSeen = array_unique(array_merge(...array_map(function ($move) {
-                return [$move['param1'], $move['param2']];
+                return [intval($move['param1']), intval($move['param2'])];
             }, $previousMoves)));
         }
-        return  $slotsSeen;
+        return array_values($slotsSeen);
     }
 }

@@ -905,7 +905,7 @@ class BoatMgr {
 					const x = gridColor.x
 					const y = gridColor.y
 					this.serverBoatGridUsed[pId][x][y] = true
-					log('serverBoatGridUsed', pId, x, y, ' true')
+					//log('serverBoatGridUsed', pId, x, y, ' true')
 					if (!(gridColor.shapeId in this.serverPlayerShapeGridUsed[pId])) {
 						this.serverPlayerShapeGridUsed[pId][gridColor.shapeId] = []
 					}
@@ -918,11 +918,11 @@ class BoatMgr {
 					const boatGridElem = document.querySelector(
 						'#tioc-player-boat-' + pId + ' .tioc-grid.x_' + x + '_y_' + y
 					)
-					log(
+					/*log(
 						'updatePlayerPanelBoat',
 						'#tioc-player-boat-' + pId + ' .tioc-grid.x_' + x + '_y_' + y,
 						boatGridElem
-					)
+					)*/
 
 					this.game.updateShapeElementTooltip(shape, boatGridElem.id)
 					if (colorId === null) {

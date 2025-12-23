@@ -13,6 +13,9 @@ class Island {
 
 			islandSlot.addEventListener('click', (evt) => {
 				if (evt.detail > 1) return
+				if (islandSlot.classList.contains('island-slot-disabled')) return
+				if (!islandSlot.querySelector('.tioc-shape') && !islandSlot.querySelector('.theisleofcatsduel-card'))
+					return
 				this.game.clickOnSlot(parseInt(islandSlot.dataset.slotId))
 			})
 		}
@@ -37,6 +40,14 @@ class Island {
 		oshax.id = `oshax`
 		oshax.classList.add('oshax')
 		container.querySelector(`#island-slot-${gamedatas.oshaxLocation}`).appendChild(oshax)
+	}
+
+	public hasSlotSomethingToTake(slotNumber: number): boolean {
+		const islandSlot = document.getElementById(`island-slot-${slotNumber}`)
+		return (
+			islandSlot.querySelector('.tioc-shape') != null ||
+			islandSlot.querySelector('.theisleofcatsduel-card') != null
+		)
 	}
 
 	public isCardSlot(slotId: number): boolean {
@@ -66,7 +77,7 @@ class Island {
 		this.disableAllSlots(false)
 		this.cardsSlots.forEach((cardSlot) => cardSlot.removeAll())
 		cards.forEach((card) => this.cardsSlots[card.islandCardSlot].addCard(card))
-		document.querySelectorAll("#island .tioc-shape").forEach((shape) => shape.remove())
+		document.querySelectorAll('#island .tioc-shape').forEach((shape) => shape.remove())
 		//this.game.islandMgr.emptyIsland()
 		shapes.forEach((shape) => this.game.islandMgr.createAndPlaceShape(shape, false))
 	}
