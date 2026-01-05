@@ -101,9 +101,6 @@ class SelectNextRoundCat extends GameState {
      * but use the $playerId passed in parameter and $this->game->getPlayerNameById($playerId) instead.
      */
     function zombie(int $playerId) {
-        // Example of zombie level 0: return NextPlayer::class; or $this->actPass($playerId);
-
-        // Example of zombie level 1:
         $args = $this->getArgs();
         $shape = $this->game->shapeMgr->findByLocation(SHAPE_LOCATION_ID_BAG, null);
         return $this->moveShapeToBag($shape);

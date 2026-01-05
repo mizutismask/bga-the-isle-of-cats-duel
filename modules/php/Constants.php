@@ -2,7 +2,7 @@
 
 namespace Bga\Games\TheIsleOfCatsDuel;
 
-class  Constants {
+class Constants {
 
     /*
  * Custom framework constants
@@ -25,4 +25,9 @@ class  Constants {
     const GLBL_DISCOVERY_TAKEN = "discoveryTaken";
     const GLBL_REMAINING_TREASURES = "remainingTreasures";
     const GLBL_BOATS_CHOSEN = "boatsChosen";
+
+
+    const CARD_TYPE_ID_ANYTIME = 2;
+    const CARD_TYPE_ID_TREASURE = 3;
+    const CARD_TYPE_ID_LESSON = 4;
 }

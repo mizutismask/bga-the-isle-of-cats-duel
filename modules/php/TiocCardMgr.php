@@ -27,10 +27,6 @@ const CARD_LOCATION_ID_DISCARD_PLAYED = 6;
 const CARD_LOCATION_ID_ISLAND_CARD_SLOT = 7;
 const CARD_LOCATION_ID_ISLAND_CAT_SLOT = 7;
 
-const CARD_TYPE_ID_ANYTIME = 2;
-const CARD_TYPE_ID_TREASURE = 3;
-const CARD_TYPE_ID_LESSON = 4;
-
 const CARD_NEEDS_BUY_COLOR = [
     143 => true,
     144 => true,
@@ -199,7 +195,7 @@ class TiocCardMgr {
             $privateLessonsCount[$playerId] = 0;
         }
         foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_LESSON) {
+            if ($card->cardTypeId != Constants::CARD_TYPE_ID_LESSON) {
                 continue;
             }
             if ($card->cardLocationId != CARD_LOCATION_ID_TABLE) {
@@ -217,7 +213,7 @@ class TiocCardMgr {
         $this->load();
         $cards = [];
         foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_LESSON) {
+            if ($card->cardTypeId != Constants::CARD_TYPE_ID_LESSON) {
                 continue;
             }
             if ($card->cardLocationId != CARD_LOCATION_ID_PLAYER_HAND) {
@@ -405,7 +401,7 @@ class TiocCardMgr {
         $cards = [];
         $this->load();
         foreach ($this->cards as $card) {
-            if ($card->cardTypeId != CARD_TYPE_ID_LESSON) {
+            if ($card->cardTypeId != Constants::CARD_TYPE_ID_LESSON) {
                 continue;
             }
             if ($card->cardLocationId != CARD_LOCATION_ID_PLAYER_HAND) {
@@ -566,7 +562,7 @@ class TiocCardMgr {
     public function countLessons($playerId) {
         $this->load();
         return count(array_filter($this->cards, function ($card) use (&$playerId) {
-            return $card->cardTypeId == CARD_TYPE_ID_LESSON && $card->isOnPlayerTable($playerId);
+            return $card->cardTypeId == Constants::CARD_TYPE_ID_LESSON && $card->isOnPlayerTable($playerId);
         }));
     }
 

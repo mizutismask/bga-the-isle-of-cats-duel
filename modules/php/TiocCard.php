@@ -24,11 +24,11 @@ class TiocCard {
         $this->islandCardSlot = $islandCardSlot;
         $this->cardTypeId = null;
         if ($this->cardId >= 7 && $this->cardId <= 10) {
-            $this->cardTypeId = CARD_TYPE_ID_ANYTIME;
+            $this->cardTypeId = Constants::CARD_TYPE_ID_ANYTIME;
         } else if ($this->cardId >= 1 && $this->cardId <= 6) {
-            $this->cardTypeId = CARD_TYPE_ID_TREASURE;
+            $this->cardTypeId = Constants::CARD_TYPE_ID_TREASURE;
         } else if ($this->cardId >= 11 && $this->cardId <= 32) {
-            $this->cardTypeId = CARD_TYPE_ID_LESSON;
+            $this->cardTypeId = Constants::CARD_TYPE_ID_LESSON;
         }
 
          $this->cardAnytimeTypeId = null;
@@ -49,11 +49,11 @@ class TiocCard {
     }
 
     public function isTreasure() {
-        return ($this->cardTypeId == CARD_TYPE_ID_TREASURE);
+        return ($this->cardTypeId == Constants::CARD_TYPE_ID_TREASURE);
     }
 
     public function isLesson() {
-        return ($this->cardTypeId == CARD_TYPE_ID_LESSON);
+        return ($this->cardTypeId == Constants::CARD_TYPE_ID_LESSON);
     }
 
     public function isInDeck() {
@@ -130,7 +130,7 @@ class TiocCard {
             if ($privateVisible) {
                 return true;
             }
-            if ($this->cardTypeId == CARD_TYPE_ID_LESSON) {
+            if ($this->cardTypeId == Constants::CARD_TYPE_ID_LESSON) {
                 return false;
             }
             if ($this->playerPrivate) {

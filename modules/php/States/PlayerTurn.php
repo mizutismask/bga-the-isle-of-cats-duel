@@ -456,11 +456,41 @@ class PlayerTurn extends GameState {
      * but use the $playerId passed in parameter and $this->game->getPlayerNameById($playerId) instead.
      */
     function zombie(int $playerId) {
-        // Example of zombie level 0: return NextPlayer::class; or $this->actPass($playerId);
-
-        // Example of zombie level 1:
+        //zombie level 1
         $args = $this->getArgs();
-        $zombieChoice = $this->getRandomZombieChoice($args['playableCardsIds']); // random choice over possible moves
-        return $this->actPlayCard($zombieChoice, $playerId, $args); // this function will return the transition to the next state
+        $mandatoryMoveDone = $args['mandatoryMoveDone'];
+        $shapeToPlace = $args['shapeToPlace'];
+        if ($shapeToPlace) {
+            $this->game->shapeMgr->discardShapeId($shapeToPlace->shapeId);
+        }
+        if ($mandatoryMoveDone) {
+            //if there is a lesson/instant card we take it, otherwise we end the turn (except for the instant that makes placing a piece)
+            $reachableSlots = $args['possibleSlotsForDiscovery'];
+            $reachableSlots = array_filter($reachableSlots, function ($slot) {
+                return $this->game->isCardSlot($slot) && ($this->isCardInSlotLesson($slot) || $this->isCardInSlotInstantAndZombiePlayable($slot));
+            });
+            if (count($reachableSlots) > 0) {
+                $slot = $this->game->getRandomValue($reachableSlots);
+                return $this->actTakeDiscovery($slot, $playerId, $args); // this function will return the transition to the next state
+            }
+            return $this->actPass($playerId);
+        } else {
+            //random oshax move
+            $oshaxValidMoves = $args['oshaxValidMoves'];
+            $slot = $this->game->getRandomValue($oshaxValidMoves);
+            return $this->actMoveOshax($slot, $playerId, $args);
+        }
+    }
+
+    function isCardInSlotLesson(int $slot) {
+        $typedSlot = $this->game->getCardSlotFromGlobalSlot($slot);
+        $card = $this->game->cardMgr->findByCardLocation(CARD_LOCATION_ID_ISLAND_CARD_SLOT, $typedSlot);
+        return $card &&$card->isLesson();
+    }
+
+    function isCardInSlotInstantAndZombiePlayable(int $slot) {
+        $typedSlot = $this->game->getCardSlotFromGlobalSlot($slot);
+        $card = $this->game->cardMgr->findByCardLocation(CARD_LOCATION_ID_ISLAND_CARD_SLOT, $typedSlot);
+        return $card && $card->cardTypeId == Constants::CARD_TYPE_ID_ANYTIME && $card->cardAnytimeTypeId != CARD_ANYTIME_TYPE_ID_DRAW_AND_BOAT_SHAPE;
     }
 }
