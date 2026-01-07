@@ -102,9 +102,12 @@ class Game extends \Bga\GameFramework\Table {
      * @see ./states.inc.php
      */
     public function getGameProgression() {
-        // TODO: compute and return the game progression
-
-        return 0;
+        $stateName = $this->gamestate->getCurrentMainState()->name;
+        if ($stateName === 'EndScore' || $stateName === 'GameEnd'|| $stateName === 'DebugGameEnd') {
+            // game is over
+            return 100;
+        }
+        return max(25 * ($this->globals->get("round") - 1), 0);
     }
 
     /**
