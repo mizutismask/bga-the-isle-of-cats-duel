@@ -102,7 +102,7 @@ class SelectNextRoundCat extends GameState {
      */
     function zombie(int $playerId) {
         $args = $this->getArgs();
-        $shape = $this->game->shapeMgr->findByLocation(SHAPE_LOCATION_ID_BAG, null);
+        $shape = $this->game->shapeMgr->findByLocation(SHAPE_LOCATION_ID_FIELD, null);
         return $this->moveShapeToBag($shape);
     }
 }
