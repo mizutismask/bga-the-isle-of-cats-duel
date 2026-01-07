@@ -567,7 +567,7 @@ class BoatMgr {
 		}
 		if (this.clientTryShapeBoatGridUsed[x][y]) {
 			return false
-        }
+		}
 		if (this.clientPlayerBoatGridUsed[x][y]) {
 			return false
 		}
@@ -889,18 +889,19 @@ class BoatMgr {
 				gridElem.classList.remove(colorName)
 			}
 		}
-		if (playerId == this.game.getPlayerId().toString()) {
-			this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, this.getPlayerBoatShape(playerId))
-			this.clientPlayerShapeGridUsed = []
-		}
-		this.clearBoatGridUsed(this.serverBoatGridUsed[playerId], this.getPlayerBoatShape(playerId))
-		this.serverPlayerShapeGridUsed[playerId] = []
-		const boatGridElems = document.querySelectorAll('.tioc-player-boat .tioc-grid')
-		for (const gridElem of Array.from(boatGridElems)) {
-			this.game.gameui.removeTooltip(gridElem.id)
-		}
 		for (const pId in boatUsedGridColor) {
-			if (pId == null || pId == playerId) {
+			if (playerId == null || pId == playerId) {
+				if (pId == this.game.getPlayerId().toString()) {
+					this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, this.getPlayerBoatShape(pId))
+					this.clientPlayerShapeGridUsed = []
+				}
+				this.clearBoatGridUsed(this.serverBoatGridUsed[pId], this.getPlayerBoatShape(pId))
+				this.serverPlayerShapeGridUsed[pId] = []
+				const boatGridElems = document.querySelectorAll('.tioc-player-boat .tioc-grid')
+				for (const gridElem of Array.from(boatGridElems)) {
+					this.game.gameui.removeTooltip(gridElem.id)
+				}
+
 				for (const gridColor of boatUsedGridColor[pId]) {
 					const x = gridColor.x
 					const y = gridColor.y

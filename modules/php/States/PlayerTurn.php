@@ -23,6 +23,7 @@ use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CAT_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_DISCARD_SHAPES;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_MOVE_SHAPE_TO_BOAT;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_PLAY_AND_DISCARD_CARDS;
+use const Bga\Games\TheIsleOfCatsDuel\NTF_UPDATE_BOAT_USED_GRID_COLOR;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_UPDATE_FILL_FIELDS;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_TO_PLACE;
@@ -352,6 +353,14 @@ class PlayerTurn extends GameState {
                 ]
             );
         }
+
+         $this->game->tiocNotifyAllPlayers(
+            NTF_UPDATE_BOAT_USED_GRID_COLOR,
+            '',
+            [
+                'boatUsedGridColor' => $this->game->shapeMgr->getBoatUsedGridColor(array_keys($this->game->loadPlayersBasicInfos())),
+            ]
+        );
         return PlayerTurn::class;
     }
     #[PossibleAction]
