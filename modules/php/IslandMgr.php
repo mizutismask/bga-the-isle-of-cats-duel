@@ -63,7 +63,8 @@ class IslandMgr {
         $remainingMoves = $this->game->globals->inc(Constants::GLBL_REMAINING_OSHAX_MOVES, -1);
         if ($remainingMoves == 0) $this->game->globals->set(Constants::GLBL_MANDATORY_MOVE_DONE, true);
 
-        $this->game->notify->all("oshaxMove", "", [
+        $this->game->notify->all("oshaxMove", clienttranslate('${player_name} moves the oshax to slot ${to}'), [
+            "player_name" => $this->game->getPlayerName($playerId),
             "player_id" => $playerId,
             "to" => $slot,
         ]);

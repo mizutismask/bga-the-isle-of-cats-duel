@@ -111,10 +111,14 @@ class PlayerTurn extends GameState {
             if ($card->isTreasure()) {
                 $this->game->cardMgr->validateAndUseTreasureCard($activePlayerId, $card->cardId);
                 $this->globals->inc(Constants::GLBL_REMAINING_TREASURES, 2);
+                $this->notify->all("message", clienttranslate('${player_name} takes a Treasure card'), [
+                    'player_name' => $this->game->getPlayerName($activePlayerId),
+                ]);
             } else if ($card->isLesson()) {
                 $this->game->cardMgr->moveLessonToHand($card->cardId, $activePlayerId);
                 $this->game->playerLessonCounter->inc($activePlayerId, 1);
-                $this->notify->all("materialMove", '', [
+                $this->notify->all("materialMove", clienttranslate('${player_name} takes a Lesson card'), [
+                    'player_name' => $this->game->getPlayerName($activePlayerId),
                     'type' => Constants::MATERIAL_TYPE_CARD,
                     'from' => Constants::MATERIAL_LOCATION_ISLAND,
                     'to' => Constants::MATERIAL_LOCATION_HAND,
@@ -123,6 +127,9 @@ class PlayerTurn extends GameState {
                     'notifSender' => __METHOD__,
                 ]);
             } else {
+                $this->notify->all("message", clienttranslate('${player_name} takes an Instant card'), [
+                    'player_name' => $this->game->getPlayerName($activePlayerId),
+                ]);
                 $this->playInstantCard($activePlayerId, $card);
             }
         } else {
@@ -276,7 +283,7 @@ class PlayerTurn extends GameState {
     }
 
     #[PossibleAction]
-    public function actMoveShapeToBoat(string $shapeId, int $x, int $y, int $rotation, int $flipH, int $flipV, int $activePlayerId, array $args) {
+    public function actMoveShapeToBoat(string $shapeId, int $x, int $y, int $rotation, bool $flipH, bool $flipV, int $activePlayerId, array $args) {
 
         $shape = $this->game->shapeMgr->findByShapeId($shapeId);
         $slot = $shape->islandCatSlot;
@@ -464,7 +471,7 @@ class PlayerTurn extends GameState {
             $this->game->shapeMgr->discardShapeId($shapeToPlace->shapeId);
         }
         if ($mandatoryMoveDone) {
-            //if there is a lesson/instant card we take it, otherwise we end the turn (except for the instant that makes placing a piece)
+            //if there is a lesson/instant card we take it, otherwise we place a piece or end the turn if not possible
             $reachableSlots = $args['possibleSlotsForDiscovery'];
             $reachableSlots = array_filter($reachableSlots, function ($slot) {
                 return $this->game->isCardSlot($slot) && ($this->isCardInSlotLesson($slot) || $this->isCardInSlotInstantAndZombiePlayable($slot));
@@ -472,6 +479,18 @@ class PlayerTurn extends GameState {
             if (count($reachableSlots) > 0) {
                 $slot = $this->game->getRandomValue($reachableSlots);
                 return $this->actTakeDiscovery($slot, $playerId, $args); // this function will return the transition to the next state
+            } else {
+                $possibleCatSlots = array_filter($args['possibleSlotsForDiscovery'], fn($s) => !$this->game->isCardSlot($s));
+                $validSlots = array_map(fn($s) => $this->game->getCatSlotFromGlobalSlot($s), $possibleCatSlots);
+                foreach ($validSlots as $slot) {
+                    $shape = $this->game->shapeMgr->findByLocation(SHAPE_LOCATION_ID_ISLAND_CAT_SLOT, $slot);
+                    if ($shape) {
+                        $placementArgs =  $this->game->shapeMgr->getFirstPossiblePlacementForShapeOnBoat($playerId, $shape);
+                        if ($placementArgs) {
+                            return $this->actMoveShapeToBoat((string)$shape->shapeId, $placementArgs['x'], $placementArgs['y'], $placementArgs['rotation'], $placementArgs['flipH'], $placementArgs['flipV'], $playerId, $args);
+                        }
+                    }
+                }
             }
             return $this->actPass($playerId);
         } else {
@@ -485,7 +504,7 @@ class PlayerTurn extends GameState {
     function isCardInSlotLesson(int $slot) {
         $typedSlot = $this->game->getCardSlotFromGlobalSlot($slot);
         $card = $this->game->cardMgr->findByCardLocation(CARD_LOCATION_ID_ISLAND_CARD_SLOT, $typedSlot);
-        return $card &&$card->isLesson();
+        return $card && $card->isLesson();
     }
 
     function isCardInSlotInstantAndZombiePlayable(int $slot) {

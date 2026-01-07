@@ -554,6 +554,35 @@ class TiocShapeMgr {
         return false;
     }
 
+    public function getFirstPossiblePlacementForShapeOnBoat($playerId, $newShape) {
+        $boatShape = $this->getBoatShape($playerId);
+        $boat = new TiocBoatGrid($boatShape);
+        $boatHasShape = false;
+        $this->load();
+        foreach ($this->shapes as $shape) {
+            if (!$shape->isOnPlayerBoat($playerId)) {
+                continue;
+            }
+            $boatHasShape = true;
+            $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
+        }
+        
+        for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
+            for ($y = 0; $y < BOATS_TILE_HEIGHT[$boatShape]; ++$y) {
+                foreach (SHAPE_ROTATIONS as $rotation) {
+                    foreach ([false, true] as $flipH) {
+                        foreach ([false, true] as $flipV) {
+                            if ($boat->isValidShapePlacement($newShape->shapeId,  $newShape->shapeArray, $x, $y, $rotation, $flipH, $flipV, $boatHasShape)) {
+                                return ['x' => $x, 'y' => $y, 'rotation' => $rotation, 'flipH' => $flipH, 'flipV' => $flipV];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public function getBoatUsedGridColor($playerIdArray) {
         $this->load();
         $playerBoat = [];
@@ -901,7 +930,7 @@ class TiocShapeMgr {
         $this->save();
     }
 
-    private function validateBoatWithNewShape($playerId, $boatShape, $newShape, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes) {
+    public function validateBoatWithNewShape($playerId, $boatShape, $newShape, $x, $y, $rotation, $flipH, $flipV, $mustTouchOtherShapes) {
         $boat = new TiocBoatGrid($this->getBoatShape($playerId));
         $this->game->dump('*******************boat', $this->getBoatShape($playerId));
         $boatHasShape = false;

@@ -67,6 +67,15 @@ class TiocBoatGrid {
             throw new BgaVisibleSystemException("BUG! Shape $shapeId does not touch other shapes");
     }
 
+    public function isValidShapePlacement($shapeId, $shapeArray, $x, $y, $rotation, $paramFlipH, $paramFlipV, $mustTouchOtherShapes) {
+        try {
+            $this->validateShape($shapeId, $shapeArray, $x, $y, $rotation, $paramFlipH, $paramFlipV, $mustTouchOtherShapes);
+            return true;
+        } catch (BgaVisibleSystemException $th) {
+            return false;
+        }
+    }
+
     public function couldPlaceShape($shapeArray, $x, $y, $rotation, $paramFlipH, $paramFlipV) {
         $foundValidPlace = true;
         $this->forEachShapeGrid($shapeArray, $x, $y, $rotation, $paramFlipH, $paramFlipV, function ($gridX, $gridY) use (&$foundValidPlace) {
