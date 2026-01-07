@@ -46,7 +46,7 @@ class BoatChoice extends GameState {
      * @throws UserException
      */
     #[PossibleAction]
-    public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $activePlayerId, array $args) {
+    public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $activePlayerId) {
         $this->game->setPlayerGlobal($activePlayerId, 'boat', $boat);
         $this->notify->all("boatChosen", "", ["playerId" => $activePlayerId, "boatShape" => $boat]);
         if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), 'boat')) {
@@ -82,7 +82,6 @@ class BoatChoice extends GameState {
      * but use the $playerId passed in parameter and $this->game->getPlayerNameById($playerId) instead.
      */
     function zombie(int $playerId) {
-        $this->globals->set("boat_$playerId", "IBoat");
-        return NextPlayer::class;
+        return $this->actChooseBoat('OBoat', $playerId);
     }
 }
