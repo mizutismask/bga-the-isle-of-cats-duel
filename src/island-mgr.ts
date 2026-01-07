@@ -159,9 +159,7 @@ class IslandMgr {
 	}
 
 	public allowTakeToPlaceShape() {
-		const shapes = document.querySelectorAll<HTMLElement>(
-			'.island-wrapper #tioc-island-discard .tioc-shape'
-		)
+		const shapes = document.querySelectorAll<HTMLElement>('.island-wrapper #tioc-island-discard .tioc-shape')
 		for (const shape of Array.from(shapes)) {
 			this.game.addOnClick(shape, () => {
 				shape.classList.add('tioc-selected')
@@ -284,19 +282,21 @@ class IslandMgr {
 
 	discardShapeId(shapeId) {
 		const shapeElem = document.getElementById('tioc-shape-id-' + shapeId)
-		shapeElem.style.transform = ''
-		shapeElem.classList.add('tioc-moving')
-		this.game.animationManager.fadeOutAndDestroy(shapeElem)
-		/*  shapeElem.classList.add('tioc-animate-to-hidden-start');
-                    // Remove cat color
-                    shapeElem.innerHTML = '';
-                    const destinationId = 'tioc-island-discard';
-                    this.game.slide(shapeElem.id, destinationId).then(() => {
-                        //window.tiocWrap('discardShapeId_onEnd', () => {
-                            this.game.tiocFadeOutAndDestroy(shapeElem.id, 1000);
-                            this.updateTopShapes();
-                        //});
-                    });*/
-		//this.shapeSorter.schedule();
+		if (shapeElem) {
+			shapeElem.style.transform = ''
+			shapeElem.classList.add('tioc-moving')
+			this.game.animationManager.fadeOutAndDestroy(shapeElem)
+			/*  shapeElem.classList.add('tioc-animate-to-hidden-start');
+						// Remove cat color
+						shapeElem.innerHTML = '';
+						const destinationId = 'tioc-island-discard';
+						this.game.slide(shapeElem.id, destinationId).then(() => {
+							//window.tiocWrap('discardShapeId_onEnd', () => {
+								this.game.tiocFadeOutAndDestroy(shapeElem.id, 1000);
+								this.updateTopShapes();
+							//});
+						});*/
+			//this.shapeSorter.schedule();
+		}
 	}
 }
