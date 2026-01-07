@@ -73,16 +73,16 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 	}
 
 	public getCardTypeNameFromCardId(cardId) {
-                    /*switch (this.getCardTypeIdFromCardId(cardId)) {
+		/*switch (this.getCardTypeIdFromCardId(cardId)) {
                         
                         case CARD_TYPE_ID_TREASURE:
                             return _('Treasure');
                         case CARD_TYPE_ID_PRIVATE_LESSON:
                             return _('Lesson');
                     }*/
-                    return 'todo';
+		return 'todo'
 	}
-	
+
 	public getDescriptionAndNoteFromCardId(cardId) {
 		switch (parseInt(cardId)) {
 			case 1:
@@ -93,7 +93,7 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			case 6:
 				return {
 					description: _('Take any Oshax and place it on your boat.'),
-					note: '',
+					note: ''
 				}
 			case 7:
 			case 8:
@@ -105,7 +105,7 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			case 14:
 				return {
 					description: _('Gain 4 speed'),
-					note: '',
+					note: ''
 				}
 			case 15:
 			case 16:
@@ -117,7 +117,7 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			case 22:
 				return {
 					description: _('Gain a half basket'),
-					note: '',
+					note: ''
 				}
 			case 23:
 			case 24:
@@ -129,11 +129,36 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			case 30:
 			case 31:
 			case 32:
-                        
 		}
 		return {
 			description: '',
-			note: '',
+			note: ''
 		}
+	}
+
+	public showScoreCards(playerId, scoreCards) {
+		const delay = 200
+		let currentDelay = 0
+		scoreCards.sort((a, b) => a.cardId - b.cardId)
+		for (const scoreCard of scoreCards) {
+			const cardElemId = 'card-theisleofcatsduel-card-' + scoreCard.cardId
+			const cardElem = document.getElementById(cardElemId)
+			setTimeout(() => {
+				this.game.displayBigScore(cardElem.id, playerId, scoreCard.score)
+				this.addScoreToCardId(scoreCard.cardId, playerId, scoreCard.score)
+			}, currentDelay)
+			currentDelay += delay
+		}
+	}
+	private addScoreToCardId(cardId, playerId, score) {
+		if (score === null) {
+			return
+		}
+		let style = ''
+		if (playerId !== null) {
+			style = 'color: #' + this.game.gamedatas.players[playerId].color
+		}
+		const cardElemId = 'card-theisleofcatsduel-card-' + cardId
+		dojo.place(`<div class="tioc-card-end-score" style="${style}">+${score}</div>`, cardElemId)
 	}
 }

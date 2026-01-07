@@ -771,7 +771,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			['NTF_DISCARD_SHAPES', 1],
 			['NTF_UPDATE_FILL_FIELDS', 1],
 			['NTF_UPDATE_BOAT_USED_GRID_COLOR', 1],
-			['NTF_SCORE_BOAT_POSITION', ANIMATION_MS * 3]
+			['NTF_SCORE_BOAT_POSITION', ANIMATION_MS * 3],
+			['NTF_SCORE_CARDS', ANIMATION_MS * 3]
 		]
 
 		notifs.forEach((notif) => {
@@ -779,6 +780,11 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			//comment to prevent formating to glue these 2 lines
 			;(this.gameui as any).notifqueue.setSynchronous(notif[0], notif[1])
 		})
+	}
+
+	notif_NTF_SCORE_CARDS(notif) {
+		this.updatePlayerScore(notif.args.player_id, notif.args.totalScore, notif.args.scoreColumn, notif.args.score)
+		this.cardsManager.showScoreCards(notif.args.player_id, notif.args.scoreCards)
 	}
 
 	notif_NTF_UPDATE_FILL_FIELDS(notif) {

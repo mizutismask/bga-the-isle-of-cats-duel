@@ -940,10 +940,10 @@ class BoatMgr {
 
 	showScoreBoatPosition(playerId, scoreBoatPosition) {
 		for (const pos of scoreBoatPosition) {
-			const gridElem = document.querySelector(
+			const gridElem = document.querySelector<HTMLElement>(
 				'#tioc-player-boat-' + playerId + ' .tioc-grid.x_' + pos.x + '_y_' + pos.y
 			)
-			this.game.displayBigScore(gridElem.id, playerId, pos.score)
+			this.game.displayBigScore(gridElem, playerId, pos.score)
 		}
 	}
 }

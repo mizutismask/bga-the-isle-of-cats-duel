@@ -309,7 +309,7 @@ class Game extends \Bga\GameFramework\Table {
      */
     public function debug_playAutomatically(int $moves = 4) {
         $count = 0;
-        while (intval($this->gamestate->getCurrentMainStateId()) < 99 && $count < $moves) {
+        while (intval($this->gamestate->getCurrentMainStateId()) < 90 && $count < $moves) {
             $count++;
             foreach ($this->gamestate->getActivePlayerList() as $playerId) {
                 $playerId = (int)$playerId;
