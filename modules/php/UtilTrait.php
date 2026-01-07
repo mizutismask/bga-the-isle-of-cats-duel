@@ -53,7 +53,7 @@ trait UtilTrait {
     }
 
     public function getStateName() {
-        return $this->gamestate->getCurrentMainState()->getName();
+        return $this->gamestate->getCurrentMainState()->name;
     }
 
     public function getRandomKey(array &$array) {

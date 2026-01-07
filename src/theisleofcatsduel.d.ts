@@ -31,7 +31,11 @@ interface TheIsleOfCatsDuelPlayer extends Player {
 	tickets: number
 	hand: Array<TheIsleOfCatsDuelCard>
 	fish: number
-	boatShape
+	boatShape: BoatShape
+	scoreCatFamily?: number
+	scoreLessons?: number
+	scoreRats?: number
+	scoreUnfilledRooms?: number
 }
 
 type BoatShape = 'OBoat' | 'IBoat'
@@ -65,11 +69,11 @@ interface TheIsleOfCatsDuelGamedatas {
 }
 
 interface BoatCell {
-  x: number;
-  y: number;
-  colorId: number | null;
-  shapeId: number;
-};
+	x: number
+	y: number
+	colorId: number | null
+	shapeId: number
+}
 
 interface CounterValue {
 	counter_name: string
@@ -119,7 +123,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	addKnownShape(shape): void
 	updateShapeElementTooltip(shape, elementId = null): void
 	removeAbsolutePosition(elementId: string)
-	displayBigScore(parentElem: string|HTMLElement, playerId: number, score: string | number): void
+	displayBigScore(parentElem: string | HTMLElement, playerId: number, score: string | number): void
 }
 
 interface EnteringPlayerTurnArgs {

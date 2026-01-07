@@ -103,7 +103,7 @@ class Game extends \Bga\GameFramework\Table {
      */
     public function getGameProgression() {
         $stateName = $this->gamestate->getCurrentMainState()->name;
-        if ($stateName === 'EndScore' || $stateName === 'GameEnd'|| $stateName === 'DebugGameEnd') {
+        if ($stateName === 'EndScore' || $stateName === 'GameEnd' || $stateName === 'DebugGameEnd') {
             // game is over
             return 100;
         }
@@ -174,6 +174,14 @@ class Game extends \Bga\GameFramework\Table {
             $player['hand'] = $this->cardMgr->getLessonCards($playerId);
             $player['boatShape'] = $this->getPlayerGlobal($playerId, "boat");
 
+            if ($this->getStateName() === "GameEnd" || $this->getStateName() === "DebugGameEnd") {
+                $sql = "SELECT score_unfilled_rooms scoreUnfilledRooms, score_cat_familly scoreCatFamily, score_lessons scoreLessons, score_rats scoreRats FROM player where player_id = $playerId";
+                $scores = $this->getObjectFromDB($sql);
+                $player['scoreUnfilledRooms'] = intval($scores['scoreUnfilledRooms']);
+                $player['scoreCatFamily'] = intval($scores['scoreCatFamily']);
+                $player['scoreLessons'] = intval($scores['scoreLessons']);
+                $player['scoreRats'] = intval($scores['scoreRats']);
+            }
             // $player['cardsCount'] = intval($this->actionCards->countCardInLocation("hand", $playerId));
         }
 

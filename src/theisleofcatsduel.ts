@@ -98,7 +98,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		}
 		if (Number(gamedatas.gamestate.id) >= 90) {
 			// score or end
-			this.onEnteringEndScore()
+			this.onEnteringEndScore(gamedatas)
 		}
 
 		const gameArea = document.getElementById('custom-game-area')
@@ -324,9 +324,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					this.onEnteringChooseAction(dataArgs)
 				}
 				break
-			case 'endScore':
-				this.onEnteringEndScore()
-				break
 		}
 	}
 
@@ -398,10 +395,12 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	/**
 	 * Show score board.
 	 */
-	private onEnteringEndScore() {
-		const lastTurnBar = document.getElementById('last-round')
-		if (lastTurnBar) {
-			lastTurnBar.style.display = 'none'
+	private onEnteringEndScore(gamedatas: TheIsleOfCatsDuelGamedatas) {
+		for (const player of Object.values(gamedatas.players)) {
+			this.updatePlayerScore(player.id, player.score, 'score_rats', player.scoreRats, false)
+			this.updatePlayerScore(player.id, player.score, 'score_unfilled_rooms', player.scoreUnfilledRooms, false)
+			this.updatePlayerScore(player.id, player.score, 'score_cat_familly', player.scoreCatFamily, false)
+			this.updatePlayerScore(player.id, player.score, 'score_lessons', player.scoreLessons, false)
 		}
 	}
 
@@ -884,15 +883,25 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.scoreBoard?.highlightWinnerScore(notif.args.playerId)
 	}
 
-	updatePlayerScore(playerId, newScore, scoreColumn, scoreColumnScore) {
-		this.gameui.scoreCtrl[playerId].toValue(newScore)
+	updatePlayerScore(playerId, newScore, scoreColumn, scoreColumnScore, animate = true) {
+		log('updatePlayerScore', playerId, newScore, scoreColumn, scoreColumnScore)
+		if (animate) {
+			this.gameui.scoreCtrl[playerId].toValue(newScore)
+		} else {
+			this.gameui.scoreCtrl[playerId].setValue(newScore)
+		}
 		this.buildScoreTable()
 		let neg = 1
 		if (scoreColumn == 'score_rats' || scoreColumn == 'score_unfilled_rooms') {
 			neg = -1
 		}
-		this.scoreTable[scoreColumn][playerId].toValue(neg * scoreColumnScore)
-		this.scoreTable['score_total'][playerId].toValue(newScore)
+		if (animate) {
+			this.scoreTable[scoreColumn][playerId].toValue(neg * scoreColumnScore)
+			this.scoreTable['score_total'][playerId].toValue(newScore)
+		} else {
+			this.scoreTable[scoreColumn][playerId].setValue(neg * scoreColumnScore)
+			this.scoreTable['score_total'][playerId].setValue(newScore)
+		}
 	}
 	buildScoreTable() {
 		const tableElem = document.getElementById('tioc-score-table')
