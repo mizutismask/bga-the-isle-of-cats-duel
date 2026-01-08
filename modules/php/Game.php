@@ -40,6 +40,7 @@ class Game extends \Bga\GameFramework\Table {
     public TiocCardMgr $cardMgr;
     public PlayerCounter $playerFishCounter;
     public PlayerCounter $playerLessonCounter;
+    public array $playerShapeCounters;
     public ContextMgr $contextMgr;
     public IslandMgr $islandMgr;
 
@@ -58,6 +59,11 @@ class Game extends \Bga\GameFramework\Table {
 
         $this->playerFishCounter = $this->counterFactory->createPlayerCounter('fish');
         $this->playerLessonCounter = $this->counterFactory->createPlayerCounter('lesson');
+        $this->playerShapeCounters = [];
+        foreach (CAT_COLOR_IDS as $colorId) {
+            $this->playerShapeCounters[$colorId] = $this->counterFactory->createPlayerCounter("shapes-$colorId");
+        }
+        $this->playerShapeCounters["treasure"] = $this->counterFactory->createPlayerCounter("shapes-treasure");
 
         self::$CARD_TYPES = [
             1 => [
@@ -166,6 +172,9 @@ class Game extends \Bga\GameFramework\Table {
         $result['boatUsedGridColor'] = !$this->globals->get(Constants::GLBL_BOATS_CHOSEN) ? [] : $this->shapeMgr->getBoatUsedGridColor(array_keys($this->loadPlayersBasicInfos()));
         $this->playerFishCounter->fillResult($result);
         $this->playerLessonCounter->fillResult($result);
+        foreach ($this->playerShapeCounters as $shapeCounter) {
+            $shapeCounter->fillResult($result);
+        }
 
         foreach ($result['players'] as $playerId => &$player) {
             $currentPlayerOrder = intval($player['playerNo']);
@@ -237,6 +246,9 @@ class Game extends \Bga\GameFramework\Table {
         // TODO: Setup the initial game situation here.
         $this->playerFishCounter->initDb(array_keys($players), 3);
         $this->playerLessonCounter->initDb(array_keys($players), 0);
+        foreach ($this->playerShapeCounters as $shapeCounter) {
+            $shapeCounter->initDb(array_keys($players), 0);
+        }
 
         $this->globals->set("round", 0);
         $this->globals->set(Constants::GLBL_OSHAX_LOCATION, 1);

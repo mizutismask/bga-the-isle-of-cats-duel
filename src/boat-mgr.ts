@@ -317,11 +317,17 @@ class BoatMgr {
 			)
 
 			this.playerShapeColorCounter[playerId] = []
-			for (const colorCounter of SHAPE_COLOR_COUNTERS) {
+			const player = gamedatas.players[playerId]
+			for (let i = 0; i < SHAPE_COLOR_COUNTERS.length; i++) {
+				const colorCounter = SHAPE_COLOR_COUNTERS[i]
+				const counterId = SHAPE_COLOR_COUNTERS_IDS[i]
 				const elemId = 'tioc-player-panel-shape-face-' + colorCounter + '-' + playerId
 				this.playerShapeColorCounter[playerId][colorCounter] = new ebg.counter()
-				this.playerShapeColorCounter[playerId][colorCounter].create(elemId)
-				this.playerShapeColorCounter[playerId][colorCounter].setValue(0)
+				this.playerShapeColorCounter[playerId][colorCounter].create(elemId, {
+					value: player[`shapes-${counterId}`],
+					playerCounter: `shapes-${counterId}`,
+					playerId: parseInt(player.id)
+				})
 			}
 		}
 	}

@@ -319,8 +319,10 @@ class PlayerTurn extends GameState {
         }
         if ($isTreasure) {
             $this->game->globals->inc(Constants::GLBL_REMAINING_TREASURES, -1);
+            $this->game->playerShapeCounters["treasure"]->inc($activePlayerId, 1);
         } else if ($isShapeFromIsland) {
             $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN, true);
+            $this->game->playerShapeCounters[$shape->colorId]->inc($activePlayerId, 1);
         }
 
         $fishAction = $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
