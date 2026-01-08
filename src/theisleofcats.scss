@@ -527,8 +527,8 @@ $scale: 10;
 	#{$classStr} #tioc-island-discard {
 		left: calc(40px * #{$scale / 100});
 		top: calc(40px * #{$scale / 100});
-		width: calc(300px * #{$scale / 100});
-		height: calc(250px * #{$scale / 100});
+		width: calc(40px * 4 * #{$scale / 100});
+		height: calc(40px * 4 * #{$scale / 100});
 		display: flex;
 		align-items: center;
 		justify-content: center;
