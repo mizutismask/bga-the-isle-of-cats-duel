@@ -180,7 +180,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		this.setTooltipToClass('cstm-help-icon', `<div class="help-card recto"></div>`)
 		this.setTooltipToClass('cstm-help-icon-mini', `<div class="help-card verso"></div>`)
-		this.setTooltipToClass('player-turn-order', _('First player'))
+		this.setTooltipToClass('oshax', _('Move the Oshax to an adjacent place following the footprints'))
 	}
 
 	private setupPlayer(player: TheIsleOfCatsDuelPlayer) {
@@ -334,6 +334,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		if (this.gameui.isCurrentPlayerActive()) {
 			this.resetClientActionData()
 			this.island.enableSlots(args.oshaxValidMoves)
+			document.getElementById("oshax").classList.toggle("mobile", args.remainingMoves > 0)
 			if (args.remainingMoves > 0) {
 				//nothing
 			} else if (args.remainingTreasures > 0) {
