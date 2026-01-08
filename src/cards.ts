@@ -139,12 +139,12 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			case 14:
 				return {
 					description: _('2 points per lonely cat on your boat.'),
-					note: ''
+					note: _('A lonely cat is a cat that is not touching any another cats of the same colour.')
 				}
 			case 15:
 				return {
 					description: _('7 points if you have the largest family of cats of your boat.'),
-					note: ''
+					note: _('In the case of a tie, you get the points.')
 				}
 			case 16:
 				return {
@@ -194,12 +194,12 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			case 25:
 				return {
 					description: _('Score your third largest family twice.'),
-					note: ''
+					note: _('In the case of equal sized families, your third largest family may be the same size as your largest or second largest families.')
 				}
 			case 26:
 				return {
 					description: _('7 points if you have the most treasures.'),
-					note: ''
+					note: _('In the case of a tie, you get the points.')
 				}
 			case 27:
 				return {
@@ -233,8 +233,8 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 				}
 		}
 		return {
-			description: '',
-			note: ''
+			description: 'todo',
+			note: 'todo'
 		}
 	}
 
