@@ -1249,7 +1249,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		colorId = null
 	): HTMLElement {
 		dojo.place(this.formatShapeElement(shapeId, shapeTypeId, shapeDefId, colorId), location)
-		this.updateTooltips()
+		this.updateTooltipsNow()
 		return document.getElementById(`tioc-shape-id-${shapeId}`)
 	}
 	public forEachShapeGrid(shapeId, x, y, rotation, paramFlipH, paramFlipV, gridFunction) {
@@ -1355,10 +1355,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			}
 			this.updateShapeElementTooltip(shape)
 		}
-		const cards = document.querySelectorAll('.tioc-card')
-		for (const card of Array.from(cards)) {
-			this.updateCardElementTooltip(card)
-		}
+		
 		const buttons = document.querySelectorAll<HTMLElement>('.tioc-player-boat-hide-shapes')
 		for (const button of Array.from(buttons)) {
 			if (this.boatMgr.isPlayerBoatEmpty(button.dataset.playerId)) {
@@ -1433,33 +1430,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			}
 		)
 		const jstpl_tooltip_shape = `${shapeClone.outerHTML}'  <h3>${title}</h3> <p>${description}</p><p>${color}</p>`
-		this.gameui.addTooltipHtml(elementId, jstpl_tooltip_shape, 1500)
+		this.gameui.addTooltipHtml(elementId, jstpl_tooltip_shape, 1000)
 	}
-	public updateCardElementTooltip(card) {
-		this.gameui.removeTooltip(card.id)
-		const cardClone = card.cloneNode()
-		cardClone.id = ''
-		cardClone.style = ''
-		cardClone.classList.remove('tioc-moving')
-		cardClone.classList.remove('tioc-clickable')
-		cardClone.classList.remove('tioc-selected')
-		cardClone.classList.remove('tioc-card-buy')
-		cardClone.classList.add('tioc-card-tooltip-id-' + card.dataset.cardId)
-		cardClone.classList.add('tioc-tooltip-wiggle')
-		const cardTypeName = this.cardsManager.getCardTypeNameFromCardId(card.dataset.cardId)
-		//let color = this.cardsManager.getCurrentColorIdFromCardId(card.dataset.cardId)
-		let color = 'blue' //this.getColorNameFromColorId(color)
-		const descNote = this.cardsManager.getDescriptionAndNoteFromCardId(card.dataset.cardId)
-
-		const jstpl_tooltip_card = `
-			${cardClone.outerHTML}
-			<h3>${cardTypeName} <small>(${card.dataset.cardId})</small></h3>
-			<p>${descNote.description}</p>
-			<p><i>${descNote.note}</i></p>
-			<p>${color}</p>
-		`
-		this.gameui.addTooltipHtml(card.id, jstpl_tooltip_card, 1000)
-	}
+	
 	public showInformationDialog(title, paragraphArray, params = {}) {
 		this.closeAllTooltips()
 		const dialog = new ebg.popindialog()
