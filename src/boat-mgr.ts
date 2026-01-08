@@ -300,7 +300,7 @@ class BoatMgr {
 			this.game.gameui.addTooltip(
 				hideShapesButtonElem.id,
 				'',
-				_('Press to hide shapes that are on the boat and see the rooms hidden by the shapes')
+				_('Keep pressing to hide shapes that are on the boat and see the rooms hidden by the shapes')
 			)
 
 			this.overlayButtonPressedPerPlayerId[playerId] = false
