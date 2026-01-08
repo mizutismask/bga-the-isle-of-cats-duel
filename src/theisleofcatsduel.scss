@@ -178,6 +178,12 @@ svg {
 		@include card-border;
 	}
 }
+.tioc-card-zoom {
+	aspect-ratio: $BASE_CARD_WIDTH / $BASE_CARD_HEIGHT;
+	width: 108px;	
+	justify-self: center;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
 
 .deck {
 	&[data-empty='true'] {

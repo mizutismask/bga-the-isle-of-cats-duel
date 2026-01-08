@@ -1,6 +1,10 @@
 // <reference path="../card-manager.ts"/>
 const IMAGE_ITEMS_PER_ROW = 10
 
+const CARD_TYPE_ID_ANYTIME = 2
+const CARD_TYPE_ID_TREASURE = 3
+const CARD_TYPE_ID_LESSON = 4
+
 class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 	constructor(public game: TheIsleOfCatsDuelGame) {
 		super({
@@ -72,15 +76,15 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 		cardDiv.style.backgroundSize = `${IMAGE_ITEMS_PER_ROW * 100}%`
 	}
 
-	public getCardTypeNameFromCardId(cardId) {
-		/*switch (this.getCardTypeIdFromCardId(cardId)) {
-                        
-                        case CARD_TYPE_ID_TREASURE:
-                            return _('Treasure');
-                        case CARD_TYPE_ID_PRIVATE_LESSON:
-                            return _('Lesson');
-                    }*/
-		return 'todo'
+	public getCardTypeNameFromCardId(card: TheIsleOfCatsDuelCard) {
+		switch (card.cardTypeId) {
+			case CARD_TYPE_ID_TREASURE:
+				return _('Treasure')
+			case CARD_TYPE_ID_LESSON:
+				return _('Lesson')
+			case CARD_TYPE_ID_ANYTIME:
+				return _('Instant')
+		}
 	}
 
 	public getDescriptionAndNoteFromCardId(cardId) {
@@ -92,43 +96,141 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			case 5:
 			case 6:
 				return {
-					description: _('Take any Oshax and place it on your boat.'),
+					description: _('Take any 2 treasures.'),
 					note: ''
 				}
 			case 7:
+				return {
+					description: _('Take 1 tile from the bag at random and immediately place it on your boat.'),
+					note: ''
+				}
 			case 8:
+				return {
+					description: _('Gain 1 fish (max 3) for each unique coloured cat on your boat.'),
+					note: ''
+				}
 			case 9:
+				return {
+					description: _('Gain 1 fish (max 3) for each treasure on your boat.'),
+					note: ''
+				}
 			case 10:
+				return {
+					description: _(
+						'Pick a color (Done automatically in your greatest interest). Gain 1 fish (max 3) for each cat of the chosen color on your boat.'
+					),
+					note: ''
+				}
 			case 11:
+				return {
+					description: _('12 points if there are no empty spaces at the edge of your boat.'),
+					note: ''
+				}
 			case 12:
+				return {
+					description: _('15 points if you have 3 or more cats of each colour on your boat.'),
+					note: ''
+				}
 			case 13:
+				return {
+					description: _('7 points if you have 1 or more of each colour cat touching the edge of your boat.'),
+					note: ''
+				}
 			case 14:
 				return {
-					description: _('Gain 4 speed'),
+					description: _('2 points per lonely cat on your boat.'),
 					note: ''
 				}
 			case 15:
+				return {
+					description: _('7 points if you have the largest family of cats of your boat.'),
+					note: ''
+				}
 			case 16:
+				return {
+					description: _('1 point per treasure on your boat.'),
+					note: ''
+				}
 			case 17:
+				return {
+					description: _('9 points if you have exactly 5 blue cats on your boat.'),
+					note: ''
+				}
 			case 18:
+				return {
+					description: _('9 points if you have exactly 5 green cats on your boat.'),
+					note: ''
+				}
 			case 19:
+				return {
+					description: _('9 points if you have exactly 5 purple cats on your boat.'),
+					note: ''
+				}
 			case 20:
+				return {
+					description: _('9 points if you have exactly 5 red cats on your boat.'),
+					note: ''
+				}
 			case 21:
+				return {
+					description: _('9 points if you have exactly 5 orange cats on your boat.'),
+					note: ''
+				}
 			case 22:
 				return {
-					description: _('Gain a half basket'),
+					description: _('12 points if you have exactly 5 visible rats on your boat.'),
 					note: ''
 				}
 			case 23:
+				return {
+					description: _('9 points if you have exactly 5 treasures on your boat.'),
+					note: ''
+				}
 			case 24:
+				return {
+					description: _('2 point per 2 cats touching the edge of your boat.'),
+					note: ''
+				}
 			case 25:
+				return {
+					description: _('Score your third largest family twice.'),
+					note: ''
+				}
 			case 26:
+				return {
+					description: _('7 points if you have the most treasures.'),
+					note: ''
+				}
 			case 27:
+				return {
+					description: _('12 points if you have exactly 2 visible treasure maps.'),
+					note: ''
+				}
 			case 28:
+				return {
+					description: _('12 points if you have exactly 18 cats on your boat.'),
+					note: ''
+				}
 			case 29:
+				return {
+					description: _('12 points if you have exactly 2 families that are the same size.'),
+					note: ''
+				}
 			case 30:
+				return {
+					description: _('2 points for every red or blue cat on your boat, whichever you have fewer of.'),
+					note: ''
+				}
 			case 31:
+				return {
+					description: _('2 points for every orange or green cat on your boat, whichever you have fewer of.'),
+					note: ''
+				}
 			case 32:
+				return {
+					description: _('2 points for every blue or purple cat on your boat, whichever you have fewer of.'),
+					note: ''
+				}
 		}
 		return {
 			description: '',
@@ -160,5 +262,22 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 		}
 		const cardElemId = 'card-theisleofcatsduel-card-' + cardId
 		dojo.place(`<div class="tioc-card-end-score" style="${style}">+${score}</div>`, cardElemId)
+	}
+
+	public getTooltip(card: TheIsleOfCatsDuelCard): string {
+		const descNote = this.getDescriptionAndNoteFromCardId(card.cardId)
+		const cardTypeName = this.getCardTypeNameFromCardId(card)
+		const cardZoom = document.createElement('div')
+		cardZoom.classList.add('tioc-card-zoom')
+		cardZoom.id = `card-zoom-${card.cardId}`
+		this.setFrontBackground(cardZoom, card.cardId)
+
+		const jstpl_tooltip_card = `
+				${cardZoom.outerHTML}
+				<h3>${cardTypeName} <small>(${card.cardId})</small></h3>
+				<p>${descNote.description}</p>
+				<p><i>${descNote.note}</i></p>
+				`
+		return jstpl_tooltip_card
 	}
 }
