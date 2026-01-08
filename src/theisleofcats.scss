@@ -1635,11 +1635,11 @@ $x: $x + 1;
 }
 
 #tioc-shape-control-arrow-container-rotate-cw {
-	transform: translateX(-100%) translateY(100%);
+	transform: translateX(100%) translateY(100%);
 }
 
 #tioc-shape-control-arrow-container-rotate-ccw {
-	transform: translateX(100%) translateY(100%);
+	transform: translateX(-100%) translateY(100%);
 }
 
 .tioc-shape-control-arrow {
@@ -1721,9 +1721,9 @@ $x: $x + 1;
 }
 
 #tioc-shape-control-arrow-rotate-cw {
-	right: 0%;
+	left: 0%;
 	top: 0%;
-	justify-content: flex-end;
+	justify-content: flex-start;
 	align-items: flex-end;
 	transform: scaleX(-1);
 	background-image: url('img/arrows.png');
@@ -1731,9 +1731,9 @@ $x: $x + 1;
 }
 
 #tioc-shape-control-arrow-rotate-ccw {
-	left: 0%;
+	right: 0%;
 	top: 0%;
-	justify-content: flex-start;
+	justify-content: flex-end;
 	align-items: flex-end;
 	background-image: url('img/arrows.png');
 	background-position: -40px 0px;
