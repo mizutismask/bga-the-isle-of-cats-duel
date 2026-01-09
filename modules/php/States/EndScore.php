@@ -234,14 +234,14 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                     if ($otherPlayerId != $playerId) {
                         $otherPlayerFamillies = $this->game->shapeMgr->getPlayerCatFamilly($otherPlayerId);
                         foreach ($otherPlayerFamillies as $otherPlayerFamilly) {
-                            if (count($otherPlayerFamilly) >= $largestFamilySize) {
+                            if (count($otherPlayerFamilly) > $largestFamilySize) {
                                 $largestFamilyFound = true;
                                 break 2;
                             }
                         }
                     }
                 }
-                if ($largestFamilyFound) {
+                if (!$largestFamilyFound) {
                     $score += 7;
                 }
                 break;
