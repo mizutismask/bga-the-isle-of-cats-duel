@@ -328,8 +328,8 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                 }
                 break;
             case 29:
-                // TODO test
                 $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+                $famillies = array_filter($famillies, fn($f) => count($f) >= 3);
                 $famillySizes = array_map(function ($familly) {
                     return count($familly);
                 }, $famillies);

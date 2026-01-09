@@ -213,7 +213,7 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 				}
 			case 29:
 				return {
-					description: _('12 points if you have exactly 2 families that are the same size.'),
+					description: _('8 points if you have exactly 2 families that are the same size.'),
 					note: ''
 				}
 			case 30:
