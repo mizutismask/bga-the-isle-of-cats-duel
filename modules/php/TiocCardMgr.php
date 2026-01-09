@@ -441,7 +441,7 @@ class TiocCardMgr {
     public function validateAndUseTreasureCard($playerId, $cardId) {
         $this->load();
         $playedCard = $this->findByCardId($cardId);
-        if ($playedCard === null || !$playedCard->isInPlayerHand($playerId))
+        if ($playedCard === null)
             throw new BgaVisibleSystemException("BUG! Invalid cardId $cardId");
 
         if (!$playedCard->isTreasure())
