@@ -51,5 +51,6 @@ class DebugGameEnd extends GameState {
      * but use the $playerId passed in parameter and $this->game->getPlayerNameById($playerId) instead.
      */
     function zombie(int $playerId) {
+        $this->gamestate->setPlayerNonMultiactive($playerId, '');
     }
 }
