@@ -14,7 +14,7 @@ class Island {
 			islandSlot.addEventListener('click', (evt) => {
 				if (evt.detail > 1) return
 				if (islandSlot.classList.contains('island-slot-disabled')) return
-				if (!islandSlot.querySelector('.tioc-shape') && !islandSlot.querySelector('.theisleofcatsduel-card'))
+				if (this.game.gamedatas.gamestate.args.remainingMoves == 0 && !islandSlot.querySelector('.tioc-shape') && !islandSlot.querySelector('.theisleofcatsduel-card'))
 					return
 				this.game.clickOnSlot(parseInt(islandSlot.dataset.slotId))
 			})
