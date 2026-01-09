@@ -58,7 +58,10 @@ class ShapeControl {
 		.join('')}
 
     <div class="tioc-shape-control-arrow-container" id="tioc-shape-control-arrow-container-up">
-      <div class="bgabutton bgabutton_blue" id="tioc-shape-control-button-confirm"></div>
+		<div class="end-placement-container">
+			<div class="bgabutton bgabutton_blue end-placement-button" id="tioc-shape-control-button-confirm"><i class="fa fa6 fa6-solid fa6-check"></i></div>
+			<div class="bgabutton bgabutton_blue end-placement-button" id="tioc-shape-control-button-cancel"><i class="fa fa6 fa6-solid fa6-xmark"></i></div>
+		</div>
       <div class="tioc-shape-control-arrow" id="tioc-shape-control-arrow-up"></div>
     </div>
 
@@ -77,7 +80,7 @@ class ShapeControl {
 			grid.classList.add('tioc-clickable-no-border')
 			this.game.addOnClick(grid, (event) => {
 				event.preventDefault()
-				log("_attach", grid.dataset.x, grid.dataset.y)
+				log('_attach', grid.dataset.x, grid.dataset.y)
 				this._moveToPosIfFar(parseInt(grid.dataset.x), parseInt(grid.dataset.y))
 			})
 		})
@@ -91,7 +94,6 @@ class ShapeControl {
 		dojo.query('#tioc-shape-control-arrow-rotate-cw').connect('onclick', this._buildRotateClicker(1))
 		dojo.query('#tioc-shape-control-arrow-rotate-ccw').connect('onclick', this._buildRotateClicker(-1))
 		dojo.query('#tioc-shape-control-button-confirm').connect('onclick', (event) => {
-			//window.tiocWrap('ShapeControl_attach_confirm_onclick', () => {
 			event.preventDefault()
 			if (!this._isPositionValid()) {
 				if (this.game.boatMgr.isBoatEmpty()) {
@@ -119,11 +121,28 @@ class ShapeControl {
 				usedGrid
 			)
 		})
-		//})
+		dojo.query('#tioc-shape-control-button-cancel').connect('onclick', (event) => {
+			event.preventDefault()
+			const shapeToReposition = this._shapeElement();
+			const whereToPutBack = this._shapeElement().dataset.previousParent
+			shapeToReposition.classList.remove('tioc-selected')
+			//todo change status bar title
+			this.detach() 
+			//this.game.islandMgr.moveShapeToIsland(state.shapeId, price)
+			if (shapeToReposition && whereToPutBack) {
+				document.getElementById(whereToPutBack).appendChild(shapeToReposition)
+			}
+			//onCancelFunction(this.shapeId)
+		})
 		const confirmButton = document.getElementById('tioc-shape-control-button-confirm')
-		confirmButton.innerText = _('Confirm')
-		const parent = confirmButton.parentNode as HTMLElement
-		confirmButton.style.left = Math.floor(parent.offsetWidth / 2 - confirmButton.offsetWidth / 2) + 'px'
+		//confirmButton.innerText = _('Confirm')
+		//const parent = confirmButton.parentNode as HTMLElement
+		//confirmButton.style.left = Math.floor(parent.offsetWidth / 2 - confirmButton.offsetWidth / 2) + 'px'
+
+		const cancelButton = document.getElementById('tioc-shape-control-button-cancel')
+		//cancelButton.innerText = _('Cancel')
+		//const parent = cancelButton.parentNode as HTMLElement
+		//confirmButton.style.left = Math.floor(parent.offsetWidth / 2 - confirmButton.offsetWidth / 2) + 'px'
 		//this.game.boatMgr.updateCurrentPlayerTooltips()
 	}
 	public detach() {
@@ -163,6 +182,9 @@ class ShapeControl {
 	}
 	public _shapeControlConfirmButton() {
 		return document.getElementById('tioc-shape-control-button-confirm')
+	}
+	public _shapeControlCancelButton() {
+		return document.getElementById('tioc-shape-control-button-cancel')
 	}
 	public _shapeElementId() {
 		return 'tioc-shape-id-' + this.shapeId

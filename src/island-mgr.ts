@@ -150,6 +150,7 @@ class IslandMgr {
 		const shapeForShapeDefId = {}
 		for (const shape of Array.from(shapes)) {
 			this.game.addOnClick(shape, () => {
+				shape.dataset.previousParent = shape.parentElement.id
 				shape.classList.add('tioc-selected')
 				//this.removeAllIslandClickableClickOnly()
 				this.game.actionMgr.takeCommonTreasure(shape.dataset.shapeId)
@@ -168,6 +169,7 @@ class IslandMgr {
 
 				this.game.boatMgr.allowPlaceShape((x, y) => {
 					log('moveShapeToBoat')
+					shape.dataset.previousParent = shape.parentElement.id
 					this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shape.dataset.shapeId, x, y)
 					const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
 						if (!this.game.tryShapesMgr.isInCmd) {

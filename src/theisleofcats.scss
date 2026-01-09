@@ -1642,6 +1642,30 @@ $x: $x + 1;
 	transform: translateX(-100%) translateY(100%);
 }
 
+.end-placement-container {
+	width: 100%;
+	position: absolute;
+	left: 0%;
+	bottom: 40px;
+	display: flex;
+	gap: 10px;
+	justify-content: center;
+	.end-placement-button {
+		width: 31px;
+		min-width: 20px;
+		height: 25px;
+		color: red;
+		font-size: 23pt;
+		border-radius: 15px;
+		text-align: center;
+		border: 2px solid white;
+		font-weight: bolder;
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
+	}
+}
+
 .tioc-shape-control-arrow {
 	width: 40px;
 	height: 40px;
@@ -1654,9 +1678,11 @@ $x: $x + 1;
 }
 
 #tioc-shape-control-button-confirm {
-	position: absolute;
-	left: 25%;
-	bottom: 40px;
+	pointer-events: all;
+	z-index: 1000;
+}
+
+#tioc-shape-control-button-cancel {
 	pointer-events: all;
 	z-index: 1000;
 }

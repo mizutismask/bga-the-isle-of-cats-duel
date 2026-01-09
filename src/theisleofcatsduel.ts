@@ -683,6 +683,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					//this.actionMgr.rescueCat(shapeId)
 					this.boatMgr.allowPlaceShape((x, y) => {
 						log('moveShapeToBoat')
+						shape.dataset.previousParent = shape.parentElement.id
 						this.boatMgr.moveShapeToBoat(this.getPlayerId(), shape.dataset.shapeId, x, y)
 						const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
 							if (!this.tryShapesMgr.isInCmd) {
