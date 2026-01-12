@@ -4,7 +4,7 @@ class ShapeControl {
 	private shapeId: string
 	private x: number
 	private y: number
-	private rotation: number=0
+	private rotation: number = 0
 	private flipH: boolean
 	private flipV: boolean
 	/*	onConfirm: (
@@ -21,8 +21,21 @@ class ShapeControl {
 		this.game = game
 	}
 
-	public attachToShapeId(shapeId, x, y, onConfirmFunction) {
-		this.detach()//detach any previous selection
+	public attachToShapeId(
+		shapeId:string,
+		x:number,
+		y:number,
+		onConfirmFunction: (
+			shapeId: string,
+			x: number,
+			y: number,
+			rotation: number,
+			flipH: boolean,
+			flipV: boolean,
+			usedGrid: any[]
+		) => void
+	) {
+		this.detach() //detach any previous selection
 		this.shapeId = shapeId
 		this.x = x
 		this.y = y
@@ -36,7 +49,17 @@ class ShapeControl {
 		})
 	}
 
-	public _attach(onConfirmFunction) {
+	public _attach(
+		onConfirmFunction: (
+			shapeId: string,
+			x: number,
+			y: number,
+			rotation: number,
+			flipH: boolean,
+			flipV: boolean,
+			usedGrid: any[]
+		) => void
+	) {
 		const shapeElement = this._shapeElement()
 		const gridElement = shapeElement.parentNode as HTMLElement
 		const topElement = gridElement.parentNode as HTMLElement
@@ -110,7 +133,6 @@ class ShapeControl {
 			this._forEachShapeGrid((x, y) => {
 				usedGrid.push({ x: x, y: y })
 			})
-			//debugger
 			onConfirmFunction(
 				this.shapeId,
 				this.x,
@@ -123,11 +145,11 @@ class ShapeControl {
 		})
 		dojo.query('#tioc-shape-control-button-cancel').connect('onclick', (event) => {
 			event.preventDefault()
-			const shapeToReposition = this._shapeElement();
+			const shapeToReposition = this._shapeElement()
 			const whereToPutBack = this._shapeElement().dataset.previousParent
 			shapeToReposition.classList.remove('tioc-selected')
 			//todo change status bar title
-			this.detach() 
+			this.detach()
 			//this.game.islandMgr.moveShapeToIsland(state.shapeId, price)
 			if (shapeToReposition && whereToPutBack) {
 				document.getElementById(whereToPutBack).appendChild(shapeToReposition)

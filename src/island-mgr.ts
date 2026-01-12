@@ -227,7 +227,6 @@ class IslandMgr {
 					shapeId,
 					x,
 					y,
-					true /*canPutNextShapeAnywhere*/,
 					(shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
 						this.game.commandMgr.currentCommandStateValue().shapeList.push({
 							shapeId: shape.dataset.shapeId,
