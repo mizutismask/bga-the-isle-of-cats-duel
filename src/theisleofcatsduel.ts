@@ -32,7 +32,14 @@ const CAT_COLOR_ID_GREEN = 1
 const CAT_COLOR_ID_RED = 2
 const CAT_COLOR_ID_PURPLE = 3
 const CAT_COLOR_ID_ORANGE = 4
-const SHAPE_COLOR_COUNTERS_IDS = [CAT_COLOR_ID_BLUE, CAT_COLOR_ID_GREEN, CAT_COLOR_ID_ORANGE, CAT_COLOR_ID_PURPLE, CAT_COLOR_ID_RED, 'treasure']
+const SHAPE_COLOR_COUNTERS_IDS = [
+	CAT_COLOR_ID_BLUE,
+	CAT_COLOR_ID_GREEN,
+	CAT_COLOR_ID_ORANGE,
+	CAT_COLOR_ID_PURPLE,
+	CAT_COLOR_ID_RED,
+	'treasure'
+]
 
 const TILE_SIZE: number = 40
 const SMALL_TILE_SIZE: number = 7
@@ -162,9 +169,34 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	private setupTreasureZones() {}
 
 	private setupTooltips() {
-		//todo add counters
-		this.setTooltipToClass('deck-cards-counter', _('Cards in deck'))
+		this.setTooltipToClass('tioc-player-panel-shape-face-blue', _("Number of blue cats on this player's boat"))
+		this.setTooltipToClass('tioc-player-panel-shape-face-green', _("Number of green cats on this player's boat"))
+		this.setTooltipToClass('tioc-player-panel-shape-face-orange', _("Number of orange cats on this player's boat"))
+		this.setTooltipToClass('tioc-player-panel-shape-face-purple', _("Number of purple cats on this player's boat"))
+		this.setTooltipToClass('tioc-player-panel-shape-face-red', _("Number of red cats on this player's boat"))
+		this.setTooltipToClass(
+			'tioc-player-panel-shape-face-common',
+			_("Number of Common Treasure on this player's boat")
+		)
+		this.setTooltipToClass(
+			'tioc-player-panel-boat-container',
+			_(
+				"Overview of this player's boat, with cats represented with colored squares and treasures with gray squares."
+			)
+		)
+		this.setTooltipToClass(
+			'tioc-color-ref-cat',
+			_(
+				'If you find it difficult to tell the colour of a cat, you can use their unique body shapes, especially their tail, to help identify the family.'
+			)
+		)
+		this.setTooltipToClass('tioc-player-panel-shape-face-common', _("Number of Treasures on this player's boat"))
 		this.setTooltipToClass('oshax', _('Move the Oshax to an adjacent place following the footprints'))
+		this.setTooltipToClass(
+			'tioc-player-panel-fish',
+			_('Number of fishes for this player. Fishes can be used to get additional actions.')
+		)
+		this.setTooltipToClass('tioc-player-panel-private-lesson', _('Number of Lesson Cards for this player.'))
 	}
 
 	private setupPlayer(player: TheIsleOfCatsDuelPlayer) {
@@ -179,12 +211,12 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			
 			<div class="tioc-family-hidden tioc-player-panel-row tioc-break">
 				<div class="tioc-player-panel-pill">
-				<div class="tioc-player-panel-fish"></div>
+				<div class="tioc-player-panel-fish" id="tioc-player-panel-fish-logo-${player.id}"></div>
 				<div class="tioc-player-panel-pill-counter" id="tioc-player-panel-fish-counter-${player.id}">0</div>
 				</div>
 
 				<div class="tioc-player-panel-pill">
-				<div class="tioc-player-panel-private-lesson"></div>
+				<div class="tioc-player-panel-private-lesson" id="tioc-player-panel-lesson-logo-${player.id}"></div>
 				<div class="tioc-player-panel-pill-counter" id="tioc-player-panel-private-lesson-counter-${player.id}">0</div>
 				</div>
 			</div>
@@ -194,7 +226,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					.map(
 						(color) => `
 				<div class="tioc-player-panel-pill">
-					<div class="tioc-player-panel-shape-face-${color}"></div>
+					<div class="tioc-player-panel-shape-face-${color}" id="tioc-player-panel-shape-${color}-logo-${player.id}"></div>
 					<div class="tioc-player-panel-pill-counter"
 						id="tioc-player-panel-shape-face-${color}-${player.id}">0</div>
 				</div>`
@@ -318,7 +350,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		if (this.gameui.isCurrentPlayerActive()) {
 			this.resetClientActionData()
 			this.island.enableSlots(args.oshaxValidMoves)
-			document.getElementById("oshax").classList.toggle("mobile", args.remainingMoves > 0)
+			document.getElementById('oshax').classList.toggle('mobile', args.remainingMoves > 0)
 			if (args.remainingMoves > 0) {
 				//nothing
 			} else if (args.remainingTreasures > 0) {
@@ -1316,7 +1348,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			}
 			this.updateShapeElementTooltip(shape)
 		}
-		
+
 		const buttons = document.querySelectorAll<HTMLElement>('.tioc-player-boat-hide-shapes')
 		for (const button of Array.from(buttons)) {
 			if (this.boatMgr.isPlayerBoatEmpty(button.dataset.playerId)) {
@@ -1393,7 +1425,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		const jstpl_tooltip_shape = `${shapeClone.outerHTML}'  <h3>${title}</h3> <p>${description}</p><p>${color}</p>`
 		this.gameui.addTooltipHtml(elementId, jstpl_tooltip_shape, 1000)
 	}
-	
+
 	public showInformationDialog(title, paragraphArray, params = {}) {
 		this.closeAllTooltips()
 		const dialog = new ebg.popindialog()
