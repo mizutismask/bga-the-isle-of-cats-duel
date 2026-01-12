@@ -4,7 +4,7 @@ use Bga\Games\TheIsleOfCatsDuel\Game;
 use Bga\Games\TheIsleOfCatsDuel\PlayerUtilTrait;
 
 define("APP_GAMEMODULE_PATH", "../misc/"); // include path to stubs, which defines "table.game.php" and other classes
-require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
+require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');//do not remove, necessary for tests
 //require_once('../_ide_helper.php');
 require_once('../modules/php/PlayerUtilTrait.php');
 require_once('../modules/php/DBUtilTrait.php');

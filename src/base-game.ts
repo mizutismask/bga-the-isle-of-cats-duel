@@ -452,38 +452,6 @@ abstract class BaseGame {
 	}
 
 	/**
-	 * Handle user preferences changes.
-	 */
-	protected setupPreferences() {
-		// Extract the ID and value from the UI control
-		const onchange = (e) => {
-			const match = e.target.id.match(/^preference_[cf]ontrol_(\d+)$/)
-			if (!match) {
-				return
-			}
-			let prefId = +match[1]
-			let prefValue = +e.target.value
-			;(this.gameui as any).prefs[prefId].value = prefValue
-			this.onPreferenceChange(prefId, prefValue)
-		}
-
-		// Call onPreferenceChange() when any value changes
-		dojo.query('.preference_control').connect('onchange', onchange)
-
-		// Call onPreferenceChange() now
-		dojo.forEach(dojo.query('#ingame_menu_content .preference_control'), (el) => onchange({ target: el }))
-	}
-
-	/**
-	 * Handle user preferences changes.
-	 */
-	public onPreferenceChange(prefId: number, prefValue: number) {
-		log('onPreferenceChange', prefId, '=>', prefValue)
-		switch (prefId) {
-		}
-	}
-
-	/**
 	 * Timer for Confirm button. Also adds a cancel button to stop timer.
 	 * Cancel actions can be passed to be executed on cancel button click.
 	 */

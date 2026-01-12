@@ -143,7 +143,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		$('overall-content').classList.add(`player-count-${this.getPlayersCount()}`)
 
-		this.setupPreferences()
 		this.setupTooltips()
 		this.setupHelpPopin()
 
