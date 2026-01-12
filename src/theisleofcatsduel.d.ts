@@ -104,7 +104,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	islandMgr: IslandMgr
 	boatMgr: BoatMgr
 	//phase45Mgr: Phase45Mgr
-	shapeControl: ShapeControlApi
+	shapeControl: ShapeControl
 	normalizeRotation(rotation: number): number
 	forEachShapeGrid(shapeId, x, y, rotation, paramFlipH, paramFlipV, gridFunction): void
 	removeClickable(element: HTMLElement, removeSelected = true): void
