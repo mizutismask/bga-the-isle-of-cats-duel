@@ -661,6 +661,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 	public clickOnSlot(slot: number) {
 		log('clickOnSlot', slot)
+		if (this.tryShapesMgr.isTryingShapes()) return
 		if (this.gameui.isCurrentPlayerActive() && this.gamedatas.gamestate.name == 'PlayerTurn')
 			if (this.gamedatas.gamestate.args.remainingMoves > 0 && !this.tryShapesMgr.isInCmd) {
 				this.takeAction('actMoveOshax', { slot: slot })
