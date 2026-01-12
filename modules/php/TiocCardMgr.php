@@ -450,6 +450,15 @@ class TiocCardMgr {
         $playedCard->moveToDiscardPlayed($this->game->getMoveNumber());
 
         $this->save();
+
+        $this->game->notify->all("materialMove", '', [
+            'type' => Constants::MATERIAL_TYPE_CARD,
+            'from' => Constants::MATERIAL_LOCATION_ISLAND,
+            'to' => Constants::MATERIAL_LOCATION_DISCARD,
+            'material' => [$playedCard],
+            'notifSender' => __METHOD__,
+        ]);
+
         return $playedCard;
     }
 
