@@ -162,14 +162,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	private setupTreasureZones() {}
 
 	private setupTooltips() {
-		//todo change counter names
-		this.setTooltipToClass('revealed-tokens-back-counter', _('counter1 tooltip'))
-		this.setTooltipToClass('tickets-counter', _('counter2 tooltip'))
-		this.setTooltipToClass('hand-cards-counter', _('Cards in hand'))
+		//todo add counters
 		this.setTooltipToClass('deck-cards-counter', _('Cards in deck'))
-
-		this.setTooltipToClass('cstm-help-icon', `<div class="help-card recto"></div>`)
-		this.setTooltipToClass('cstm-help-icon-mini', `<div class="help-card verso"></div>`)
 		this.setTooltipToClass('oshax', _('Move the Oshax to an adjacent place following the footprints'))
 	}
 
