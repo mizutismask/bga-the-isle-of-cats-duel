@@ -54,7 +54,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	public tryShapesMgr: TryShapesMgr
 	public tooltipScheduler: Scheduler
 
-	private scoreBoard: ScoreBoard
 	private fishCounters: Counter[] = []
 	private handCardsCounters: Counter[] = []
 	private scoreTable = {}

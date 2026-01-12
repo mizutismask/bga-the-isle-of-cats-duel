@@ -23,7 +23,6 @@
 		"src/cards.ts",
 		"src/base-game.ts",
 		"src/utils.ts",
-		"src/end-score/end-score.ts",
 		"src/island/island.ts",
 		"src/player-table/player-table.ts",
 		"src/settings.ts",
