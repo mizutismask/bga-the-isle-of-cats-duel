@@ -21,7 +21,7 @@ class TryShapesMgr {
 		this.updateButton()
 	}
 	onUpdateActionButtons(stateName, args) {
-		if (this.game.gameui.isSpectator || stateName == "BoatChoice") {
+		if (this.game.gameui.isSpectator || stateName == "BoatChoice"|| stateName == "DebugGameEnd" || stateName == "EndGame") {
 			return
 		}
 		this.game.gameui.addActionButton(
