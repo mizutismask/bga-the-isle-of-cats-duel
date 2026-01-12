@@ -188,7 +188,7 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 				}
 			case 24:
 				return {
-					description: _('2 point per 2 cats touching the edge of your boat.'),
+					description: _('1 point per 2 cats touching the edge of your boat.'),
 					note: ''
 				}
 			case 25:
