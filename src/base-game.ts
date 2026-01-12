@@ -310,20 +310,6 @@ abstract class BaseGame {
 	}
 
 	/**
-	 * Show last turn banner.
-	 */
-	notif_lastTurn(animate: boolean = true) {
-		if (!$('last-round')) {
-			dojo.place(
-				`<div id="last-round">
-					<span class="last-round-text ${animate ? 'animate' : ''}">${_('Finishing round before end of game!')}</span>
-				</div>`,
-				'page-title'
-			)
-		}
-	}
-
-	/**
 	 * Show important message banner.
 	 */
 	notif_importantMessage(notif: Notif<NotifImportantMessageArgs>, animate: boolean = true) {

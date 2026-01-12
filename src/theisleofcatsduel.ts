@@ -94,9 +94,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		})
 		this.cardsManager = new CardsManager(this)
 
-		if (gamedatas.lastTurn) {
-			this.notif_lastTurn(false)
-		}
 		if (Number(gamedatas.gamestate.id) >= 90) {
 			// score or end
 			this.onEnteringEndScore(gamedatas)
@@ -146,11 +143,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.setupTooltips()
 		this.setupHelpPopin()
 
-		/*this.scoreBoard = new ScoreBoard(this, this.getPlayersInOrder())
-		this.gamedatas.scores?.forEach((s) => this.scoreBoard.updateScore(s.playerId, s.scoreType, s.score))
-		if (this.gamedatas.winners) {
-			this.gamedatas.winners.forEach((pId) => this.scoreBoard.highlightWinnerScore(pId))
-		}*/
 		removeClass('animatedScore')
 		this.setupNotifications()
 		BgaAutofit.init()
@@ -758,14 +750,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		const notifs = [
 			['points', 1],
-			['score', ANIMATION_MS],
-			['highlightWinnerScore', ANIMATION_MS],
 			['materialMove', ANIMATION_MS],
 			['oshaxMove', ANIMATION_MS],
-			['lastTurn', 1],
 			['importantMessage', 3000],
-			['counter', 1],
-			['updateCounters', 1],
 			['resetIsland', 1],
 			['boatChosen', 1],
 			['NTF_MOVE_SHAPE_TO_BOAT', 1],
@@ -829,23 +816,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.boatMgr.showScoreBoatPosition(notif.args.player_id, notif.args.scoreBoatPosition)
 	}
 
-	/**
-	 * Updates a total or subtotal
-	 * @param notif
-	 */
-	notif_score(notif: Notif<NotifScoreArgs>) {
-		log('notif_score', notif)
-		this.scoreBoard.updateScore(notif.args.playerId, notif.args.scoreType, notif.args.score)
-	}
 	notif_oshaxMove(notif: Notif<NotifOshaxMoveArgs>) {
 		log('notif_oshaxMove', notif.args)
 		this.island.refreshOshaxLocation(notif.args.to)
-	}
-
-	notif_counter(notif: Notif<NotifCounter>) {
-		if (notif.args.counterName == 'empty-hexes') {
-			//this.emptyHexesCounters[notif.args.playerId].setValue(notif.args.counterValue)
-		}
 	}
 
 	notif_materialMove(notif: Notif<NotifMaterialMove>) {
@@ -876,13 +849,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				console.error('Card move destination not handled', notif)
 				break
 		}
-	}
-
-	/**
-	 * Highlight winner for end score.
-	 */
-	notif_highlightWinnerScore(notif: Notif<NotifWinnerArgs>) {
-		this.scoreBoard?.highlightWinnerScore(notif.args.playerId)
 	}
 
 	updatePlayerScore(playerId, newScore, scoreColumn, scoreColumnScore, animate = true) {
