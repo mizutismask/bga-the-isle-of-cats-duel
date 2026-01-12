@@ -100,7 +100,6 @@ class TryShapesMgr {
 			return
 		}
 		this.isInCmd = true
-		this.updateButton()
 		const cmdStateValue = {
 			shapeList: []
 		}
@@ -133,9 +132,10 @@ class TryShapesMgr {
 				cmdStateValue.shapeList.push(shapeInfo)
 			}
 		}
+		
 		cmd.startCommand(cmdStateValue)
 		cmd.addSimple(
-			() => {},
+			() => {this.updateButton()},
 			() => {
 				this.game.islandMgr.removeAllIslandClickable()
 				this.game.shapeControl.detach()
