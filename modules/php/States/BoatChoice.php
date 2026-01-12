@@ -61,11 +61,8 @@ class BoatChoice extends GameState {
      *
      * The onEnteringState method of state `nextPlayer` is called everytime the current game state is set to `nextPlayer`.
      */
-    function onEnteringState() {
-
-        // Give some extra time to the active player when he completed an action
-        // $this->game->giveExtraTime($activePlayerId);
-        $this->gamestate->setAllPlayersMultiactive();
+    function onEnteringState(int $activePlayerId) {
+        $this->game->giveExtraTime($activePlayerId);
     }
 
     /**
