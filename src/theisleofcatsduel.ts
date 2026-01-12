@@ -147,7 +147,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		$('overall-content').classList.add(`player-count-${this.getPlayersCount()}`)
 
 		this.setupTooltips()
-		this.setupHelpPopin()
 
 		removeClass('animatedScore')
 		this.setupNotifications()
@@ -256,31 +255,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			playerId: parseInt(player.id)
 		})
 		this.handCardsCounters[playerId] = cardsCounter
-	}
-
-	private setupHelpPopin() {
-		new HelpManager(this, {
-			buttons: [
-				new BgaHelpPopinButton({
-					title: _('Roles in play'),
-					html: this.getHelpHtml(),
-					buttonBackground: 'white',
-					buttonColor: '#266059'
-				})
-			]
-		})
-	}
-
-	private getHelpHtml() {
-		let html = `
-        <div id="help-popin"> `
-		/*new Set(this.gamedatas.rolesInPlay).forEach((r) => {
-			html += this.getRoleHtml(r, this.gamedatas.rolesInPlay.filter((allR) => allR === r).length)
-		})*/
-		html += `
-        </div>
-        `
-		return html
 	}
 
 	/* This enable to inject translatable styled things to logs or action bar */
