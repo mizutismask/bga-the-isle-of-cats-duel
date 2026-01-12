@@ -430,6 +430,11 @@ class BoatMgr {
 		)
 		log('node', node, 'target', target)
 		if (!node || !target) return
+
+		node.classList.remove('tioc-clickable')
+		node.classList.remove('tioc-clickable-no-border')
+		node.classList.remove('tioc-selected')
+		this.game.removeAbsolutePosition(node.id) //for treasures in zones
 		target.appendChild(node)
 		if (typeof onEndAnim === 'function') onEndAnim()
 	}
