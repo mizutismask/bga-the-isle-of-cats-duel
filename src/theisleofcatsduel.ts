@@ -576,53 +576,59 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		if (chooseActionArgs.shapeToPlace) {
 			//nothing else possible, the player have to place the shape
 		} else {
-			if (chooseActionArgs.canTradeFishForMove) {
-				this.statusBar.addActionButton(
-					_('+1 move'),
-					() => {
-						this.takeAction('actTradeFishForAction', { additionalAction: 'M' })
-					},
-					{ classes: 'button-trade-fish', id: 'button-move', color: 'secondary' }
-				)
-				document.getElementById('button-move').insertAdjacentElement('afterbegin', this.createFishSpan())
+			if (chooseActionArgs.mandatoryMoveDone) {
+				if (chooseActionArgs.canTradeFishForMove) {
+					this.statusBar.addActionButton(
+						_('+1 move'),
+						() => {
+							this.takeAction('actTradeFishForAction', { additionalAction: 'M' })
+						},
+						{ classes: 'button-trade-fish', id: 'button-move', color: 'secondary' }
+					)
+					document.getElementById('button-move').insertAdjacentElement('afterbegin', this.createFishSpan())
+				}
+				if (chooseActionArgs.canTradeFishForJump) {
+					this.statusBar.addActionButton(
+						_('Jump'),
+						() => {
+							this.takeAction('actTradeFishForAction', { additionalAction: 'J' })
+						},
+						{ classes: 'button-trade-fish', id: 'button-jump', color: 'secondary' }
+					)
+					const buttonJump = document.getElementById('button-jump')
+					for (let i = 0; i < 2; i++) {
+						buttonJump.insertAdjacentElement('afterbegin', this.createFishSpan())
+					}
+				}
+				if (chooseActionArgs.canTradeFishForTreasure) {
+					this.statusBar.addActionButton(
+						_('Take treasure'),
+						() => {
+							this.takeAction('actTradeFishForAction', { additionalAction: 'T' })
+						},
+						{ classes: 'button-trade-fish', id: 'button-treasure', color: 'secondary' }
+					)
+					const buttonTreasure = document.getElementById('button-treasure')
+					for (let i = 0; i < 2; i++) {
+						buttonTreasure.insertAdjacentElement('afterbegin', this.createFishSpan())
+					}
+				}
+				if (chooseActionArgs.canTradeFishForDiscovery) {
+					//if (chooseActionArgs.possibleSlotsForDiscovery.some((s) => this.island.hasSlotSomethingToTake(s))){
+					this.statusBar.addActionButton(
+						_('Take discovery'),
+						() => {
+							this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
+						},
+						{ classes: 'button-trade-fish', id: 'button-discovery', color: 'secondary' }
+					)
+					const buttonDiscovery = document.getElementById('button-discovery')
+					for (let i = 0; i < 3; i++) {
+						buttonDiscovery.insertAdjacentElement('afterbegin', this.createFishSpan())
+					}
+					//}
+				}
 			}
-			if (chooseActionArgs.canTradeFishForJump) {
-				this.statusBar.addActionButton(
-					_('Jump'),
-					() => {
-						this.takeAction('actTradeFishForAction', { additionalAction: 'J' })
-					},
-					{ classes: 'button-trade-fish', id: 'button-jump', color: 'secondary' }
-				)
-				document.getElementById('button-jump').insertAdjacentElement('afterbegin', this.createFishSpan())
-				document.getElementById('button-jump').insertAdjacentElement('afterbegin', this.createFishSpan())
-			}
-			if (chooseActionArgs.canTradeFishForTreasure) {
-				this.statusBar.addActionButton(
-					_('Take treasure'),
-					() => {
-						this.takeAction('actTradeFishForAction', { additionalAction: 'T' })
-					},
-					{ classes: 'button-trade-fish', id: 'button-treasure', color: 'secondary' }
-				)
-				document.getElementById('button-treasure').insertAdjacentElement('afterbegin', this.createFishSpan())
-				document.getElementById('button-treasure').insertAdjacentElement('afterbegin', this.createFishSpan())
-			}
-			if (chooseActionArgs.canTradeFishForDiscovery) {
-				//if (chooseActionArgs.possibleSlotsForDiscovery.some((s) => this.island.hasSlotSomethingToTake(s))){
-				this.statusBar.addActionButton(
-					_('Take discovery'),
-					() => {
-						this.takeAction('actTradeFishForAction', { additionalAction: 'D' })
-					},
-					{ classes: 'button-trade-fish', id: 'button-discovery', color: 'secondary' }
-				)
-				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
-				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
-				document.getElementById('button-discovery').insertAdjacentElement('afterbegin', this.createFishSpan())
-				//}
-			}
-
 			//dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
 			if (chooseActionArgs.canPass) {
 				this.statusBar.addActionButton(_('End my turn'), () => this.pass(), { color: 'alert' })
