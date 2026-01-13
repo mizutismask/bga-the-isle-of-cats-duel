@@ -20,30 +20,8 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 				div.dataset.cardId = '' + card.cardId
 			},
 			setupFrontDiv: (card: TheIsleOfCatsDuelCard, div: HTMLElement) => {
-				this.setFrontBackground(div as HTMLDivElement, card.cardId)
-
-				const textId = `${super.getId(card)}-text`
 				div.id = `${super.getId(card)}-front`
-
-				//add help
-				const helpId = `${super.getId(card)}-front-info`
-				if (!$(helpId)) {
-					const info: HTMLDivElement = document.createElement('div')
-					info.id = helpId
-					info.innerText = '?'
-					info.classList.add('css-icon', 'card-info')
-					div.appendChild(info)
-					const tooltipContent = this.getTooltip(card)
-					this.game.gameui.addTooltipHtml(div.id, tooltipContent)
-					this.game.addTooltipOnClickHelpButton(info.id, tooltipContent)
-				}
-
-				if (!$(textId)) {
-					const container: HTMLDivElement = document.createElement('div')
-					container.id = textId
-					container.classList.add('bga-autofit', 'card-text-wrapper')
-					div.appendChild(container)
-				}
+				this.setFrontBackground(div as HTMLDivElement, card.cardId)
 			},
 			setupBackDiv: (card: TheIsleOfCatsDuelCard, div: HTMLElement) => {
 				div.style.backgroundImage = `url('${g_gamethemeurl}img/theisleofcatsduel-card-background.jpg')`

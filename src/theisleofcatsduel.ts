@@ -496,29 +496,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		}
 	}
 
-	public addTooltipOnClickHelpButton(id, html, delay) {
-		/*let tooltip = new dijit.Tooltip({
-			label: html,
-			showDelay: delay
-		})
-
-		dojo.connect($(id), 'click', (evt) => {
-			evt.stopPropagation()
-
-			if (tooltip.state == 'SHOWING') {
-				this.closeCurrentTooltip()
-			} else {
-				this.closeCurrentTooltip()
-				tooltip.open($(id))
-				this.displayedTooltip = tooltip
-			}
-		})
-
-		dojo.connect($(id), 'mouseleave', () => {
-			tooltip.close()
-		})*/
-	}
-
 	public dontPreloadUselessAssets() {
 		if (this.getPlayersCount() == 1) {
 			//;this.gameui.dontPreloadImage('centralBoard.png')//TODO

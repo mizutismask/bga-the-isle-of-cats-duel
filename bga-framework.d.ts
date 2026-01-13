@@ -18,7 +18,6 @@ declare const ebg: {
 };
 
 declare const dojo: Dojo;
-
 declare const gameui: GameGui;
 
 /**
