@@ -4,8 +4,32 @@
 	$playerBoardTextColor: white;
 	color: $playerBoardTextColor;
 	background: url('img/playerboard-background-bottom.jpg'), vars.$main-color;
-
-
+}
+//to change background color of spectator box before player panels
+.roundedbox.player-board.spectator-mode {
+	.roundedbox_top,
+	.roundedbox_main,
+	.roundedbox_bottom {
+		background-color: vars.$main-color;
+		.roundedbox_topleft {
+			background-color: inherit;
+		}
+		.roundedbox_topmain {
+			background-color: inherit;
+		}
+		.roundedbox_topright {
+			background-color: inherit;
+		}
+		.roundedbox_bottomleft {
+			background-color: inherit;
+		}
+		.roundedbox_bottommain {
+			background-color: inherit;
+		}
+		.roundedbox_bottomright {
+			background-color: inherit;
+		}
+	}
 }
 
 .counter {
