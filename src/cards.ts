@@ -21,6 +21,8 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			},
 			setupFrontDiv: (card: TheIsleOfCatsDuelCard, div: HTMLElement) => {
 				div.id = `${super.getId(card)}-front`
+				const tooltipContent = this.getTooltip(card)
+				this.game.gameui.addTooltipHtml(div.id, tooltipContent)
 				this.setFrontBackground(div as HTMLDivElement, card.cardId)
 			},
 			setupBackDiv: (card: TheIsleOfCatsDuelCard, div: HTMLElement) => {

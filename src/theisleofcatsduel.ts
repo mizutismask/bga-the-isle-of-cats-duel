@@ -1368,8 +1368,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				nb: nb
 			}
 		)
-		const jstpl_tooltip_shape = `${shapeClone.outerHTML}'  <h3>${title}</h3> <p>${description}</p><p>${color}</p>`
-		this.gameui.addTooltipHtml(elementId, jstpl_tooltip_shape, 1000)
+		const jstpl_tooltip_shape = `${shapeClone.outerHTML}  <h3>${title}</h3> <p>${description}</p><p>${color}</p>`
+		this.gameui.addTooltipHtml(elementId, jstpl_tooltip_shape, this.TOOLTIP_DELAY)
 	}
 
 	public showInformationDialog(title, paragraphArray, params = {}) {
