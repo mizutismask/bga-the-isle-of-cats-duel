@@ -623,18 +623,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				//}
 			}
 
-			this.addImageActionButton(
-				'useTicket_button',
-				createDiv('expTicket', 'expTicket-button'),
-				'primary',
-				_('Use a ticket to place another arrow, remove the last one of any expedition or exchange a card'),
-				() => {
-					// this.useTicket();
-				}
-			)
-			$('expTicket-button').parentElement.style.padding = '0'
-			//{autoclick: true}
-
 			//dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
 			if (chooseActionArgs.canPass) {
 				this.statusBar.addActionButton(_('End my turn'), () => this.pass(), { color: 'alert' })
