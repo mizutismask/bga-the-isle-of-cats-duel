@@ -150,7 +150,7 @@ class TiocCardMgr {
             }
             $card->moveToIslandCardSlot(count($drawnCards) + 1);
             $drawnCards[] = $card;
-            $this->game->dump('*******************', $card->cardLocationId);
+            //$this->game->dump('*******************', $card->cardLocationId);
             if (count($drawnCards) >= $nbCardToDraw) {
                 break;
             }

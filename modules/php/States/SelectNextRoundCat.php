@@ -66,7 +66,6 @@ class SelectNextRoundCat extends GameState {
     public function actPutCatBack(int $shapeId, int $activePlayerId, array $args) {
         // check input values
         $shape = $this->game->shapeMgr->findByShapeId($shapeId);
-        $this->game->dump('*******************shape', $shape);
         if (!$shape || $shape->shapeLocationId != SHAPE_LOCATION_ID_FIELD) {
             throw new UserException('You can not put this cat back');
         }

@@ -290,7 +290,6 @@ class PlayerTurn extends GameState {
         $slot = $shape->islandCatSlot;
         $fromIsland = $shape->shapeLocationId == SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
         if ($fromIsland) {
-            $this->game->dump('*******************slot', $shape);
             if (!$slot || !$this->game->islandMgr->isValidSlot($slot)) {
                 throw new UserException('This slot is not valid');
             }

@@ -44,10 +44,7 @@ class NextRound extends \Bga\GameFramework\States\GameState {
 
             if ($round >1) {
                 $nextFirstPlayer = $this->game->switchFirstPlayer();
-                $this->game->dump('*******************nextFirstPlayer', $nextFirstPlayer);
                 $this->game->gamestate->changeActivePlayer($this->game->getOpponentId($nextFirstPlayer));
-            } else {
-                // $this->game->activeNextPlayer();
             }
 
             $this->notify->all('newRound', clienttranslate('&#10148; Round ${round}'), ["round" => $round]);
