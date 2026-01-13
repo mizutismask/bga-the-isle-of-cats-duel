@@ -317,18 +317,23 @@ class PlayerTurn extends GameState {
             $this->globals->set(Constants::GLBL_REMAINING_TREASURES, 1);
             //$this->turnActionMgr->allowTakeCommonTreasure($playerId);
         }
+        $fishAction = $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
         if ($isTreasure) {
             $this->game->globals->inc(Constants::GLBL_REMAINING_TREASURES, -1);
             $this->game->playerShapeCounters["treasure"]->inc($activePlayerId, 1);
-        } else if ($isShapeFromIsland) {
-            $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN, true);
-            $this->game->playerShapeCounters[$shape->colorId]->inc($activePlayerId, 1);
+            if ($fishAction == "T") {
+                $fishAction = $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
+            }
+        } else {
+            if ($isShapeFromIsland) {
+                $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN, true);
+                $this->game->playerShapeCounters[$shape->colorId]->inc($activePlayerId, 1);
+                if ($fishAction == "D") {
+                    $fishAction = $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
+                }
+            }
         }
 
-        $fishAction = $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
-        if ($fishAction == "D") {
-            $fishAction = $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
-        }
 
         $this->game->tiocNotifyAllPlayers(
             NTF_MOVE_SHAPE_TO_BOAT,
@@ -356,7 +361,7 @@ class PlayerTurn extends GameState {
             );
         }
 
-         $this->game->tiocNotifyAllPlayers(
+        $this->game->tiocNotifyAllPlayers(
             NTF_UPDATE_BOAT_USED_GRID_COLOR,
             '',
             [
