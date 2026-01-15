@@ -49,6 +49,7 @@ class IslandMgr {
 		const islandCreateId = 'tioc-island-discard'
 		let location = ''
 		let toCreate = false
+		let toRotate = false
 
 		//debugger;
 		switch (shape.shapeLocationId) {
@@ -74,6 +75,10 @@ class IslandMgr {
 				if (slot) {
 					location = slot.id
 					toCreate = true
+					const h = this.game.getShapeHeightFromShapeId(shape.shapeId)
+					if (h > 3) {
+						toRotate = true
+					}
 				} else {
 					log('island cat slot not found', shape)
 				}
@@ -89,7 +94,11 @@ class IslandMgr {
 				break
 		}
 		if (toCreate) {
-			this.game.createShapeElement(location, shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
+			const shapeElem = this.game.createShapeElement(location, shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
+			if (toRotate) {
+				this.game.boatMgr.applyTransformToShapeId(shape.shapeId.toString(), 90, false, false)
+				shapeElem.dataset.islandRotation = '90'
+			}
 		}
 
 		//this.shapeSorter.schedule();

@@ -97,7 +97,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	clickOnSlot(slot: number): any
 	gameui: GameGui
 	gamedatas: TheIsleOfCatsDuelGamedatas
-
+	
 	commandMgr: CommandMgr
 	//fishMgr: FishMgr
 	islandMgr: IslandMgr
@@ -112,6 +112,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	changeParent(mobile: string | HTMLElement, new_parent: string | HTMLElement, relation: string = 'last')
 	getShapeColorFromShapeId: (shapeId: string) => string
 	getShapeSizeFromShapeId(shapeId: string)
+	getShapeHeightFromShapeId(shapeId: number): int
 	getShapeDefIdFromShapeId(shapeId)
 	getShapeTypeIdFromShapeId(shapeId)
 	getShapeColorIdFromShapeId(shapeId)

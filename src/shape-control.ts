@@ -22,9 +22,9 @@ class ShapeControl {
 	}
 
 	public attachToShapeId(
-		shapeId:string,
-		x:number,
-		y:number,
+		shapeId: string,
+		x: number,
+		y: number,
 		onConfirmFunction: (
 			shapeId: string,
 			x: number,
@@ -97,6 +97,10 @@ class ShapeControl {
 		const controlElement = this._shapeControlElement()
 		controlElement.style.top = gridElement.offsetTop + 'px'
 		controlElement.style.left = gridElement.offsetLeft + 'px'
+		if ('islandRotation' in shapeElement.dataset) {
+			this.rotation = parseInt(shapeElement.dataset.islandRotation)
+			delete shapeElement.dataset.islandRotation
+		}
 		this._applyTransform()
 		const grids = topElement.querySelectorAll<HTMLElement>('.tioc-grid')
 		grids.forEach((grid) => {
