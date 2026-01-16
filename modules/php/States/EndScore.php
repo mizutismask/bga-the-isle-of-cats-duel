@@ -334,7 +334,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                     return count($familly);
                 }, $famillies);
                 $famillySizeCounts = array_count_values($famillySizes);
-                if (isset($famillySizeCounts[2]) && $famillySizeCounts[2] == 2) {
+                if (array_any($famillySizeCounts, fn($count) => $count == 2)) {
                     $score = 8;
                 }
                 break;
