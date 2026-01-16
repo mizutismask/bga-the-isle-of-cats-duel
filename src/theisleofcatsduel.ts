@@ -608,7 +608,19 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			}
 			//dojo.toggleClass('useTicket_button', 'disabled', !chooseActionArgs.canUseTicket);
 			if (chooseActionArgs.canPass) {
-				this.statusBar.addActionButton(_('End my turn'), () => this.pass(), { color: 'alert' })
+				this.statusBar.addActionButton(
+					_('End my turn'),
+					() => {
+						if (chooseActionArgs.remainingTreasures > 0) {
+							this.gameui.confirmationDialog(_('You could place a free treasure. Do you really want to waste it?'), () => {
+								this.pass()
+							})
+						} else {
+							this.pass()
+						}
+					},
+					{ color: 'alert' }
+				)
 			}
 
 			/*if (chooseActionArgs.canResetTurn) {
