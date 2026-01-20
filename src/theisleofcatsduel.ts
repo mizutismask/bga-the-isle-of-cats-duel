@@ -250,7 +250,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 		const cardsCounter = new ebg.counter()
 		cardsCounter.create(`tioc-player-panel-private-lesson-counter-${player.id}`, {
-			value: player.lessonsCount,
+			value: player.lesson,
 			playerCounter: 'lesson',
 			playerId: parseInt(player.id)
 		})

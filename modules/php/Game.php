@@ -220,9 +220,6 @@ class Game extends \Bga\GameFramework\Table {
         }
 
         // Create players based on generic information.
-        //
-        // NOTE: You can add extra field on player table in the database (see dbmodel.sql) and initialize
-        // additional fields directly here.
         static::DbQuery(
             sprintf(
                 "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES %s",
@@ -233,17 +230,6 @@ class Game extends \Bga\GameFramework\Table {
         $this->reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
         $this->reloadPlayersBasicInfos();
 
-        // Init global values with their initial values.
-
-        // Init game statistics.
-        //
-        // NOTE: statistics used in this file must be defined in your `stats.inc.php` file.
-
-        // Dummy content.
-        // $this->tableStats->init('table_teststat1', 0);
-        // $this->playerStats->init('player_teststat1', 0);
-
-        // TODO: Setup the initial game situation here.
         $this->playerFishCounter->initDb(array_keys($players), 3);
         $this->playerLessonCounter->initDb(array_keys($players), 0);
         foreach ($this->playerShapeCounters as $shapeCounter) {
