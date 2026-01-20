@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -9,9 +10,8 @@ declare(strict_types=1);
  *   php generate_states_dot.php
  *   dot -Tpng stateDiagram.dot -o stateDiagram.png
  */
-final class StatesDotGenerator
-{
-    private const STATES_DIR  = __DIR__ . '/modules/php/States';
+final class StatesDotGenerator {
+    private const STATES_DIR  = __DIR__ . '../modules/php/States';
     private const OUTPUT_FILE = __DIR__ . '/stateDiagram.dot';
 
     /**
@@ -32,8 +32,7 @@ final class StatesDotGenerator
      */
     private array $machineStates = [];
 
-    public function run(): void
-    {
+    public function run(): void {
         foreach ($this->listPhpFiles(self::STATES_DIR) as $file) {
             $this->parseStateFile($file);
         }
@@ -46,8 +45,7 @@ final class StatesDotGenerator
     /**
      * @return list<string>
      */
-    private function listPhpFiles(string $dir): array
-    {
+    private function listPhpFiles(string $dir): array {
         if (!is_dir($dir)) {
             throw new RuntimeException("Directory not found: {$dir}");
         }
@@ -63,8 +61,7 @@ final class StatesDotGenerator
         return $files;
     }
 
-    private function parseStateFile(string $file): void
-    {
+    private function parseStateFile(string $file): void {
         $code = file_get_contents($file);
         if ($code === false) {
             return;
@@ -180,8 +177,7 @@ final class StatesDotGenerator
      * @param array<string, mixed> $transitions
      * @return array<string, list<string>>
      */
-    private function normalizeTransitions(array $transitions): array
-    {
+    private function normalizeTransitions(array $transitions): array {
         $out = [];
         foreach ($transitions as $label => $targets) {
             $list = is_array($targets) ? $targets : [$targets];
@@ -193,26 +189,22 @@ final class StatesDotGenerator
         return $out;
     }
 
-    private function isGameStateExtender(string $extends): bool
-    {
+    private function isGameStateExtender(string $extends): bool {
         $base = ltrim($extends, '\\');
         $short = str_contains($base, '\\') ? substr($base, strrpos($base, '\\') + 1) : $base;
         return $short === 'GameState';
     }
 
-    private function shortName(string $fqn): string
-    {
+    private function shortName(string $fqn): string {
         $fqn = ltrim($fqn, '\\');
         return str_contains($fqn, '\\') ? substr($fqn, strrpos($fqn, '\\') + 1) : $fqn;
     }
 
-    private function normalizeFqn(string $fqn): string
-    {
+    private function normalizeFqn(string $fqn): string {
         return '\\' . ltrim($fqn, '\\');
     }
 
-    private function finalizeIds(): void
-    {
+    private function finalizeIds(): void {
         $nextId = 1;
 
         foreach ($this->statesByClass as $classFqn => $s) {
@@ -229,8 +221,7 @@ final class StatesDotGenerator
         }
     }
 
-    private function buildMachineStates(): void
-    {
+    private function buildMachineStates(): void {
         foreach ($this->statesByClass as $classFqn => $s) {
             $id = $this->idByClass[$classFqn];
             $this->machineStates[$id] = [
@@ -268,8 +259,7 @@ final class StatesDotGenerator
      *
      * @param array<int, array{name:string,type:string,transitions:array<string, list<int>>}> $machinestates
      */
-    private function writeDot(array $machinestates): void
-    {
+    private function writeDot(array $machinestates): void {
         $out = "digraph D {\n";
 
         foreach ($machinestates as $state_id => $state) {
@@ -311,16 +301,14 @@ final class StatesDotGenerator
         file_put_contents(self::OUTPUT_FILE, $out);
     }
 
-    private function escapeDot(string $s): string
-    {
+    private function escapeDot(string $s): string {
         return str_replace(["\\", "\""], ["\\\\", "\\\""], $s);
     }
 
     /**
      * @param array<int, mixed> $tokens
      */
-    private function readNamespace(array $tokens, int &$i): string
-    {
+    private function readNamespace(array $tokens, int &$i): string {
         $i++;
         $parts = [];
         while (isset($tokens[$i])) {
@@ -340,8 +328,7 @@ final class StatesDotGenerator
      * @param array<int, mixed> $tokens
      * @param array<string,string> $uses
      */
-    private function readUseStatements(array $tokens, int &$i, array &$uses): void
-    {
+    private function readUseStatements(array $tokens, int &$i, array &$uses): void {
         $i++;
         $current = '';
         $alias = null;
@@ -381,8 +368,7 @@ final class StatesDotGenerator
     /**
      * @param array<string,string> $uses
      */
-    private function commitUse(string $current, ?string $alias, array &$uses): void
-    {
+    private function commitUse(string $current, ?string $alias, array &$uses): void {
         $fqn = $this->normalizeFqn(trim($current));
         if ($fqn === '\\') {
             return;
@@ -397,8 +383,7 @@ final class StatesDotGenerator
      * @param array<int, mixed> $tokens
      * @return array{fqn:string,extends:string}|null
      */
-    private function readClassDeclaration(array $tokens, int &$i, string $namespace, array $uses): ?array
-    {
+    private function readClassDeclaration(array $tokens, int &$i, string $namespace, array $uses): ?array {
         // Skip anonymous classes: "new class"
         $prev = $this->prevNonWhitespaceToken($tokens, $i);
         if (is_array($prev) && $prev[0] === T_NEW) {
@@ -431,8 +416,7 @@ final class StatesDotGenerator
      * @param array<int, mixed> $tokens
      * @param array{extends:string,id:?int,name:?string,type:?string,transitions:array<string,list<string>>} $classInfo
      */
-    private function readConstsForStateMetadata(array $tokens, int &$i, array &$classInfo): void
-    {
+    private function readConstsForStateMetadata(array $tokens, int &$i, array &$classInfo): void {
         $chunk = '';
         $j = $i;
 
@@ -459,8 +443,7 @@ final class StatesDotGenerator
     /**
      * @param array<int, mixed> $tokens
      */
-    private function readFunctionName(array $tokens, int &$i): ?string
-    {
+    private function readFunctionName(array $tokens, int &$i): ?string {
         $j = $i + 1;
         while (isset($tokens[$j])) {
             $t = $tokens[$j];
@@ -480,8 +463,7 @@ final class StatesDotGenerator
      *
      * @param array<int, mixed> $tokens
      */
-    private function readReturnedClassConst(array $tokens, int &$i, string $namespace, array $uses): ?string
-    {
+    private function readReturnedClassConst(array $tokens, int &$i, string $namespace, array $uses): ?string {
         $j = $i + 1;
 
         while (isset($tokens[$j]) && is_array($tokens[$j]) && in_array($tokens[$j][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
@@ -535,8 +517,7 @@ final class StatesDotGenerator
     /**
      * @param array<int, mixed> $tokens
      */
-    private function readNextString(array $tokens, int &$i): ?string
-    {
+    private function readNextString(array $tokens, int &$i): ?string {
         $j = $i + 1;
         while (isset($tokens[$j])) {
             $t = $tokens[$j];
@@ -555,8 +536,7 @@ final class StatesDotGenerator
     /**
      * @param array<int, mixed> $tokens
      */
-    private function readNextName(array $tokens, int &$i): string
-    {
+    private function readNextName(array $tokens, int &$i): string {
         $j = $i + 1;
         $name = '';
 
@@ -591,8 +571,7 @@ final class StatesDotGenerator
         return $name;
     }
 
-    private function resolveName(string $name, string $namespace, array $uses): string
-    {
+    private function resolveName(string $name, string $namespace, array $uses): string {
         $name = trim($name);
         if ($name === '') {
             return '';
@@ -623,8 +602,7 @@ final class StatesDotGenerator
     /**
      * @param array<int, mixed> $tokens
      */
-    private function prevNonWhitespaceToken(array $tokens, int $i): mixed
-    {
+    private function prevNonWhitespaceToken(array $tokens, int $i): mixed {
         for ($j = $i - 1; $j >= 0; $j--) {
             $t = $tokens[$j];
             if (is_array($t) && $t[0] === T_WHITESPACE) {
