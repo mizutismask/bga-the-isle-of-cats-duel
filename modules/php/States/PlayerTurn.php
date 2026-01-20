@@ -378,11 +378,6 @@ class PlayerTurn extends GameState {
      */
     #[PossibleAction]
     public function actPass(int $activePlayerId) {
-        // Notify all players about the choice to pass.
-        $this->notify->all("pass", clienttranslate('${player_name} ends his turn'), [
-            //"player_id" => $activePlayerId,
-            "player_name" => $this->game->getPlayerNameById($activePlayerId), // remove this line if you uncomment notification decorator
-        ]);
         $anyShapeOnIsland = $this->game->shapeMgr->findByLocation((SHAPE_LOCATION_ID_ISLAND_CAT_SLOT), null);
         if ($anyShapeOnIsland == null && !$this->game->cardMgr->getIslandCards()) {
             $this->notify->all('importantMessage', "", ["message" => clienttranslate('The island is empty, end of the round'), "type" => "POSITIVE", "temporary" => true]);
@@ -391,6 +386,10 @@ class PlayerTurn extends GameState {
         $tookDiscovery = $this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN);
         if ($tookDiscovery) {
             return NextPlayer::class;
+        }else{
+            $this->notify->all("pass", clienttranslate('${player_name} ends his turn without taking a discovery'), [
+            "player_name" => $this->game->getPlayerNameById($activePlayerId),
+        ]);
         }
         if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), Constants::GLBL_DISCOVERY_TAKEN)) {
             return NextPlayer::class;
