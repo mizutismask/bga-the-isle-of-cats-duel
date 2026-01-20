@@ -71,6 +71,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 	private clickConnectNb: number = 0
 	private clickConnectNbToElemMap = {}
 	private clickConnectIdToNbMap = {}
+	public forbidTryShapes: boolean = false
 
 	/*
             setup:
@@ -606,7 +607,11 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					//}
 				}
 			}
-			if (!chooseActionArgs.discoveryTaken && chooseActionArgs.remainingMoves != 2 && !chooseActionArgs.usedFishAction) {
+			if (
+				!chooseActionArgs.discoveryTaken &&
+				chooseActionArgs.remainingMoves != 2 &&
+				!chooseActionArgs.usedFishAction
+			) {
 				this.statusBar.addActionButton(
 					_('Cancel Oshax moves'),
 					() => {
@@ -615,7 +620,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					{ color: 'secondary' }
 				)
 			}
-			
+
 			if (chooseActionArgs.canPass) {
 				this.statusBar.addActionButton(
 					_('End my turn'),
@@ -681,12 +686,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					const shape = document.querySelector<HTMLElement>(`#island-slot-${slot} .tioc-shape`)
 					const shapeId = shape.id
 					//this.actionMgr.rescueCat(shapeId)
+					this.forbidTryShapes = true
+					this.tryShapesMgr.updateButton()
 					this.boatMgr.allowPlaceShape((x, y) => {
 						log('moveShapeToBoat')
 						shape.dataset.previousParent = shape.parentElement.id
 						this.boatMgr.moveShapeToBoat(this.getPlayerId(), shape.dataset.shapeId, x, y)
 						const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
 							if (!this.tryShapesMgr.isInCmd) {
+								this.forbidTryShapes = false
+								this.tryShapesMgr.updateButton()
 								this.takeAction('actMoveShapeToBoat', {
 									shapeId: shapeId,
 									x: x,

@@ -94,7 +94,13 @@ class IslandMgr {
 				break
 		}
 		if (toCreate) {
-			const shapeElem = this.game.createShapeElement(location, shape.shapeId, shape.shapeTypeId, shape.shapeDefId, shape.colorId)
+			const shapeElem = this.game.createShapeElement(
+				location,
+				shape.shapeId,
+				shape.shapeTypeId,
+				shape.shapeDefId,
+				shape.colorId
+			)
 			if (toRotate) {
 				this.game.boatMgr.applyTransformToShapeId(shape.shapeId.toString(), 90, false, false)
 				shapeElem.dataset.islandRotation = '90'
@@ -176,12 +182,16 @@ class IslandMgr {
 				//this.removeAllIslandClickableClickOnly()
 				//this.game.anytimeActionMgr.takeToPlaceShape(shape.dataset.shapeId)
 
+				this.game.forbidTryShapes = true
+				this.game.tryShapesMgr.updateButton()
 				this.game.boatMgr.allowPlaceShape((x, y) => {
 					log('moveShapeToBoat')
 					shape.dataset.previousParent = shape.parentElement.id
 					this.game.boatMgr.moveShapeToBoat(this.game.getPlayerId(), shape.dataset.shapeId, x, y)
 					const onConfirm = (shapeId, x, y, rotation, flipH, flipV, usedGrid) => {
 						if (!this.game.tryShapesMgr.isInCmd) {
+							this.game.forbidTryShapes = false
+							this.game.tryShapesMgr.updateButton()
 							this.game.takeAction('actMoveShapeToBoat', {
 								shapeId: shapeId,
 								x: x,

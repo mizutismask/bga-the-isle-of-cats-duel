@@ -154,6 +154,8 @@ class ShapeControl {
 			shapeToReposition.classList.remove('tioc-selected')
 			//todo change status bar title
 			this.detach()
+			this.game.forbidTryShapes = false
+			this.game.tryShapesMgr.updateButton()
 			//this.game.islandMgr.moveShapeToIsland(state.shapeId, price)
 			if (shapeToReposition && whereToPutBack) {
 				document.getElementById(whereToPutBack).appendChild(shapeToReposition)

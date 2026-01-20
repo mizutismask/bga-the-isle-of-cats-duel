@@ -21,7 +21,12 @@ class TryShapesMgr {
 		this.updateButton()
 	}
 	onUpdateActionButtons(stateName, args) {
-		if (this.game.gameui.isSpectator || stateName == "BoatChoice"|| stateName == "DebugGameEnd" || stateName == "EndGame") {
+		if (
+			this.game.gameui.isSpectator ||
+			stateName == 'BoatChoice' ||
+			stateName == 'DebugGameEnd' ||
+			stateName == 'EndGame'
+		) {
 			return
 		}
 		this.game.gameui.addActionButton(
@@ -68,6 +73,8 @@ class TryShapesMgr {
 				undoButton.remove()
 			}
 			cmd.enableButtons()
+			tryButton.classList.toggle('disabled', this.game.forbidTryShapes)
+
 			this.game.islandMgr.disallowTryShapes()
 			if (this.game.gameui.isCurrentPlayerActive()) {
 				switch (this.game.gamedatas.gamestate.name) {
@@ -107,7 +114,12 @@ class TryShapesMgr {
 			//debugger
 			for (const shapeInfo of initialShapeList) {
 				const gridElem = document.querySelector(
-					'#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-grid.x_' + shapeInfo.x + '_y_' + shapeInfo.y
+					'#tioc-player-boat-' +
+						this.game.getPlayerId() +
+						' .tioc-grid.x_' +
+						shapeInfo.x +
+						'_y_' +
+						shapeInfo.y
 				)
 				this.game.createShapeElement(
 					gridElem,
@@ -132,10 +144,12 @@ class TryShapesMgr {
 				cmdStateValue.shapeList.push(shapeInfo)
 			}
 		}
-		
+
 		cmd.startCommand(cmdStateValue)
 		cmd.addSimple(
-			() => {this.updateButton()},
+			() => {
+				this.updateButton()
+			},
 			() => {
 				this.game.islandMgr.removeAllIslandClickable()
 				this.game.shapeControl.detach()

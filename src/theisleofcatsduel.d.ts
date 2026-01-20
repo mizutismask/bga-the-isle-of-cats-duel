@@ -118,12 +118,13 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	getShapeColorIdFromShapeId(shapeId)
 	applyTransformToElement(element: HTMLElement, rotation: number, flipH: boolean, flipV: boolean)
 	removeClickableId(id: string, removeSelected = true)
-
+	
 	createShapeElement(location, shapeId, shapeTypeId, shapeDefId, colorId = null): HTMLElement
 	addKnownShape(shape): void
 	updateShapeElementTooltip(shape, elementId = null): void
 	removeAbsolutePosition(elementId: string)
 	displayBigScore(parentElem: string | HTMLElement, playerId: number, score: string | number): void
+	forbidTryShapes: boolean
 }
 
 interface EnteringPlayerTurnArgs {
