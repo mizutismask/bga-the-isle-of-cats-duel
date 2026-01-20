@@ -379,9 +379,9 @@ class PlayerTurn extends GameState {
     #[PossibleAction]
     public function actPass(int $activePlayerId) {
         // Notify all players about the choice to pass.
-        $this->notify->all("pass", "", [
+        $this->notify->all("pass", clienttranslate('${player_name} ends his turn'), [
             //"player_id" => $activePlayerId,
-            //"player_name" => $this->game->getPlayerNameById($activePlayerId), // remove this line if you uncomment notification decorator
+            "player_name" => $this->game->getPlayerNameById($activePlayerId), // remove this line if you uncomment notification decorator
         ]);
         $anyShapeOnIsland = $this->game->shapeMgr->findByLocation((SHAPE_LOCATION_ID_ISLAND_CAT_SLOT), null);
         if ($anyShapeOnIsland == null && !$this->game->cardMgr->getIslandCards()) {
