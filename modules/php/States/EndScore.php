@@ -72,7 +72,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
     ) {
         parent::__construct(
             $game,
-            id: 98,
+            id: Constants::STATE_ID_END_SCORE,
             type: StateType::GAME,
         );
     }

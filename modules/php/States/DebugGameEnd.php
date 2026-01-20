@@ -17,7 +17,7 @@ class DebugGameEnd extends GameState {
     ) {
         parent::__construct(
             $game,
-            id: 97,
+            id: Constants::STATE_ID_DEBUG_GAME_END,
             type: StateType::MULTIPLE_ACTIVE_PLAYER,
             description: 'Debug Game End',
             descriptionMyTurn: 'Debug Game End',

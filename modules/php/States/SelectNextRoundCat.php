@@ -8,6 +8,7 @@ use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\UserException;
+use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_DISCARD_SHAPES;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_FIELD;
@@ -19,7 +20,7 @@ class SelectNextRoundCat extends GameState {
     ) {
         parent::__construct(
             $game,
-            id: 14,
+            id: Constants::STATE_ID_SELECT_NEXT_ROUND_CAT,
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must select which cat to put back in the game'),
             descriptionMyTurn: clienttranslate('You must select which cat from under the island to put back in the game'),

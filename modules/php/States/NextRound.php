@@ -15,7 +15,7 @@ class NextRound extends \Bga\GameFramework\States\GameState {
     ) {
         parent::__construct(
             $game,
-            id: 12,
+            id: Constants::STATE_ID_NEXT_ROUND,
             type: StateType::GAME,
             updateGameProgression: true,
         );

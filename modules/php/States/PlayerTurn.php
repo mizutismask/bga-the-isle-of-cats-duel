@@ -45,7 +45,7 @@ class PlayerTurn extends GameState {
     ) {
         parent::__construct(
             $game,
-            id: 11,
+            id: Constants::STATE_ID_PLAYER_TURN,
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must move the Oshax'),
             descriptionMyTurn: clienttranslate('You must select where to move the Oshax (${remainingMoves} remaining moves) '),

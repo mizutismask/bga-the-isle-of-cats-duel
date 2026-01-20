@@ -15,7 +15,7 @@ class NextPlayer extends \Bga\GameFramework\States\GameState {
     ) {
         parent::__construct(
             $game,
-            id: 90,
+            id: Constants::STATE_ID_NEXT_PLAYER,
             type: StateType::GAME,
             updateGameProgression: true,
         );

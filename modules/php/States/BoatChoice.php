@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Bga\Games\TheIsleOfCatsDuel\States;
 
-use BackedEnum;
 use Bga\GameFramework\Actions\Types\StringParam;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
@@ -19,7 +18,7 @@ class BoatChoice extends GameState {
     ) {
         parent::__construct(
             $game,
-            id: 10,
+            id: Constants::STATE_ID_BOAT_CHOICE,
             type: StateType::ACTIVE_PLAYER,
             description: clienttranslate('${actplayer} must choose a boat'),
             descriptionMyTurn: clienttranslate('${you} must choose a boat'),

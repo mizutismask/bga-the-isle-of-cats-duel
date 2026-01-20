@@ -30,4 +30,14 @@ class Constants {
     const CARD_TYPE_ID_ANYTIME = 2;
     const CARD_TYPE_ID_TREASURE = 3;
     const CARD_TYPE_ID_LESSON = 4;
+
+    const STATE_ID_BOAT_CHOICE = 10;
+    const STATE_ID_PLAYER_TURN = 11;
+    const STATE_ID_NEXT_ROUND = 12;
+    const STATE_ID_NEXT_BOAT_CHOOSER = 13;
+    const STATE_ID_SELECT_NEXT_ROUND_CAT = 14;
+    const STATE_ID_END_OF_ROUND = 15;
+    const STATE_ID_NEXT_PLAYER = 90;
+    const STATE_ID_DEBUG_GAME_END = 97;
+    const STATE_ID_END_SCORE = 98;
 }

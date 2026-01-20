@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bga\Games\TheIsleOfCatsDuel\States;
 
 use Bga\GameFramework\StateType;
+use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 
 class EndOfRound extends \Bga\GameFramework\States\GameState {
@@ -14,7 +15,7 @@ class EndOfRound extends \Bga\GameFramework\States\GameState {
     ) {
         parent::__construct(
             $game,
-            id: 15,
+            id: Constants::STATE_ID_END_OF_ROUND,
             type: StateType::GAME
         );
     }
