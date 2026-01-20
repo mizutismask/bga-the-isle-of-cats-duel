@@ -369,32 +369,6 @@ class PlayerTurn extends GameState {
         );
         return PlayerTurn::class;
     }
-    #[PossibleAction]
-    public function actPlayCard(int $card_id, int $activePlayerId, array $args) {
-        // check input values
-        $playableCardsIds = $args['playableCardsIds'];
-        if (!in_array($card_id, $playableCardsIds)) {
-            throw new UserException('Invalid card choice');
-        }
-
-        // Add your game logic to play a card here.
-        $card_name = Game::$CARD_TYPES[$card_id]['card_name'];
-
-        // Notify all players about the card played.
-        $this->notify->all("cardPlayed", clienttranslate('${player_name} plays ${card_name}'), [
-            "player_id" => $activePlayerId,
-            "player_name" => $this->game->getPlayerNameById($activePlayerId), // remove this line if you uncomment notification decorator
-            "card_name" => $card_name, // remove this line if you uncomment notification decorator
-            "card_id" => $card_id,
-            "i18n" => ['card_name'], // remove this line if you uncomment notification decorator
-        ]);
-
-        // in this example, the player gains 1 points each time he plays a card
-        $this->playerScore->inc($activePlayerId, 1);
-
-        // at the end of the action, move to the next state
-        return NextPlayer::class;
-    }
 
     /**
      * Player action, example content.
@@ -412,7 +386,7 @@ class PlayerTurn extends GameState {
         $anyShapeOnIsland = $this->game->shapeMgr->findByLocation((SHAPE_LOCATION_ID_ISLAND_CAT_SLOT), null);
         if ($anyShapeOnIsland == null && !$this->game->cardMgr->getIslandCards()) {
             $this->notify->all('importantMessage', "", ["message" => clienttranslate('The island is empty, end of the round'), "type" => "POSITIVE", "temporary" => true]);
-            return SelectNextRoundCat::class;
+            return EndOfRound::class;
         }
         $tookDiscovery = $this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN);
         if ($tookDiscovery) {
@@ -422,7 +396,7 @@ class PlayerTurn extends GameState {
             return NextPlayer::class;
         } else {
             $this->notify->all('importantMessage', "", ["message" => clienttranslate('None of you took a discovery from the island, end of the round'), "type" => "POSITIVE", "temporary" => true]);
-            return SelectNextRoundCat::class;
+            return EndOfRound::class;
         }
     }
 

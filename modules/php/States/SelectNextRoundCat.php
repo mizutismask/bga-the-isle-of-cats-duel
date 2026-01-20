@@ -4,29 +4,16 @@ declare(strict_types=1);
 
 namespace Bga\Games\TheIsleOfCatsDuel\States;
 
-use Bga\GameFramework\Actions\Types\StringParam;
 use Bga\GameFramework\StateType;
 use Bga\GameFramework\States\GameState;
 use Bga\GameFramework\States\PossibleAction;
 use Bga\GameFramework\UserException;
-use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
-
-use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CARD_SLOT;
-use const Bga\Games\TheIsleOfCatsDuel\CARD_LOCATION_ID_ISLAND_CAT_SLOT;
 use const Bga\Games\TheIsleOfCatsDuel\NTF_DISCARD_SHAPES;
-use const Bga\Games\TheIsleOfCatsDuel\NTF_MOVE_SHAPE_TO_BOAT;
-use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_BAG;
-use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_DISCARD;
 use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_FIELD;
-use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_ISLAND_CAT_SLOT;
-use const Bga\Games\TheIsleOfCatsDuel\SHAPE_LOCATION_ID_TO_PLACE;
-use const Bga\Games\TheIsleOfCatsDuel\SHAPE_TYPE_ID_COMMON_TREASURE;
 
 class SelectNextRoundCat extends GameState {
-
-
-
+    
     function __construct(
         protected Game $game,
     ) {
@@ -40,8 +27,8 @@ class SelectNextRoundCat extends GameState {
     }
 
     function onEnteringState(int $activePlayerId, array $args) {
-        $shape = $this->game->shapeMgr->findByLocation(SHAPE_LOCATION_ID_FIELD, null);
-        if (!$shape) return NextRound::class;
+       /* $shape = $this->game->shapeMgr->findByLocation(SHAPE_LOCATION_ID_FIELD, null);
+        if (!$shape) return NextRound::class;*/
 
         $this->game->giveExtraTime($activePlayerId);
     }
@@ -70,17 +57,18 @@ class SelectNextRoundCat extends GameState {
             throw new UserException('You can not put this cat back');
         }
 
-        return $this->moveShapeToBag($shape);
+        return $this->moveShapeToBag($activePlayerId, $shape);
     }
 
-    private function moveShapeToBag($shape) {
+    private function moveShapeToBag($playerId, $shape) {
         $this->game->shapeMgr->moveShapeToBag($shape->shapeId);
         $this->game->tiocNotifyAllPlayers(
             NTF_DISCARD_SHAPES,
-            clienttranslate('The drawn shape is put back in the game ${shapes_img}'),
+            clienttranslate('${player_name} puts the drawn shape back in the game ${shapes_img}'),
             [
                 'shapes' => [$shape],
                 'shapes_img' => [$shape],
+                'player_name' => $this->game->getPlayerName($playerId),
             ]
         );
         return NextRound::class;
@@ -102,6 +90,6 @@ class SelectNextRoundCat extends GameState {
     function zombie(int $playerId) {
         $args = $this->getArgs();
         $shape = $this->game->shapeMgr->findByLocation(SHAPE_LOCATION_ID_FIELD, null);
-        return $this->moveShapeToBag($shape);
+        return $this->moveShapeToBag($playerId, $shape);
     }
 }
