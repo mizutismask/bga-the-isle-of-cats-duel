@@ -174,7 +174,9 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 			case 25:
 				return {
 					description: _('Score your third largest family twice.'),
-					note: _('In the case of equal sized families, your third largest family may be the same size as your largest or second largest families.')
+					note: _(
+						'In the case of equal sized families, your third largest family may be the same size as your largest or second largest families.'
+					)
 				}
 			case 26:
 				return {
@@ -240,8 +242,10 @@ class CardsManager extends CardsManagerBase<TheIsleOfCatsDuelCard> {
 		if (playerId !== null) {
 			style = 'color: #' + this.game.gamedatas.players[playerId].color
 		}
-		const cardElemId = 'card-theisleofcatsduel-card-' + cardId
-		dojo.place(`<div class="tioc-card-end-score" style="${style}">+${score}</div>`, cardElemId)
+
+		document
+			.querySelector(`#card-theisleofcatsduel-card-${cardId} .card-front`)
+			.insertAdjacentHTML('beforeend', `<div class="tioc-card-end-score" style="${style}">+${score}</div>`)
 	}
 
 	public getTooltip(card: TheIsleOfCatsDuelCard): string {
