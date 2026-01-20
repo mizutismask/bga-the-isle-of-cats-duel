@@ -139,6 +139,8 @@ interface EnteringPlayerTurnArgs {
 	remainingTreasures: number
 	mandatoryMoveDone: boolean
 	shapeToPlace: Shape
+	discoveryTaken: boolean
+	usedFishAction: boolean
 }
 
 interface NotifPointsArgs {

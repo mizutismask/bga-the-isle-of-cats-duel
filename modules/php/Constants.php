@@ -22,6 +22,7 @@ class Constants {
     const GLBL_REMAINING_OSHAX_MOVES = 'remainingOshaxMoves';
     const GLBL_MANDATORY_MOVE_DONE = "mandatoryMoveDone";
     const GLBL_CURRENT_FISH_ACTION = "currentFishAction";
+    const GLBL_USED_FISH_ACTION = "usedFishAction";
     const GLBL_DISCOVERY_TAKEN = "discoveryTaken";
     const GLBL_REMAINING_TREASURES = "remainingTreasures";
     const GLBL_BOATS_CHOSEN = "boatsChosen";

@@ -77,7 +77,9 @@ class PlayerTurn extends GameState {
             "canTradeFishForJump" => FISH_ACTION_COST["J"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForTreasure" => FISH_ACTION_COST["T"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForDiscovery" => FISH_ACTION_COST["D"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
-            'shapeToPlace' => $this->game->shapeMgr->getToPlaceShape($this->game->getMostlyActivePlayerId())
+            'shapeToPlace' => $this->game->shapeMgr->getToPlaceShape($this->game->getMostlyActivePlayerId()),
+            'discoveryTaken' => $discoveryTaken,
+            'usedFishAction' =>  $this->globals->get(Constants::GLBL_USED_FISH_ACTION, true),
         ];
     }
 
@@ -217,13 +219,13 @@ class PlayerTurn extends GameState {
 
         $validMoves = $args['oshaxValidMoves'];
         if (!in_array($slot, $validMoves)) {
-            throw new UserException('You cannot reach this location');
+            throw new UserException(clienttranslate('You cannot reach this location'));
         }
 
         $fishAction = $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
         $remainingMoves = $this->game->globals->get(Constants::GLBL_REMAINING_OSHAX_MOVES);
         if ($fishAction != "J" && $remainingMoves == 0) {
-            throw new UserException('You have no remaining move, use a fish to get an additional one');
+            throw new UserException(clienttranslate('You have no remaining move, use a fish to get an additional one'));
         }
 
         $this->game->islandMgr->moveOshaxToSlot($activePlayerId, $slot);
@@ -236,19 +238,40 @@ class PlayerTurn extends GameState {
     }
 
     #[PossibleAction]
+    public function actCancelOshaxMoves(int $activePlayerId, array $args) {
+        if ($args["discoveryTaken"] || $args["usedFishAction"]) {
+            throw new UserException(clienttranslate("You can cancel Oshax moves only if you didn’t do anything else"));
+        }
+        $moves = $this->game->contextMgr->getAllContextLogs(Constants::CONTEXT_ACTION_OSHAX_MOVE);
+        if (count($moves) == 0) {
+            throw new UserException(clienttranslate("The Oshax has not been moved yet"));
+        } else {
+            $initialMove = array_pop($moves);
+            $slot = intval($initialMove['param1']);
+            $this->game->islandMgr->moveOshaxToSlot($activePlayerId, $slot, true);
+            $this->game->globals->set(Constants::GLBL_OSHAX_LOCATION, $slot);
+            $this->game->contextMgr->reset();
+            $this->game->globals->set(Constants::GLBL_REMAINING_OSHAX_MOVES, 2);
+            $this->game->globals->set(Constants::GLBL_MANDATORY_MOVE_DONE, false);
+            return PlayerTurn::class;
+        }
+    }
+
+    #[PossibleAction]
     public function actTradeFishForAction(#[StringParam(enum: ['M', 'J', "T", "D"])] $additionalAction, int $activePlayerId, array $args) {
         // check input values
         if (!$args['mandatoryMoveDone']) {
-            throw new UserException('You cannot use fish before moving the Oshax');
+            throw new UserException(clienttranslate('You cannot use fish before moving the Oshax'));
         }
 
         if (FISH_ACTION_COST[$additionalAction] > $this->game->playerFishCounter->get($activePlayerId)) {
-            throw new UserException('You don’t have enough fish');
+            throw new UserException(clienttranslate('You don’t have enough fish'));
         }
 
         if ($this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION) != null) {
-            throw new UserException('You must finish your additional move before using another fish');
+            throw new UserException(clienttranslate('You must finish your additional move before using another fish'));
         }
+        $this->globals->set(Constants::GLBL_USED_FISH_ACTION, true);
 
         switch ($additionalAction) {
             case 'M':
@@ -386,10 +409,10 @@ class PlayerTurn extends GameState {
         $tookDiscovery = $this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN);
         if ($tookDiscovery) {
             return NextPlayer::class;
-        }else{
+        } else {
             $this->notify->all("pass", clienttranslate('${player_name} ends his turn without taking a discovery'), [
-            "player_name" => $this->game->getPlayerNameById($activePlayerId),
-        ]);
+                "player_name" => $this->game->getPlayerNameById($activePlayerId),
+            ]);
         }
         if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), Constants::GLBL_DISCOVERY_TAKEN)) {
             return NextPlayer::class;

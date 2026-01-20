@@ -56,14 +56,14 @@ class IslandMgr {
         return array_values(array_diff($possibleMoves, $slotsSeen));
     }
 
-    public function moveOshaxToSlot(int $playerId, int $slot) {
+    public function moveOshaxToSlot(int $playerId, int $slot, bool $fromCancel = false) {
         $this->game->contextMgr->insertContextLog(Constants::CONTEXT_ACTION_OSHAX_MOVE, $this->game->globals->get(Constants::GLBL_OSHAX_LOCATION), $slot);
         $this->game->globals->set(Constants::GLBL_OSHAX_LOCATION, $slot);
 
         $remainingMoves = $this->game->globals->inc(Constants::GLBL_REMAINING_OSHAX_MOVES, -1);
         if ($remainingMoves == 0) $this->game->globals->set(Constants::GLBL_MANDATORY_MOVE_DONE, true);
 
-        $this->game->notify->all("oshaxMove", clienttranslate('${player_name} moves the oshax to slot ${to}'), [
+        $this->game->notify->all("oshaxMove", $fromCancel ? clienttranslate('${player_name} cancels and moves the Oshax back to slot ${to}') : clienttranslate('${player_name} moves the oshax to slot ${to}'), [
             "player_name" => $this->game->getPlayerName($playerId),
             "player_id" => $playerId,
             "to" => $slot,

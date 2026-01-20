@@ -606,6 +606,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					//}
 				}
 			}
+			if (!chooseActionArgs.discoveryTaken && chooseActionArgs.remainingMoves != 2 && !chooseActionArgs.usedFishAction) {
+				this.statusBar.addActionButton(
+					_('Cancel Oshax moves'),
+					() => {
+						this.takeAction('actCancelOshaxMoves')
+					},
+					{ color: 'secondary' }
+				)
+			}
+			
 			if (chooseActionArgs.canPass) {
 				this.statusBar.addActionButton(
 					_('End my turn'),
