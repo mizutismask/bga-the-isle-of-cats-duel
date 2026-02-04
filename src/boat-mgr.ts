@@ -402,7 +402,7 @@ class BoatMgr {
 				'#tioc-player-boat-' + this.game.getPlayerId() + ' .tioc-grid[data-valid-grid="true"]'
 			)
 			.forEach((sq) => {
-				sq.classList.add(this.clickableCls)
+				sq.classList.add('tioc-clickable-no-border')
 				this.game.addOnClick(sq, (ev) => {
 					ev.preventDefault()
 					const x = Number(sq.dataset.x || sq.getAttribute('data-x'))
@@ -416,7 +416,7 @@ class BoatMgr {
 
 	/** Remove all click handlers/visuals from the boat. */
 	removeAllBoatClickable = (): void => {
-		document.querySelectorAll(`.${this.clickableCls}`).forEach((el) => el.classList.remove(this.clickableCls))
+		document.querySelectorAll(`.tioc-player-boat .tioc-clickable`).forEach((el) => el.classList.remove(this.clickableCls))
 	}
 
 	/** Move a shape node into the boat grid at x,y.
