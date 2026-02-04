@@ -352,9 +352,9 @@ class PlayerTurn extends GameState {
                 $fishAction = $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
             }
         } else {
+            $this->game->playerShapeCounters[$shape->colorId]->inc($activePlayerId, 1);
             if ($isShapeFromIsland) {
                 $this->game->setPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN, true);
-                $this->game->playerShapeCounters[$shape->colorId]->inc($activePlayerId, 1);
                 if ($fishAction == "D") {
                     $fishAction = $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
                 }
