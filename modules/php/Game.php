@@ -40,6 +40,7 @@ class Game extends \Bga\GameFramework\Table {
     public TiocCardMgr $cardMgr;
     public PlayerCounter $playerFishCounter;
     public PlayerCounter $playerLessonCounter;
+    public PlayerCounter $playerRatsCounter;
     public array $playerShapeCounters;
     public ContextMgr $contextMgr;
     public IslandMgr $islandMgr;
@@ -59,42 +60,17 @@ class Game extends \Bga\GameFramework\Table {
 
         $this->playerFishCounter = $this->counterFactory->createPlayerCounter('fish');
         $this->playerLessonCounter = $this->counterFactory->createPlayerCounter('lesson');
+        $this->playerRatsCounter = $this->counterFactory->createPlayerCounter('rats');
         $this->playerShapeCounters = [];
         foreach (CAT_COLOR_IDS as $colorId) {
             $this->playerShapeCounters[$colorId] = $this->counterFactory->createPlayerCounter("shapes-$colorId");
         }
         $this->playerShapeCounters["treasure"] = $this->counterFactory->createPlayerCounter("shapes-treasure");
 
-        self::$CARD_TYPES = [
-            1 => [
-                "card_name" => clienttranslate('Troll'), // ...
-            ],
-            2 => [
-                "card_name" => clienttranslate('Goblin'), // ...
-            ],
-            // ...
-        ];
-
         $this->shapeMgr = new TiocShapeMgr($this);
         $this->cardMgr = new TiocCardMgr($this);
         $this->contextMgr = new ContextMgr($this);
         $this->islandMgr = new IslandMgr($this);
-
-
-        /* example of notification decorator.
-        // automatically complete notification args when needed
-        $this->notify->addDecorator(function(string $message, array $args) {
-            if (isset($args['player_id']) && !isset($args['player_name']) && str_contains($message, '${player_name}')) {
-                $args['player_name'] = $this->getPlayerNameById($args['player_id']);
-            }
-        
-            if (isset($args['card_id']) && !isset($args['card_name']) && str_contains($message, '${card_name}')) {
-                $args['card_name'] = self::$CARD_TYPES[$args['card_id']]['card_name'];
-                $args['i18n'][] = ['card_name'];
-            }
-            
-            return $args;
-        });*/
     }
 
     /**
@@ -172,6 +148,7 @@ class Game extends \Bga\GameFramework\Table {
         $result['boatUsedGridColor'] = !$this->globals->get(Constants::GLBL_BOATS_CHOSEN) ? [] : $this->shapeMgr->getBoatUsedGridColor(array_keys($this->loadPlayersBasicInfos()));
         $this->playerFishCounter->fillResult($result);
         $this->playerLessonCounter->fillResult($result);
+        $this->playerRatsCounter->fillResult($result);
         foreach ($this->playerShapeCounters as $shapeCounter) {
             $shapeCounter->fillResult($result);
         }
@@ -232,6 +209,7 @@ class Game extends \Bga\GameFramework\Table {
 
         $this->playerFishCounter->initDb(array_keys($players), 3);
         $this->playerLessonCounter->initDb(array_keys($players), 0);
+        $this->playerRatsCounter->initDb(array_keys($players), 0);
         foreach ($this->playerShapeCounters as $shapeCounter) {
             $shapeCounter->initDb(array_keys($players), 0);
         }

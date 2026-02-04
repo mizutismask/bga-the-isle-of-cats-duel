@@ -361,6 +361,8 @@ class PlayerTurn extends GameState {
             }
         }
 
+        $playerBoatShape = $this->game->getPlayerGlobal($activePlayerId, "boat");
+        $this->game->playerRatsCounter->set($activePlayerId, count($this->game->shapeMgr->getPlayerVisibleRatPositions($activePlayerId, $playerBoatShape)));
 
         $this->game->tiocNotifyAllPlayers(
             NTF_MOVE_SHAPE_TO_BOAT,

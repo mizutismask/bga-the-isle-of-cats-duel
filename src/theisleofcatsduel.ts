@@ -63,6 +63,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 
 	private fishCounters: Counter[] = []
 	private handCardsCounters: Counter[] = []
+	private visibleRatsCounters: Counter[] = []
 	private scoreTable = {}
 
 	protected settings = [new Setting('customSounds', 'pref', 1)]
@@ -174,6 +175,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.setTooltipToClass('tioc-player-panel-shape-face-orange', _("Number of orange cats on this player's boat"))
 		this.setTooltipToClass('tioc-player-panel-shape-face-purple', _("Number of purple cats on this player's boat"))
 		this.setTooltipToClass('tioc-player-panel-shape-face-red', _("Number of red cats on this player's boat"))
+		this.setTooltipToClass('tioc-player-panel-rats', _("Number of visible rats on this player's boat"))
 		this.setTooltipToClass(
 			'tioc-player-panel-shape-face-common',
 			_("Number of Common Treasure on this player's boat")
@@ -231,7 +233,12 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 						id="tioc-player-panel-shape-face-${color}-${player.id}">0</div>
 				</div>`
 					)
-					.join('')}
+			.join('')}
+				<div class="tioc-player-panel-pill">
+				<div class="tioc-player-panel-rats" id="tioc-player-panel-rats-logo-${player.id}"></div>
+				<div class="tioc-player-panel-pill-counter"
+					id="tioc-player-panel-rats-counter-${player.id}">0</div>
+				</div>
 			</div>
 
 			<div class="tioc-player-panel-row">
@@ -256,6 +263,14 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 			playerId: parseInt(player.id)
 		})
 		this.handCardsCounters[playerId] = cardsCounter
+
+		const visibleRatsCounters = new ebg.counter()
+		visibleRatsCounters.create(`tioc-player-panel-rats-counter-${player.id}`, {
+			value: player.rats,
+			playerCounter: 'rats',
+			playerId: parseInt(player.id)
+		})
+		this.visibleRatsCounters[playerId] = visibleRatsCounters
 	}
 
 	/* This enable to inject translatable styled things to logs or action bar */

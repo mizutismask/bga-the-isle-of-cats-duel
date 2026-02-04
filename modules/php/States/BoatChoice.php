@@ -12,6 +12,8 @@ use Bga\GameFramework\UserException;
 use Bga\Games\TheIsleOfCatsDuel\Constants;
 use Bga\Games\TheIsleOfCatsDuel\Game;
 
+use const Bga\Games\TheIsleOfCatsDuel\BOAT_RAT_PLACEMENT;
+
 class BoatChoice extends GameState {
     function __construct(
         protected Game $game,
@@ -48,6 +50,7 @@ class BoatChoice extends GameState {
     public function actChooseBoat(#[StringParam(enum: ['IBoat', 'OBoat'])] string $boat, int $activePlayerId) {
         $this->game->setPlayerGlobal($activePlayerId, 'boat', $boat);
         $this->notify->all("boatChosen", "", ["playerId" => $activePlayerId, "boatShape" => $boat]);
+        $this->game->playerRatsCounter->set($activePlayerId, count(BOAT_RAT_PLACEMENT[$boat]));
         if ($this->game->getPlayerGlobal($this->game->getOpponentId($activePlayerId), 'boat')) {
             $this->game->globals->set(Constants::GLBL_BOATS_CHOSEN, true);
             return NextRound::class;
