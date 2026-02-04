@@ -271,6 +271,10 @@ class PlayerTurn extends GameState {
         if ($this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION) != null) {
             throw new UserException(clienttranslate('You must finish your additional move before using another fish'));
         }
+
+        if ($additionalAction == "D" && !$this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN)) {
+            throw new UserException(clienttranslate('Take your free discovery first'));
+        }
         $this->globals->set(Constants::GLBL_USED_FISH_ACTION, true);
 
         switch ($additionalAction) {
