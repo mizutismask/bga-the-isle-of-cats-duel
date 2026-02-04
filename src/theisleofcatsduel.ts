@@ -347,6 +347,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				} else {
 					this.setChooseActionGamestateDescription(_('${you} can use fish or end your turn'))
 				}
+				this.island.showCrossedSlots(args.crossedSlots)
 
 				//this.actionMgr.allowRescueCat();
 			}

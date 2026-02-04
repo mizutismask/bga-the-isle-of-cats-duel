@@ -136,6 +136,7 @@ interface EnteringPlayerTurnArgs {
 	canResetTurn: boolean
 	oshaxValidMoves: number[]
 	possibleSlotsForDiscovery: number[]
+	crossedSlots: number[]
 	remainingMoves: number
 	remainingTreasures: number
 	mandatoryMoveDone: boolean

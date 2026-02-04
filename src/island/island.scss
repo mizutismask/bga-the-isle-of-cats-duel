@@ -15,14 +15,21 @@
 			border-color: rgb(153, 226, 44);
 		}
 		&.island-card-slot {
-			width:  16.78%;
+			width: 16.78%;
 			height: 34.1%;
 			border: none;
+			&.island-slot-crossed {
+				border-width: 2px;
+				border-style: solid;
+			}
 		}
 
 		&.island-slot-disabled {
 			cursor: not-allowed;
 			background-color: #d3d3d38f;
+		}
+		&.island-slot-crossed {
+			border-color: rgb(226, 223, 44);
 		}
 	}
 	$slotOrigin: 3%;
@@ -82,18 +89,18 @@
 	#island-slot-15 {
 		top: $row-3-Y;
 	}
-	
+
 	#island-slot-7,
-	#island-slot-9{
-		top:43.2%;
+	#island-slot-9 {
+		top: 43.2%;
 	}
 	#island-slot-2,
-	#island-slot-4{
+	#island-slot-4 {
 		top: 5%;
 	}
 	#island-slot-12,
-	#island-slot-14{
-		top:72%;
+	#island-slot-14 {
+		top: 72%;
 	}
 
 	@mixin tilted-right {
@@ -112,7 +119,7 @@
 	#island-slot-1,
 	#island-slot-3,
 	#island-slot-4,
-	#island-slot-5,	
+	#island-slot-5,
 	#island-slot-9,
 	#island-slot-12,
 	#island-slot-11 {
@@ -122,18 +129,18 @@
 	#island-slot-6,
 	#island-slot-7,
 	#island-slot-8,
-	#island-slot-10,	 
-	#island-slot-13,	 
+	#island-slot-10,
+	#island-slot-13,
 	#island-slot-14,
-	#island-slot-15{
+	#island-slot-15 {
 		@include tilted-left;
 	}
 
-	#island-slot-1{
+	#island-slot-1 {
 		@include lightly-tilted-right;
 		top: 2%;
 	}
-	#island-slot-8{
+	#island-slot-8 {
 		top: 32%;
 	}
 }

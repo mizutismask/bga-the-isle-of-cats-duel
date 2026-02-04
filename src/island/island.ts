@@ -72,6 +72,13 @@ class Island {
 			//this.game.addOnClick(card, () => this.game.actionMgr.rescueCat('toto'))
 		})
 	}
+	public showCrossedSlots(slotNumbers: number[]) {
+		removeClass("island-slot-crossed")
+		slotNumbers.forEach((slotNumber) => {
+			const card = document.getElementById(`island-slot-${slotNumber}`)
+			card.classList.add('island-slot-crossed')
+		})
+	}
 
 	public resetIsland(cards: Array<TheIsleOfCatsDuelCard>, shapes: Array<Shape>) {
 		this.disableAllSlots(false)
