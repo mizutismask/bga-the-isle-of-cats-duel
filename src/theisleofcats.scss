@@ -1892,7 +1892,8 @@ $x: $x + 1;
 }
 
 .tioc-clickable.tioc-clickable-no-border {
-	border: none;
+	//border: none;
+	border: 1px dashed rgb(200 255 47 / 84%);
 }
 
 .tioc-selected {
