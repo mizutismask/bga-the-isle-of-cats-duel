@@ -96,17 +96,17 @@ class PlayerTurn extends GameState {
     public function actTakeDiscovery(int $slot, int $activePlayerId, array $args) {
         // check input values
         if (!$this->game->islandMgr->isValidSlot($slot)) {
-            throw new UserException('This slot is not valid');
+            throw new UserException(clienttranslate('This slot is not valid'));
         }
 
         $validSlots = $args['possibleSlotsForDiscovery'];
         if (!in_array($slot, $validSlots)) {
-            throw new UserException('You did not move the Oshax over this location');
+            throw new UserException(clienttranslate('You did not move the Oshax over this location'));
         }
 
         $fishAction = $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION);
         if ($fishAction && ["M", "J"] == $fishAction) {
-            throw new UserException('You have to finish your additional move before choosing a discovery');
+            throw new UserException(clienttranslate('You have to finish your additional move before choosing a discovery'));
         }
 
         if ($this->game->isCardSlot($slot)) {

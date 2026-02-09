@@ -108,21 +108,6 @@ trait PlayerUtilTrait {
         return $this->getUniqueIntValueFromDB($sql);
     }
 
-    function getPlayerScore(int $playerId) {
-        return $this->getUniqueIntValueFromDB("SELECT player_score FROM player where `player_id` = $playerId");
-    }
-
-    function incPlayerScore(int $playerId, int $delta, $message = null, $messageArgs = []) {
-        static::DbQuery("UPDATE player SET `player_score` = `player_score` + $delta where `player_id` = $playerId");
-
-        $this->notifyAllPlayers('points', $message !== null ? $message : '', [
-            'playerId' => $playerId,
-            'player_name' => $this->getPlayerName($playerId),
-            'points' => $this->getPlayerScore($playerId),
-            'delta' => $delta,
-        ] + $messageArgs);
-    }
-
     function isEveryPlayerScoreEqualTo(int $score) {
         return $this->getUniqueValueFromDB("SELECT count(*) from player where player_score = $score") == $this->getPlayerCount();
     }
@@ -148,8 +133,8 @@ trait PlayerUtilTrait {
     }
 
     function getMostlyActivePlayerId() {
-        $state = $this->gamestate->state();
-        if ($state['type'] === "multipleactiveplayer") {
+        $type = $this->gamestate->getCurrentMainState()->type;
+        if ($type === "multipleactiveplayer") {
             return intval($this->getCurrentPlayerId());
         } else {
             return intval($this->getActivePlayerId());
@@ -168,7 +153,7 @@ trait PlayerUtilTrait {
         $this->globals->set($key . "-" . $playerId, $value);
     }
     function incPlayerGlobal(int $playerId, string $key, $value) {
-       return $this->globals->inc($key . "-" . $playerId, $value);
+        return $this->globals->inc($key . "-" . $playerId, $value);
     }
 
     function switchFirstPlayer() {

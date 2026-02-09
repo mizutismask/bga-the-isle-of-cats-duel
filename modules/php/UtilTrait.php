@@ -2,6 +2,9 @@
 
 namespace Bga\Games\TheIsleOfCatsDuel;
 
+use Bga\GameFramework\SystemException;
+use Bga\GameFramework\UserException;
+
 trait UtilTrait {
 
     function array_find(array $array, callable $fn) {
@@ -206,8 +209,8 @@ trait UtilTrait {
     }
 
     public function checkVersion(int $clientVersion): void {
-        if ($clientVersion != intval($this->gamestate->table_globals[300])) {
-            throw new \BgaVisibleSystemException(self::_("A new version of this game is now available. Please reload the page (F5)."));
+        if ($clientVersion != intval($this->bga->tableOptions->get(300))) {
+            throw new UserException(clienttranslate("A new version of this game is now available. Please reload the page (F5)."));
         }
     }
 
@@ -228,7 +231,7 @@ trait UtilTrait {
      * The message should be translated and shown to the user.
      *
      * @param $message string
-     *            user side error message, translation is needed, use $this->_() when passing string to it
+     *            user side error message, translation is needed, use clienttranslate() when passing string to it
      * @param $cond boolean condition of assert
      * @param $log string optional log message, not need to translate
      * @throws BgaUserException
@@ -238,7 +241,7 @@ trait UtilTrait {
             return;
         if ($log)
             $this->warn("$message $log|");
-        throw new \BgaUserException($message);
+        throw new UserException($message);
     }
 
     /**
@@ -257,7 +260,7 @@ trait UtilTrait {
         $this->error("Internal Error during move $move: $log|");
         $e = new \Exception($log);
         $this->error($e->getTraceAsString());
-        throw new \BgaUserException(self::_("Internal Error. That should not have happened. Please raise a bug."));
+        throw new SystemException(clienttranslate("Internal Error. That should not have happened. Please raise a bug."));
     }
 
     function notifyWithName($type, $message = '', $args = null, $player_id = -1) {
