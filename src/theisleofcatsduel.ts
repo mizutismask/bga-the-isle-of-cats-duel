@@ -233,7 +233,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 						id="tioc-player-panel-shape-face-${color}-${player.id}">0</div>
 				</div>`
 					)
-			.join('')}
+					.join('')}
 				<div class="tioc-player-panel-pill">
 				<div class="tioc-player-panel-rats" id="tioc-player-panel-rats-logo-${player.id}"></div>
 				<div class="tioc-player-panel-pill-counter"
@@ -362,7 +362,6 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				} else {
 					this.setChooseActionGamestateDescription(_('${you} can use fish or end your turn'))
 				}
-				this.island.showCrossedSlots(args.crossedSlots)
 
 				//this.actionMgr.allowRescueCat();
 			}
@@ -385,6 +384,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					this.setChooseActionGamestateDescription(_('${actplayer} can use fish or end his turn'))
 				}
 			}
+		}
+		if (args.mandatoryMoveDone) {
+			this.island.showCrossedSlots(args.crossedSlots)
 		}
 		//this.missions.addCards(args._private.missions).then(()=>this.missions.setSelectableCards(args._private.choosableMissions))
 	}
