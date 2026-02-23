@@ -1887,13 +1887,12 @@ $x: $x + 1;
  */
 
 .tioc-clickable {
-	border: 2px solid red;
+	border: 1px dashed rgb(200 255 47 / 84%);
 	cursor: pointer !important;
 }
 
 .tioc-clickable.tioc-clickable-no-border {
-	//border: none;
-	border: 1px dashed rgb(200 255 47 / 84%);
+	border: none;
 }
 
 .tioc-selected {
