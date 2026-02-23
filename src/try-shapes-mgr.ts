@@ -166,6 +166,7 @@ class TryShapesMgr {
 				for (let i = 0; i < cmdStateValue.shapeList.length; ++i) {
 					this.game.boatMgr.markGridUnused(cmdStateValue.shapeList[i].shapeId, true)
 				}
+				this.game.onEnteringState(this.game.gamedatas.gamestate.name,this.game.gamedatas.gamestate)//to remake treasure selection possible
 				this.game.boatMgr.updateGridOverlay()
 				//this.game.boatMgr.updatePlayerPanelShapeCount()
 			}

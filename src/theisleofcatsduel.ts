@@ -653,6 +653,10 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				this.statusBar.addActionButton(
 					_('End my turn'),
 					() => {
+						if (this.tryShapesMgr.isTryingShapes()){
+							this.gameui.showMessage(_("Exit try shapes mode before finishing your turn"), "error")	
+							return
+						}
 						if (chooseActionArgs.remainingTreasures > 0) {
 							this.gameui.confirmationDialog(
 								_('You could place a free treasure. Do you really want to waste it?'),

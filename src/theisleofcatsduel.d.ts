@@ -126,6 +126,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	displayBigScore(parentElem: string | HTMLElement, playerId: number, score: string | number): void
 	forbidTryShapes: boolean
 	toggleActiveElementOnPlayerBoat(playerId: number, active: boolean): void
+	onEnteringState(stateName: string, args: { args: {[key: string]: any} | null; }): void;  
 }
 
 interface EnteringPlayerTurnArgs {
