@@ -71,7 +71,7 @@ class PlayerTurn extends GameState {
             "canPass" => $mandatoryMoveDone,
             "canResetTurn" => $mandatoryMoveDone,
             "currentFishAction" => $this->game->globals->get(Constants::GLBL_CURRENT_FISH_ACTION),
-            "possibleSlotsForDiscovery" => $mandatoryMoveDone  && $discoveryTaken == false || $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION,) == "D" ? $this->game->islandMgr->getPossibleSlotsForDiscovery() : [],
+            "possibleSlotsForDiscovery" => $mandatoryMoveDone && ($discoveryTaken == false || $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION,) == "D") ? $this->game->islandMgr->getPossibleSlotsForDiscovery() : [],
             "crossedSlots" => $this->game->islandMgr->getPossibleSlotsForDiscovery(),
             "remainingTreasures" => $this->globals->get(Constants::GLBL_REMAINING_TREASURES, 0),
             "canTradeFishForMove" => FISH_ACTION_COST["M"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
@@ -135,6 +135,10 @@ class PlayerTurn extends GameState {
                     'player_name' => $this->game->getPlayerName($activePlayerId),
                 ]);
                 $this->playInstantCard($activePlayerId, $card);
+            }
+
+            if ($fishAction == "D") {
+                $fishAction = $this->globals->set(Constants::GLBL_CURRENT_FISH_ACTION, null);
             }
         } else {
             /*$typedSlot = $this->game->getCatSlotFromGlobalSlot($slot);
