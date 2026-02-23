@@ -332,6 +332,7 @@ class TiocShapeMgr {
         if ($shape === null)
             throw new BgaVisibleSystemException("BUG! Invalid shapeId $shapeId");
         $shape->moveToBag();
+        shuffle($this->shapes);
         $this->save();
         return $shape;
     }
