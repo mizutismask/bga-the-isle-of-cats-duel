@@ -149,10 +149,12 @@ class TryShapesMgr {
 		cmd.addSimple(
 			() => {
 				this.updateButton()
+				this.game.toggleActiveElementOnPlayerBoat(this.game.getPlayerId(), true)
 			},
 			() => {
 				this.game.islandMgr.removeAllIslandClickable()
 				this.game.shapeControl.detach()
+				this.game.toggleActiveElementOnPlayerBoat(this.game.getPlayerId(), false)
 				const tryShapes = document.querySelectorAll('.tioc-try-shapes')
 				for (const shape of Array.from(tryShapes)) {
 					shape.remove()

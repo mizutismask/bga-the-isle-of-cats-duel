@@ -129,6 +129,10 @@ svg {
 	}
 }
 
+.tioc-active-element{
+	@include selected-element;
+}
+
 .zone-title {
 	color: #965e17;
 	font-size: large;

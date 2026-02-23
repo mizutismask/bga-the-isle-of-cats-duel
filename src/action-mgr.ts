@@ -366,6 +366,7 @@ class ActionMgr {
 		this.game.gameui.statusBar.setTitle(_('${you} must select where to put the treasure on your boat'))
 		this.game.forbidTryShapes = true
 		this.game.tryShapesMgr.updateButton()
+		this.game.toggleActiveElementOnPlayerBoat(this.game.getPlayerId(), true)
 		this.game.boatMgr.allowPlaceShape((x, y) => {
 			this.game.removeAbsolutePosition(`tioc-shape-id-${shapeId}`)
 			log('allowPlaceShape', shapeId, x, y)
@@ -385,6 +386,7 @@ class ActionMgr {
 				if (!this.game.tryShapesMgr.isInCmd) {
 					this.game.forbidTryShapes = false
 					this.game.tryShapesMgr.updateButton()
+					this.game.toggleActiveElementOnPlayerBoat(this.game.getPlayerId(), false)
 					this.game.takeAction('actMoveShapeToBoat', {
 						shapeId: shapeId,
 						x: x,

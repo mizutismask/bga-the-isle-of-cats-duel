@@ -691,6 +691,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		return span
 	}
 
+	public toggleActiveElementOnPlayerBoat(playerId: number, active: boolean) {document.getElementById(`tioc-player-boat-${playerId}`).classList.toggle('tioc-active-element', active)}
+
 	public clickOnSlot(slot: number) {
 		log('clickOnSlot', slot)
 		if (this.tryShapesMgr.isTryingShapes()) return
@@ -706,6 +708,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					//this.actionMgr.rescueCat(shapeId)
 					this.forbidTryShapes = true
 					this.tryShapesMgr.updateButton()
+					//this.statusBar.setTitle(_("Place this shape on your boat"))
+					this.toggleActiveElementOnPlayerBoat(this.getPlayerId(), true)
 					this.boatMgr.allowPlaceShape((x, y) => {
 						log('moveShapeToBoat')
 						shape.dataset.previousParent = shape.parentElement.id
@@ -714,6 +718,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 							if (!this.tryShapesMgr.isInCmd) {
 								this.forbidTryShapes = false
 								this.tryShapesMgr.updateButton()
+								this.toggleActiveElementOnPlayerBoat(this.getPlayerId(), false)
 								this.takeAction('actMoveShapeToBoat', {
 									shapeId: shapeId,
 									x: x,

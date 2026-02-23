@@ -184,6 +184,7 @@ class IslandMgr {
 
 				this.game.forbidTryShapes = true
 				this.game.tryShapesMgr.updateButton()
+				this.game.toggleActiveElementOnPlayerBoat(this.game.getPlayerId(), true)
 				this.game.boatMgr.allowPlaceShape((x, y) => {
 					log('moveShapeToBoat')
 					shape.dataset.previousParent = shape.parentElement.id
@@ -192,6 +193,7 @@ class IslandMgr {
 						if (!this.game.tryShapesMgr.isInCmd) {
 							this.game.forbidTryShapes = false
 							this.game.tryShapesMgr.updateButton()
+							this.game.toggleActiveElementOnPlayerBoat(this.game.getPlayerId(), false)
 							this.game.takeAction('actMoveShapeToBoat', {
 								shapeId: shapeId,
 								x: x,

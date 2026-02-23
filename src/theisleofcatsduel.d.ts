@@ -125,6 +125,7 @@ interface TheIsleOfCatsDuelGame /*extends Game*/ {
 	removeAbsolutePosition(elementId: string)
 	displayBigScore(parentElem: string | HTMLElement, playerId: number, score: string | number): void
 	forbidTryShapes: boolean
+	toggleActiveElementOnPlayerBoat(playerId: number, active: boolean): void
 }
 
 interface EnteringPlayerTurnArgs {

@@ -156,6 +156,7 @@ class ShapeControl {
 			this.detach()
 			this.game.forbidTryShapes = false
 			this.game.tryShapesMgr.updateButton()
+			this.game.toggleActiveElementOnPlayerBoat(this.game.getPlayerId(), false)
 			//this.game.islandMgr.moveShapeToIsland(state.shapeId, price)
 			if (shapeToReposition && whereToPutBack) {
 				document.getElementById(whereToPutBack).appendChild(shapeToReposition)
