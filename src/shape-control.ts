@@ -238,8 +238,10 @@ class ShapeControl {
 		button.classList.remove('bgabutton_red')
 		if (this._isPositionValid()) {
 			button.classList.add('bgabutton_blue')
+			button.style.setProperty("color", "#0ae70a")
 		} else {
 			button.classList.add('bgabutton_red')
+			button.style.removeProperty("color")
 		}
 	}
 	public _moveTo(x, y) {
