@@ -1181,6 +1181,10 @@ $scale: 10;
 .tioc-try-shapes-hidden {
 	display: none;
 }
+.tioc-player-boat .tioc-try-shapes {
+	filter: opacity(.6);
+	//filter: drop-shadow(2px 4px 6px white);
+}
 
 #logs .tioc-shape {
 	margin: 4px;
