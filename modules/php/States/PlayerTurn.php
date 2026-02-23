@@ -239,6 +239,15 @@ class PlayerTurn extends GameState {
     }
 
     #[PossibleAction]
+    public function actDismissTreasure(int $activePlayerId, array $args) {
+        $remaining = $this->globals->inc(Constants::GLBL_REMAINING_TREASURES, -1);
+        if ($remaining < 0) {
+            $this->globals->set(Constants::GLBL_REMAINING_TREASURES, 0);
+        }
+        return PlayerTurn::class;
+    }
+
+    #[PossibleAction]
     public function actCancelOshaxMoves(int $activePlayerId, array $args) {
         if ($args["discoveryTaken"] || $args["usedFishAction"]) {
             throw new UserException(clienttranslate("You can cancel Oshax moves only if you didn’t do anything else"));
@@ -271,6 +280,10 @@ class PlayerTurn extends GameState {
 
         if ($this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION) != null) {
             throw new UserException(clienttranslate('You must finish your additional move before using another fish'));
+        }
+
+        if ($args["remainingTreasures"] > 0) {
+            throw new UserException(clienttranslate('You must place your treasure or dismiss it before using fish'));
         }
 
         if ($additionalAction == "D" && !$this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN)) {

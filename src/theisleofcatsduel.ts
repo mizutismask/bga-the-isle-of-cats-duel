@@ -639,6 +639,16 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				)
 			}
 
+			if (chooseActionArgs.remainingTreasures > 0) {
+				this.statusBar.addActionButton(
+					_('Dismiss 1 treasure'),
+					() => {
+						this.takeAction('actDismissTreasure', {})
+					},
+					{ color: 'alert' }
+				)
+			}
+
 			if (chooseActionArgs.canPass) {
 				this.statusBar.addActionButton(
 					_('End my turn'),
@@ -691,7 +701,9 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		return span
 	}
 
-	public toggleActiveElementOnPlayerBoat(playerId: number, active: boolean) {document.getElementById(`tioc-player-boat-${playerId}`).classList.toggle('tioc-active-element', active)}
+	public toggleActiveElementOnPlayerBoat(playerId: number, active: boolean) {
+		document.getElementById(`tioc-player-boat-${playerId}`).classList.toggle('tioc-active-element', active)
+	}
 
 	public clickOnSlot(slot: number) {
 		log('clickOnSlot', slot)
