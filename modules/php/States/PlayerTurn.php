@@ -63,6 +63,8 @@ class PlayerTurn extends GameState {
         // Get some values from the current game situation from the database.
         $mandatoryMoveDone = $this->game->globals->get(Constants::GLBL_MANDATORY_MOVE_DONE);
         $discoveryTaken = $this->game->getPlayerGlobal($this->game->getMostlyActivePlayerId(), Constants::GLBL_DISCOVERY_TAKEN);
+        $possibleSlotsForDiscovery = $mandatoryMoveDone && ($discoveryTaken == false || $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION,) == "D") ? $this->game->islandMgr->getPossibleSlotsForDiscovery() : [];
+        $crossedSlots = $this->game->islandMgr->getPossibleSlotsForDiscovery();
         return [
             "playableCardsIds" => [1, 2],
             "oshaxValidMoves" => $this->game->islandMgr->getOshaxValidMoves(),
@@ -71,17 +73,77 @@ class PlayerTurn extends GameState {
             "canPass" => $mandatoryMoveDone,
             "canResetTurn" => $mandatoryMoveDone,
             "currentFishAction" => $this->game->globals->get(Constants::GLBL_CURRENT_FISH_ACTION),
-            "possibleSlotsForDiscovery" => $mandatoryMoveDone && ($discoveryTaken == false || $this->globals->get(Constants::GLBL_CURRENT_FISH_ACTION,) == "D") ? $this->game->islandMgr->getPossibleSlotsForDiscovery() : [],
-            "crossedSlots" => $this->game->islandMgr->getPossibleSlotsForDiscovery(),
+            "possibleSlotsForDiscovery" => $possibleSlotsForDiscovery,
+            "crossedSlots" => $crossedSlots,
             "remainingTreasures" => $this->globals->get(Constants::GLBL_REMAINING_TREASURES, 0),
             "canTradeFishForMove" => FISH_ACTION_COST["M"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
             "canTradeFishForJump" => FISH_ACTION_COST["J"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
-            "canTradeFishForTreasure" => FISH_ACTION_COST["T"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
-            "canTradeFishForDiscovery" => FISH_ACTION_COST["D"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()),
+            "canTradeFishForTreasure" => FISH_ACTION_COST["T"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()) && $this->canPlaceTreasure(),
+            "canTradeFishForDiscovery" => FISH_ACTION_COST["D"] <= $this->game->playerFishCounter->get($this->game->getMostlyActivePlayerId()) && $this->canPlaceAccessibleDiscovery($crossedSlots),
             'shapeToPlace' => $this->game->shapeMgr->getToPlaceShape($this->game->getMostlyActivePlayerId()),
             'discoveryTaken' => $discoveryTaken,
             'usedFishAction' =>  $this->globals->get(Constants::GLBL_USED_FISH_ACTION, true),
         ];
+    }
+
+    private function canPlaceTreasure(): bool {
+        $treasures = $this->game->shapeMgr->getAvailableTreasures();
+        $treasuresShapeDefIds = [100, 101, 102, 103];
+
+        $countByType = array_count_values(
+            array_map(fn($treasure) => $treasure->shapeDefId, $treasures)
+        );
+
+        $treasuresShapeDefIds = array_values(
+            array_filter(
+                $treasuresShapeDefIds,
+                fn($shapeDefId) => ($countByType[$shapeDefId] ?? 0) > 0
+            )
+        );
+
+        return array_any($treasuresShapeDefIds, fn($shapeDefId) => $this->canPlaceTreasureOfType($shapeDefId));
+    }
+
+    private function canPlaceTreasureOfType(int $treasureTypeDef): bool {
+        $canPlace = false;
+        $shape = $this->getFirstTreasureOfType($treasureTypeDef);
+        if ($shape) {
+            $placement = $this->game->shapeMgr->getFirstPossiblePlacementForShapeOnBoat($this->game->getMostlyActivePlayerId(), $shape);
+            if ($placement) {
+                $canPlace = true;
+            }
+        }
+        return $canPlace;
+    }
+
+    private function getFirstTreasureOfType(int $treasureTypeDef) {
+        $treasures = $this->game->shapeMgr->getAvailableTreasures();
+        $requiredType = array_filter($treasures, fn($treasure) => $treasure->shapeDefId === $treasureTypeDef);
+        return $this->game->getFirstElementInArray($requiredType);
+    }
+    private function canPlaceAccessibleDiscovery(array $possibleSlotsForDiscovery): bool {
+        return count(array_filter($possibleSlotsForDiscovery, fn($slot) => $this->isSlotContainingCardOrPossibleShape($slot, $this->game->getMostlyActivePlayerId()))) > 0;
+    }
+
+    private function isSlotContainingCardOrPossibleShape(int $slot, int $playerId): bool {
+        $canPlay = false;
+        if ($this->game->isCardSlot($slot)) {
+            $typedSlot = $this->game->getCardSlotFromGlobalSlot($slot);
+            $card = $this->game->cardMgr->findByCardLocation(CARD_LOCATION_ID_ISLAND_CARD_SLOT, $typedSlot);
+            if ($card) {
+                $canPlay = true;
+            }
+        } else {
+            $typedSlot = $this->game->getCatSlotFromGlobalSlot($slot);
+            $shape = $this->game->shapeMgr->findByLocation(CARD_LOCATION_ID_ISLAND_CAT_SLOT, $typedSlot);
+            if ($shape) {
+                $placement = $this->game->shapeMgr->getFirstPossiblePlacementForShapeOnBoat($playerId, $shape);
+                if ($placement) {
+                    $canPlay = true;
+                }
+            }
+        }
+        return $canPlay;
     }
 
     /**
@@ -293,6 +355,22 @@ class PlayerTurn extends GameState {
         if ($additionalAction == "D" && !$this->game->getPlayerGlobal($activePlayerId, Constants::GLBL_DISCOVERY_TAKEN)) {
             throw new UserException(clienttranslate('Take your free discovery first'));
         }
+        switch ($additionalAction) {
+            case 'D':
+                if ($args["canTradeFishForDiscovery"] == false) {
+                    throw new UserException(clienttranslate('There is no accessible discovery you can place or take'));
+                }
+                break;
+            case 'T':
+                if ($args["canTradeFishForTreasure"] == false) {
+                    throw new UserException(clienttranslate('There is no treasure you can place'));
+                }
+                break;
+        }
+
+
+
+
         $this->globals->set(Constants::GLBL_USED_FISH_ACTION, true);
 
         switch ($additionalAction) {

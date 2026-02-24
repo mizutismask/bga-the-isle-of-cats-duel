@@ -2,7 +2,9 @@
 
 namespace Bga\Games\TheIsleOfCatsDuel;
 
+use Bga\GameFramework\Actions\Debug;
 use Bga\GameFramework\SystemException;
+use Bga\Games\TheIsleOfCatsDuel\States\PlayerTurn;
 
 trait DebugUtilTrait {
 
@@ -32,12 +34,12 @@ trait DebugUtilTrait {
         $shapes = array_filter($shapes, function ($shape) use ($playerId) {
             return $shape->isOnPlayerBoat($playerId);
         });
-       
+
         $this->dump('*******************', json_encode($shapes));
     }
 
     function debug_loadBoat(string $jsonBoatContent) {
-        if(!$jsonBoatContent){
+        if (!$jsonBoatContent) {
             throw new SystemException("Provide json boat content (you can retrieve it from another game with debug_LogBoatShapes)");
         }
         $playerId = $this->getCurrentPlayerId();
@@ -79,6 +81,31 @@ trait DebugUtilTrait {
 
     function debug_resetIsland() {
         $this->resetIsland();
+    }
+
+    #[Debug(reload: true)]
+    function debug_almostFillBoat() {
+        $playerId = $this->getCurrentPlayerId();
+        $shapes = $this->shapeMgr->getBagShapes();
+        foreach ($shapes as $shape) {
+            $placementArgs =  $this->shapeMgr->getFirstPossiblePlacementForShapeOnBoat($playerId, $shape);
+            if ($placementArgs) {
+                $this->shapeMgr->validateAndPlaceOnBoat(
+                    $playerId,
+                    $this->getPlayerGlobal($playerId, "boat"),
+                    $shape->shapeTypeId,
+                    $shape->shapeId,
+                    $placementArgs['x'],
+                    $placementArgs['y'],
+                    $placementArgs['rotation'],
+                    $placementArgs['flipH'],
+                    $placementArgs['flipV'],
+                    true,
+                    null
+
+                );
+            }
+        }
     }
 
     /*function debug_CompleteDestinations() {

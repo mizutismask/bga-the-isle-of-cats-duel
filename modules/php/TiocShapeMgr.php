@@ -363,6 +363,25 @@ class TiocShapeMgr {
         }
         return $allShapeArray;
     }
+    public function getBagShapes() {
+        $this->load();
+        $allShapeArray = [];
+        foreach ($this->shapes as $shape) {
+            if ($shape->isInBag()) {
+                $allShapeArray[] = $shape;
+            }
+        }
+        return $allShapeArray;
+    }
+
+    public function getTreasures() {
+        $this->load();
+        return array_values(array_filter($this->shapes, fn($shape) => $shape->isCommonTreasure()));
+    }
+    public function getAvailableTreasures() {
+        $this->load();
+        return array_values(array_filter($this->shapes, fn($shape) => $shape->isCommonTreasure() && $shape->isOnTable()));
+    }
 
     public function emptyTheFields() {
         $discardedShapes = [];
@@ -567,7 +586,7 @@ class TiocShapeMgr {
             $boatHasShape = true;
             $boat->addShape($shape, $shape->boatTopX, $shape->boatTopY, $shape->boatRotation, $shape->boatHorizontalFlip, $shape->boatVerticalFlip);
         }
-        
+
         for ($x = 0; $x < BOATS_TILE_WIDTH[$boatShape]; ++$x) {
             for ($y = 0; $y < BOATS_TILE_HEIGHT[$boatShape]; ++$y) {
                 foreach (SHAPE_ROTATIONS as $rotation) {
