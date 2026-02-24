@@ -416,7 +416,9 @@ class BoatMgr {
 
 	/** Remove all click handlers/visuals from the boat. */
 	removeAllBoatClickable = (): void => {
-		document.querySelectorAll(`.tioc-player-boat .tioc-clickable`).forEach((el) => el.classList.remove(this.clickableCls))
+		document
+			.querySelectorAll(`.tioc-player-boat .tioc-clickable`)
+			.forEach((el) => el.classList.remove(this.clickableCls))
 	}
 
 	/** Move a shape node into the boat grid at x,y.
@@ -893,15 +895,15 @@ class BoatMgr {
 		}
 	}
 	public updatePlayerPanelBoat(boatUsedGridColor: Record<string, BoatCell[]>, playerId?: string) {
-		const panelBoatGridElems = document.querySelectorAll('.tioc-player-panel-boat-container .tioc-grid')
-		for (const gridElem of Array.from(panelBoatGridElems)) {
-			gridElem.classList.remove('colorless')
-			for (const colorName of CAT_COLOR_NAMES) {
-				gridElem.classList.remove(colorName)
-			}
-		}
 		for (const pId in boatUsedGridColor) {
 			if (playerId == null || pId == playerId) {
+				const panelBoatGridElems = document.querySelectorAll(`#tioc-player-panel-boat-container-${pId} .tioc-grid`)
+				for (const gridElem of Array.from(panelBoatGridElems)) {
+					gridElem.classList.remove('colorless')
+					for (const colorName of CAT_COLOR_NAMES) {
+						gridElem.classList.remove(colorName)
+					}
+				}
 				if (pId == this.game.getPlayerId().toString()) {
 					this.clearBoatGridUsed(this.clientPlayerBoatGridUsed, this.getPlayerBoatShape(pId))
 					this.clientPlayerShapeGridUsed = []

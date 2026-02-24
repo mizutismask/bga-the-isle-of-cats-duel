@@ -24,7 +24,8 @@ trait DebugUtilTrait {
     function debug_setOshaxLocation(int $slotNumber) {
         $this->globals->set(Constants::GLBL_OSHAX_LOCATION, $slotNumber);
     }
-    function debug_addFish(int $fishCount = 100) {
+     #[Debug(reload: true)]
+     function debug_addFish(int $fishCount = 100) {
         $this->playerFishCounter->inc($this->getCurrentPlayerId(), $fishCount);
     }
 
@@ -79,7 +80,8 @@ trait DebugUtilTrait {
         $this->shapeMgr->emptyBoat($playerId);
     }
 
-    function debug_resetIsland() {
+     #[Debug(reload: true)]
+     function debug_resetIsland() {
         $this->resetIsland();
     }
 

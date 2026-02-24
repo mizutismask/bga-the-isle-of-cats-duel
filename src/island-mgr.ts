@@ -70,7 +70,7 @@ class IslandMgr {
 				break
 
 			case SHAPE_LOCATION_ID_ISLAND_CAT_SLOT:
-				log('island shape', shape, location)
+				//log('island shape', shape, location)
 				const slot = document.querySelector(`.island-cat-slot-${shape.islandCatSlot}`)
 				if (slot) {
 					location = slot.id
