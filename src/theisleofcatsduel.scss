@@ -130,6 +130,11 @@ svg {
 	&.mobile {
 		filter: drop-shadow(0 0 4px black) drop-shadow(0 0 4px grey);
 	}
+
+	&.moving-oshax{
+		$drop-color: rgb(14, 66, 4);
+		filter: drop-shadow(0 5px 2px $drop-color) drop-shadow(0 0 9px rgb(226, 223, 44));
+	}
 }
 
 .tioc-player-boat {

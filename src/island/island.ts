@@ -1,7 +1,10 @@
 class Island {
 	private cardsSlots: CardStock<TheIsleOfCatsDuelCard>[] = []
 
-	constructor(private game: TheIsleOfCatsDuelGame, gamedatas: TheIsleOfCatsDuelGamedatas) {
+	constructor(
+		private game: TheIsleOfCatsDuelGame,
+		gamedatas: TheIsleOfCatsDuelGamedatas
+	) {
 		const container = document.getElementById('island')
 
 		for (let i = 1; i <= 15; i++) {
@@ -14,7 +17,11 @@ class Island {
 			islandSlot.addEventListener('click', (evt) => {
 				if (evt.detail > 1) return
 				if (islandSlot.classList.contains('island-slot-disabled')) return
-				if (this.game.gamedatas.gamestate.args.remainingMoves == 0 && !islandSlot.querySelector('.tioc-shape') && !islandSlot.querySelector('.theisleofcatsduel-card'))
+				if (
+					this.game.gamedatas.gamestate.args.remainingMoves == 0 &&
+					!islandSlot.querySelector('.tioc-shape') &&
+					!islandSlot.querySelector('.theisleofcatsduel-card')
+				)
 					return
 				this.game.clickOnSlot(parseInt(islandSlot.dataset.slotId))
 			})
@@ -58,7 +65,10 @@ class Island {
 		const from = document.getElementById('oshax')
 		const to = document.getElementById(`island-slot-${slotNumber}`)
 		if (this.game.animationManager.animationsActive) {
-			this.game.animationManager.slideAndAttach(from, to, { preserveScale: true })
+			from.classList.add('moving-oshax')
+			this.game.animationManager
+				.slideAndAttach(from, to, { preserveScale: true })
+				.then(() => from.classList.remove('moving-oshax'))
 		} else {
 			to.appendChild(from)
 		}
@@ -73,7 +83,7 @@ class Island {
 		})
 	}
 	public showCrossedSlots(slotNumbers: number[]) {
-		removeClass("island-slot-crossed")
+		removeClass('island-slot-crossed')
 		slotNumbers.forEach((slotNumber) => {
 			const card = document.getElementById(`island-slot-${slotNumber}`)
 			card.classList.add('island-slot-crossed')
