@@ -17,6 +17,23 @@ $CARD_WIDTH: calc(#{$BASE_CARD_WIDTH}px * $cardSizeModifier); //also change in s
 $CARD_HEIGHT: calc(#{$BASE_CARD_HEIGHT}px * $cardSizeModifier);
 $CARD_RATIO: list.slash($BASE_CARD_WIDTH, $BASE_CARD_HEIGHT);
 
+$playerQuickNavColor: #562a0b;
+.show-player-tableau {
+	a {
+		color: $playerQuickNavColor;
+		:hover {
+			color:whitesmoke;
+		}
+	}
+	height: 40px;
+	z-index: 1;
+	color: $playerQuickNavColor;
+	svg {
+		height: 100%;
+		width: auto;
+	}
+}
+
 @mixin selected-element {
 	box-shadow: 0 0 5px 5px vars.$selected-color;
 }

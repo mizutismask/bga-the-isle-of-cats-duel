@@ -7,7 +7,8 @@ class PlayerTable {
 	constructor(private game: TheIsleOfCatsDuelGame, private player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[]) {
 		const isMyTable = player.id === game.getPlayerId().toString()
 		const ownClass = isMyTable ? 'own' : ''
-		let html = `
+        let html = `
+            <a id="anchor-player-${player.id}"></a>
             <div id="player-table-${player.id}" class="player-order${player.playerNo} player-table ${ownClass}">
             </div>
         `
