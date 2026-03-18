@@ -582,7 +582,37 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		if (chooseActionArgs.shapeToPlace) {
 			//nothing else possible, the player have to place the shape
 		} else {
+			const buttonMove = document.getElementById('button-move')
+			buttonMove.classList.toggle(
+				'possible-fish-action',
+				this.gameui.isCurrentPlayerActive() &&
+					chooseActionArgs.mandatoryMoveDone &&
+					chooseActionArgs.canTradeFishForMove
+			)
+			const buttonJump = document.getElementById('button-jump')
+			buttonJump.classList.toggle(
+				'possible-fish-action',
+				this.gameui.isCurrentPlayerActive() &&
+					chooseActionArgs.mandatoryMoveDone &&
+					chooseActionArgs.canTradeFishForJump
+			)
+			const buttonTreasure = document.getElementById('button-treasure')
+			buttonTreasure.classList.toggle(
+				'possible-fish-action',
+				this.gameui.isCurrentPlayerActive() &&
+					chooseActionArgs.mandatoryMoveDone &&
+					chooseActionArgs.canTradeFishForTreasure
+			)
+			const buttonDiscovery = document.getElementById('button-discovery')
+			buttonDiscovery.classList.toggle(
+				'possible-fish-action',
+				this.gameui.isCurrentPlayerActive() &&
+					chooseActionArgs.mandatoryMoveDone &&
+					chooseActionArgs.canTradeFishForDiscovery
+			)
+
 			if (chooseActionArgs.mandatoryMoveDone) {
+				/*
 				if (chooseActionArgs.canTradeFishForMove) {
 					this.statusBar.addActionButton(
 						_('+1 move'),
@@ -633,7 +663,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 						buttonDiscovery.insertAdjacentElement('afterbegin', this.createFishSpan())
 					}
 					//}
-				}
+				}*/
 			}
 			if (
 				!chooseActionArgs.discoveryTaken &&

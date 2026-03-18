@@ -22,7 +22,7 @@ $playerQuickNavColor: #562a0b;
 	a {
 		color: $playerQuickNavColor;
 		:hover {
-			color:whitesmoke;
+			color: whitesmoke;
 		}
 	}
 	height: 40px;
@@ -131,7 +131,7 @@ svg {
 		filter: drop-shadow(0 0 4px black) drop-shadow(0 0 4px grey);
 	}
 
-	&.moving-oshax{
+	&.moving-oshax {
 		$drop-color: rgb(14, 66, 4);
 		filter: drop-shadow(0 5px 2px $drop-color) drop-shadow(0 0 9px rgb(226, 223, 44));
 	}
@@ -151,7 +151,7 @@ svg {
 	}
 }
 
-.tioc-active-element{
+.tioc-active-element {
 	@include selected-element;
 }
 
@@ -313,6 +313,35 @@ svg {
 		vertical-align: middle;
 		width: 30px;
 		height: 27px;
+	}
+}
+
+.tioc-player-boat-legend-round {
+	.fish-board-button {
+		position: absolute;
+		background: none;
+		&.possible-fish-action {
+			cursor: pointer;
+			box-shadow: 0 0 3px 3px rgb(200, 255, 47);
+			border-radius: 5px;
+			margin-left: 21px;
+			width: 78%;
+			height: 14%;
+		}
+
+		&#button-move{
+			top: 20%;
+		}
+		&#button-jump{
+			top: 38%;
+		}
+		&#button-treasure{
+			top: 57%;
+		}
+		&#button-discovery{
+			height: 20%;
+			top: 75%;
+		}
 	}
 }
 

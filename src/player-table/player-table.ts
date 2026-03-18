@@ -4,10 +4,14 @@
 class PlayerTable {
 	public handStock: LineStock<TheIsleOfCatsDuelCard>
 
-	constructor(private game: TheIsleOfCatsDuelGame, private player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[]) {
+	constructor(
+		private game: TheIsleOfCatsDuelGame,
+		private player: TheIsleOfCatsDuelPlayer,
+		cards: TheIsleOfCatsDuelCard[]
+	) {
 		const isMyTable = player.id === game.getPlayerId().toString()
 		const ownClass = isMyTable ? 'own' : ''
-        let html = `
+		let html = `
             <a id="anchor-player-${player.id}"></a>
             <div id="player-table-${player.id}" class="player-order${player.playerNo} player-table ${ownClass}">
             </div>
@@ -47,13 +51,41 @@ class PlayerTable {
         `
 		dojo.place(handHtml, `player-table-${player.id}`, 'last')
 		this.initHand(player, cards)
+
+		if (isMyTable) {
+			document.getElementById(`tioc-player-boat-legend-round-${player.id}`).insertAdjacentHTML(
+				'afterbegin',
+				`
+                <div class="fish-action-title"></div>
+                <button class="fish-board-button" id="button-move" data-fish-action="M"></button>
+                <button class="fish-board-button" id="button-jump" data-fish-action="J"></button>
+                <button class="fish-board-button" id="button-treasure" data-fish-action="T"></button>
+                <button class="fish-board-button" id="button-discovery" data-fish-action="D"></button>
+                `
+			)
+
+			const buttonMove = document.getElementById('button-move')
+			const buttonJump = document.getElementById('button-jump')
+			const buttonTreasure = document.getElementById('button-treasure')
+			const buttonDiscovery = document.getElementById('button-discovery')
+
+			;[buttonMove, buttonDiscovery, buttonJump, buttonTreasure].forEach((button) => {
+				button.addEventListener('click', (evt: PointerEvent) => {
+					if (evt.detail > 1) return
+					const target = evt.target as HTMLElement
+					if (target.classList.contains('possible-fish-action')) {
+						this.game.takeAction('actTradeFishForAction', { additionalAction: target.dataset.fishAction })
+					}
+				})
+			})
+		}
 	}
 
-    public initBoat(boatShape: BoatShape, gamedatas: TheIsleOfCatsDuelGamedatas) {
-        document.querySelector(`#tioc-player-boat-${this.player.id}`).classList.add(boatShape)
-        document.querySelector(`#tioc-player-board-${this.player.id}`).classList.remove("tioc-hidden")
-        this.game.boatMgr.setupForPlayer(this.player.id, boatShape, gamedatas)
-    }
+	public initBoat(boatShape: BoatShape, gamedatas: TheIsleOfCatsDuelGamedatas) {
+		document.querySelector(`#tioc-player-boat-${this.player.id}`).classList.add(boatShape)
+		document.querySelector(`#tioc-player-board-${this.player.id}`).classList.remove('tioc-hidden')
+		this.game.boatMgr.setupForPlayer(this.player.id, boatShape, gamedatas)
+	}
 	private initHand(player: TheIsleOfCatsDuelPlayer, cards: TheIsleOfCatsDuelCard[] = []) {
 		log('initHand', player, cards)
 		this.handStock = new BgaCards.LineStock<TheIsleOfCatsDuelCard>(
