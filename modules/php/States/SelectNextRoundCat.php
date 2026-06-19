@@ -70,6 +70,7 @@ class SelectNextRoundCat extends GameState {
                 'shapes' => [$shape],
                 'shapes_img' => [$shape],
                 'player_name' => $this->game->getPlayerName($playerId),
+                'preserve' => [ "shapes_img"]
             ]
         );
         return NextRound::class;

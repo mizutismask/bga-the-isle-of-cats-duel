@@ -235,6 +235,7 @@ class PlayerTurn extends GameState {
                         'player_name' => $this->game->loadPlayersBasicInfos()[$playerId]['player_name'],
                         'shapes' => [$drawnShape],
                         'shapes_img' => [$drawnShape],
+                        'preserve' => [ "shapes_img"]
                     ]
                 );
 
@@ -246,6 +247,7 @@ class PlayerTurn extends GameState {
                         [
                             'shapes' => [$drawnShape],
                             'shapes_img' => [$drawnShape],
+                            'preserve' => [ "shapes_img"]
                         ]
                     );
                 }
@@ -469,6 +471,7 @@ class PlayerTurn extends GameState {
                 'player_name' => $this->game->loadPlayersBasicInfos()[$activePlayerId]['player_name'],
                 'shape' => $shapePlacement->shape,
                 'shape_img' => $shapePlacement->shape,
+                'preserve' => [ "shape_img"]
             ]
         );
 
