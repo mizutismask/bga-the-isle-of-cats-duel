@@ -766,6 +766,8 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 					this.tryShapesMgr.updateButton()
 					//this.statusBar.setTitle(_("Place this shape on your boat"))
 					this.toggleActiveElementOnPlayerBoat(this.getPlayerId(), true)
+					removeClass('tioc-shape-selected', $("island"))
+					$(`island-slot-${slot}`).querySelector<HTMLElement>(".tioc-shape")?.classList.add('tioc-shape-selected')
 					this.boatMgr.allowPlaceShape((x, y) => {
 						log('moveShapeToBoat')
 						shape.dataset.previousParent = shape.parentElement.id
