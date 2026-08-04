@@ -861,7 +861,7 @@ class TiocShapeMgr {
         return false;
     }
 
-    public function getPlayerCatFamilly($playerId) {
+    public function getPlayerCatFamillies($playerId) {
         $this->load();
         $boatShape = $this->getBoatShape($playerId);
         $boat = new TiocBoatGrid($boatShape);

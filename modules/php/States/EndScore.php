@@ -120,7 +120,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
 
 
 
-            $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+            $famillies = $this->game->shapeMgr->getPlayerCatFamillies($playerId);
 
             usort($famillies, fn($a, $b) => count($b) <=> count($a));
 
@@ -214,7 +214,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                 }
                 break;
             case 14:
-                $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+                $famillies = $this->game->shapeMgr->getPlayerCatFamillies($playerId);
                 foreach ($famillies as $familly) {
                     if (count($familly) == 1) {
                         $score += 2;
@@ -222,7 +222,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                 }
                 break;
             case 15:
-                $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+                $famillies = $this->game->shapeMgr->getPlayerCatFamillies($playerId);
                 $largestFamilySize = 0;
                 foreach ($famillies as $familly) {
                     if (count($familly) > $largestFamilySize) {
@@ -232,7 +232,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                 $largestFamilyFound = false;
                 foreach ($this->game->loadPlayersBasicInfos() as $otherPlayerId => $otherPlayerInfo) {
                     if ($otherPlayerId != $playerId) {
-                        $otherPlayerFamillies = $this->game->shapeMgr->getPlayerCatFamilly($otherPlayerId);
+                        $otherPlayerFamillies = $this->game->shapeMgr->getPlayerCatFamillies($otherPlayerId);
                         foreach ($otherPlayerFamillies as $otherPlayerFamilly) {
                             if (count($otherPlayerFamilly) > $largestFamilySize) {
                                 $largestFamilyFound = true;
@@ -298,7 +298,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                 $score = intval($catCount / 2);
                 break;
             case 25:
-                $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+                $famillies = $this->game->shapeMgr->getPlayerCatFamillies($playerId);
                 if (count($famillies) >= 3) {
                     usort($famillies, function ($familly1, $familly2) {
                         return (count($familly2) <=> count($familly1));
@@ -328,7 +328,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
                 }
                 break;
             case 29:
-                $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+                $famillies = $this->game->shapeMgr->getPlayerCatFamillies($playerId);
                 $famillies = array_filter($famillies, fn($f) => count($f) >= 3);
                 $famillySizes = array_map(function ($familly) {
                     return count($familly);
@@ -401,7 +401,7 @@ class EndScore extends \Bga\GameFramework\States\GameState {
 
     private function scoreCatFamilly() {
         foreach ($this->game->loadPlayersBasicInfos() as $playerId => $playerInfo) {
-            $famillies = $this->game->shapeMgr->getPlayerCatFamilly($playerId);
+            $famillies = $this->game->shapeMgr->getPlayerCatFamillies($playerId);
             $score = 0;
             $scorePosition = [];
             foreach ($famillies as $familly) {
