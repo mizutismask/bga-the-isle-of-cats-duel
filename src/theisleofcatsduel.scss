@@ -330,16 +330,16 @@ svg {
 			height: 14%;
 		}
 
-		&#button-move{
+		&#button-move {
 			top: 20%;
 		}
-		&#button-jump{
+		&#button-jump {
 			top: 38%;
 		}
-		&#button-treasure{
+		&#button-treasure {
 			top: 57%;
 		}
-		&#button-discovery{
+		&#button-discovery {
 			height: 20%;
 			top: 75%;
 		}
@@ -392,4 +392,36 @@ svg {
 	color: #266059;
 	font-size: 28pt;
 	font-weight: bold;
+}
+
+.oshax-jumping-animation{
+	animation: oshax-cat-jump 2s ease-in-out forwards;
+	transform-origin: center bottom;
+}
+
+@keyframes oshax-cat-jump {
+	0%, 100% {
+		transform: translateY(0) scale(1);
+	}
+	8% {
+		transform: translateY(0) scaleX(1.08) scaleY(.88);
+	}
+	22% {
+		transform: translateY(-16px) rotate(-2deg) scaleX(.98) scaleY(1.02);
+	}
+	38% {
+		transform: translateY(0) scaleX(1.1) scaleY(.86);
+	}
+	50% {
+		transform: translateY(0) scaleX(1.08) scaleY(.88);
+	}
+	66% {
+		transform: translateY(-32px) rotate(3deg) scaleX(.97) scaleY(1.03);
+	}
+	82% {
+		transform: translateY(0) scaleX(1.1) scaleY(.86);
+	}
+	92% {
+		transform: translateY(-4px) scaleX(.99) scaleY(1.01);
+	}
 }

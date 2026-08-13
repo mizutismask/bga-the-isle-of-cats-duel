@@ -150,6 +150,17 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 		this.setupNotifications()
 		BgaAutofit.init()
 
+		const launchOshaxAnimation = () => {
+			const oshax = document.querySelector('.oshax')
+			oshax?.classList.add('oshax-jumping-animation')
+			setTimeout(() => oshax?.classList.remove('oshax-jumping-animation'), 2000)
+		}
+		if (document.readyState === 'complete') {
+			requestAnimationFrame(launchOshaxAnimation)
+		} else {
+			window.addEventListener('load', launchOshaxAnimation, { once: true })
+		}
+
 		log('Ending game setup')
 	}
 
