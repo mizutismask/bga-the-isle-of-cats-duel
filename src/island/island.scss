@@ -9,6 +9,7 @@
 	.island-slot {
 		position: absolute;
 		border: 2px solid;
+		cursor: pointer;
 		&.island-cat-slot {
 			width: 16.78%;
 			height: 25.4%;
@@ -29,6 +30,7 @@
 			background-color: #d3d3d38f;
 		}
 		&.island-slot-crossed {
+			border-style: dashed;
 			border-color: rgb(226, 223, 44);
 		}
 
