@@ -1020,7 +1020,7 @@ class TheIsleOfCatsDuel extends BaseGame implements TheIsleOfCatsDuelGame {
 				(1 + nbPlayers) +
 				"'>" +
 				'<small>*<i>' +
-				_('There are 7 rooms: the room with no icons still counts as a room') +
+				_('There are 7 rooms: the deck of the boat (the room with no icons) counts as a room') +
 				'</i></small></th></tr>',
 			bodyElem
 		)
